@@ -2,7 +2,7 @@ package ch11;
 
 public class MakeReport {
 
-	StringBuffer buffer = new StringBuffer();
+	StringBuffer buffer = new StringBuffer(); //append메서드로 String을 연결한다
 	
 	private String line = "===========================================\n";
 	private String title = "  이름\t   주소 \t\t  전화번호  \n";
