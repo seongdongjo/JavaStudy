@@ -1,0 +1,1092 @@
+A -> 65 인코딩
+65-> A 디코딩
+
+각 나라별 문자세트가 다르니 호환이 안된다 그래서, 하나의 코드표로 통일하자 -> 유니코드(2byte표현)
+-> 16비트 (2의 16승)
+
+'a' -> 2byte 문자
+"a" -> 문자열
+
+
+//강제로
+char ch1='A';
+System.out.println((int)ch1);
+
+int ch3 = 67;
+System.out.println((char)ch3);
+
+
+//변하지 않는 값은 + 공통적으로 쓰이는 -> final int max_num = 100;
+//max_num = 20; 은 불가능
+
+========================================================================
+#)map 사용
+public static void main(String[] args) {
+	HashMap<String,Integer> map = new HashMap<String,Integer>();
+	
+	//키는 String, value는 Integer
+	map.put("Soraka",450);
+	map.put("Garen",4800);
+	map.put("Garen",450); //중복된 key는 선언은 가능하지만 젤 마지막 선언된것이 덮어씌운다
+	
+	System.out.println("Map value: " + map.get("Garen"));  //450
+	System.out.println("Map value: " + map.size());  //2
+	
+	map.replace("Garen", 160); //Key값의 내용을 변경
+	
+	System.out.println("Key Exist: " + map.containsKey("Garen")); //key가 존재하는지 확인
+	System.out.println("Value Exist: " + map.containsValue(160)); //value가 존재하는지 확인
+	
+	System.out.println("Map Empty: " + map.isEmpty()); //map의 크기가 0인지 확인
+	
+	map.remove("Garen");
+}
+
+=========================================================================
+#)HashMap은 Map인터페이스에 속해있는 컬렉션이다.따라서, map인터페이스의 기본 기능들을 전부구현할 수 있다
+#)map의 keyset메서드 사용
+public class Sample {
+    public static void main(String[] args) {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("people", "사람");
+        map.put("baseball", "야구");
+        System.out.println(map.keySet());  // 키출력 --> [baseball, people] 출력
+    }
+}
+==========================================================================
+for(String key : map.keySet()) {
+	System.out.println("Value: " + map.get(key));
+}
+
+==============================================================================
+#)jackson이란
+Java Object를 JSON으로 변환하거나 JSON을 Java Object로 변환하는데 사용할 수 있는 Java 라이브러리입니다.
+
+==============================================================================
+package ch03;
+
+public class FunctionTest {
+	public static int addNum(int num1, int num2) {
+		int result;
+		result = num1 + num2;
+		return result;
+	}
+	
+	public static void sayHello(String greeting) {
+		System.out.println(greeting);
+	}
+	public static int calcSum() {
+		int sum = 0;
+		int i;
+		for(i = 0; i<=100; i++) {
+			sum += i; 
+		}
+		return sum;
+	}
+	
+	public static void main(String[] args) {
+		int n1=10;
+		int n2=20;
+		
+		int total = addNum(n1,n2);
+		System.out.println(total);
+		
+		sayHello("안녕하세요");
+		
+		total = calcSum();
+		System.out.println(total);
+	}
+}
+
+//스택: 함수가 호출될 때 지역변수들이 사용하는 메모리
+//스택: 함수의 수행이 끝나면 자동으로 반환되는 메모리
+
+=====================================================================================
+package ch04;
+
+public class Student {
+	public int studentID;
+	public String studentName;
+	public String address;
+	
+	public void showStudentInfo() {
+		System.out.println(studentID + "학번의 이름은" + studentName + "이고 주소는" + address + "입니다.");
+	}
+	
+	public String getStudentName() {
+		return studentName;
+	}
+	
+	public void setStudentName(String name) {
+		studentName = name;
+	}
+}
+----------------
+package ch04;
+
+public class MainStudent {
+	public static void main(String[] args) {
+		Student studentLee = new Student(); //인스턴스라고한다, 같은 패키지내에서는 import 안한다
+		Student studentKim = new Student();
+		
+		//인스턴스들은(studentLee, studentKim) 동적메모리(Heap)에 할당된다.
+		//c나 c++에서는 사용한 동적메모리를 프로그래머가 해제시켜야한다.(free, delete)
+		//자바에서는 가비지컬렉터가 주기적으로 사용하지 않는 메모리를 수거한다.
+		//하나의 클래스로부터 여러개의 인스턴스가 생성되고 각각 다른 메모리 주소를 가지게 된다.
+		
+		studentLee.studentID = 12345;
+		studentLee.setStudentName("Lee");
+		studentLee.address = "서울 강남구";
+		
+		studentLee.showStudentInfo();
+		
+		System.out.println(studentKim); //ch04.Student@36aa7bc2 -> 객체의 위치를 가리키는(Heap에 있는 인스턴스를 가리킨다) 주소값이다. (물리적 메모리주소가 아니라 JVM이 준 가상 주소)
+		//그래서 studentKim. (점.)을 찍음으로써 접근
+		System.out.println(studentLee);
+		
+		//인스턴스 : new 키워드를 사용하여 클래스를 메모리에 생성한 상태
+		//참조변수: 메모리에 생성된 인스턴스를 가리키는 변수
+		//참조값: 생성된 인스턴스의 메모리 주소값
+	}
+}
+=========================================================================================
+package ch06;
+
+public class Student { //멤버변수는 알아서 초기화된다. null, 0
+	public int studentNumber;
+	public String studentName;
+	public int grade;
+	
+	public Student() {
+		System.out.println("생성자");
+	}
+	
+	public Student(int studentNumber, String studentName, int grade) {
+		this.studentNumber = studentNumber; //변수이름이 다르면 this붙일필요가없다
+		this.studentName = studentName;
+		this.grade = grade;
+	}
+	
+	public String showStudentInfo() {
+		int i; //i는 초기화되지 않는다.(지역변수라서)
+		return studentName + "학생의 학번은" + studentNumber + "이고, " + grade + "학년 입니다.";
+	}
+}
+----------------
+package ch06;
+
+public class StudentMain {
+	public static void main(String[] args) {
+		Student studentLee = new Student();
+		Student studentKim = new Student(123456, "Kim", 3);
+		
+		System.out.println(studentKim.showStudentInfo()); 
+		
+		System.out.println(studentLee.showStudentInfo()); //null,0~
+	}
+}
+============================================================================================
+package ch09;
+
+public class Student {
+	int studentId;
+	String studentName;
+	
+	Subject korea; //class내에서 쓸수있도록(전역변수? 느낌)
+	Subject math;
+	
+	Student(int studentId, String studentName) {
+		this.studentId = studentId;
+		this.studentName = studentName;
+		
+		korea = new Subject();
+		math = new Subject();
+	}
+	
+	public void setKoreaSubject(String name, int score) {
+		korea.subjectName = name;
+		korea.score = score;
+	}
+	
+	public void setMathSubject(String name, int score) {
+		math.subjectName = name;
+		math.score = score;
+	}
+	
+	public void showScoreInfo() {
+		int total = korea.score + math.score;
+		System.out.println(studentName + "학생의 총점은" + total + "점 입니다.");
+	}
+}
+-------------------
+package ch09;
+
+public class Subject {
+	String subjectName;
+	int score;
+	int subjectId;
+}
+-------------------
+package ch09;
+
+public class SubjectMain {
+	public static void main(String[] args) {
+		Student studentLee = new Student(100, "Lee");
+		studentLee.setKoreaSubject("국어", 100);
+		studentLee.setMathSubject("수학", 99);
+		
+		Student studentKim = new Student(200, "Kim");
+		studentKim.setKoreaSubject("국어", 80);
+		studentKim.setMathSubject("수학", 100);
+		
+		studentLee.showScoreInfo();
+		studentKim.showScoreInfo();
+	}
+}
+=======================================================================================
+package ch10;
+
+public class BirthDay {
+	private int day; //같은 클래스내에서만 접근 -> private
+	private int month;
+	private int year;
+	
+	private boolean isVaild; //기본값이 false
+	
+	public int getDay() {
+		return day;
+	}
+	public void setDay(int day) {
+		this.day = day;
+	}
+	public int getMonth() {
+		return month;
+	}
+	public void setMonth(int month) {
+		if(month < 1 || month > 13) {
+			isVaild = false;
+		}
+		else {
+			isVaild = true;
+			this.month = month;
+		}
+	}
+	public int getYear() {
+		return year;
+	}
+	public void setYear(int year) {
+		this.year = year;
+	}
+	
+	public void showDate() {
+		if(isVaild) { //true이면
+			System.out.println(year + "년 " + month + "월 " + day + "일 입니다.");
+		}
+		else {
+			System.out.println("유효하지 않은 날짜입니다.");
+		}
+	}
+}
+----------------
+package ch10;
+
+public class BirthDayMain {
+	public static void main(String[] args) {
+		BirthDay date = new BirthDay();
+		date.setYear(2019);
+		
+		//private를 쓰는이유는 
+		//date.month = 100 이렇게 범위를 벗어난값을 바로 대입가능하기 때문이다.
+		//그래서 setter를 통해 제약을 걸었다.
+		
+		//date.setMonth(13);  month가 1~12사이가 아닌것은 처리 xx, BirthDay클래스에서 처리했다, 유효하지 않은 날짜라고 뜬다.
+		date.setDay(30);
+	}
+}
+=========================================================================
+package ch11;
+
+public class MakeReport {
+
+	StringBuffer buffer = new StringBuffer(); //append메서드로 String을 연결한다
+	
+	private String line = "===========================================\n";
+	private String title = "  이름\t   주소 \t\t  전화번호  \n";
+	private void makeHeader()
+	{
+		buffer.append(line);
+		buffer.append(title);
+		buffer.append(line);
+	}
+	
+	private void generateBody()
+	{
+		buffer.append("James \t");
+		buffer.append("Seoul Korea \t");
+		buffer.append("010-2222-3333\n");
+		
+		buffer.append("Tomas \t");
+		buffer.append("NewYork US \t");
+		buffer.append("010-7777-0987\n");
+	}
+	
+	private void makeFooter()
+	{
+		
+		buffer.append(line);
+	}
+	
+	public String getReport()
+	{
+		makeHeader();
+		generateBody();
+		makeFooter();
+		return buffer.toString();
+	}
+}
+-----------------
+package ch11;
+
+public class MainReport {
+
+	public static void main(String[] args) {
+
+		MakeReport report = new MakeReport();
+		String builder = report.getReport();
+		
+		System.out.println(builder);
+	}
+
+}
+====================================================================
+package ch12;
+
+public class Person {
+	String name;
+	int age;
+	
+	public Person() {
+		//age = 10;
+		//name = "test"
+		//this위에 쓰면 안된다. 객체가 만들어지기 전이기 때문에
+		this("no name", 1);
+	}
+	public Person(String name, int age) {
+		this.name = name;
+		this.age = age;
+	}
+	public void showPerson() {
+		System.out.println(name + ", " + age);
+	}
+	public Person getPerson() {
+		return this; //생성자를 호출
+	}
+	
+	public static void main(String[] args) {
+		Person person = new Person();
+		person.showPerson(); //no name, 1
+		
+		System.out.println(person);  //ch12.Person@1175e2db
+		
+		Person person2 = person.getPerson(); //person2도 person을 바라본다.
+		System.out.println(person2); //ch12.Person@1175e2db 같다.  this == main의 Person 이 같은 Heap공간의 Person을 가리킨다
+		
+	}
+}
+===============================================================================
+package ch14;
+
+public class Student {
+	String studentName;
+	int money;
+	
+	public Student(String studentName, int money) {
+		this.studentName = studentName;
+		this.money = money;
+	}
+	
+	public void takeBus(Bus bus) {
+		bus.take(1000); //버스를타면 1000원을 지불
+		this.money -= 1000;
+	}
+	
+	public void takeSubway(Subway subway) {
+		subway.take(1200);
+		this.money -= 1200;
+	}
+	
+	public void showInfo() {
+		System.out.println(studentName + "님의 남은 돈은 " + money + "원 입니다.");
+	}
+	
+}
+--------------
+package ch14;
+
+public class Subway {
+	int lineNumber;
+	int passengerCount; //승객수
+	int money;
+	
+	public Subway(int busNumber) {
+		this.lineNumber = busNumber;
+	}
+	
+	public void take(int money) {
+		this.money = money;
+		passengerCount++;
+	}
+	
+	public void showsubwayInfo() {
+		System.out.println(lineNumber + "번의 승객 수는 " + passengerCount + "명 이고, 수입은 " + money + "원 입니다.");
+	}
+}
+---------------
+package ch14;
+
+public class TakeTransTest {
+
+	public static void main(String[] args) {
+		Student studentJ = new Student("James", 5000);
+		Student studentT = new Student("Tomas", 10000);
+		
+		Bus bus100 = new Bus(100);  //버스넘버
+		Bus bus500 = new Bus(500);
+		
+		studentJ.takeBus(bus100); //studentJ가 bus100을 탔다.
+		
+		Subway greenSubway = new Subway(2); //lineNumber
+		studentT.takeSubway(greenSubway);
+		
+		studentJ.showInfo();
+		studentT.showInfo();
+		
+		bus100.showBusInfo();
+		greenSubway.showsubwayInfo();
+	}
+
+	/*
+	 * James님의 남은 돈은 4000원 입니다. 
+	 * Tomas님의 남은 돈은 8800원 입니다. 
+	 * 100번의 승객 수는 1명 이고, 수입은
+	 * 1000원 입니다. 2번의 승객 수는 1명 이고, 수입은 1200원 입니다.
+	 */
+}
+========================================================================
+package ch16;
+
+public class Employee {
+	//static변수는 프로그램이 실행되면서 메모리에 로드될때 같이 적재된다. (객체 생성 전)
+	public static int serialNum = 1000; //public이라서 외부에서 클래스.serialNum 접근가능했다
+	
+		private int employeeId;
+		private String employeeName;
+		private String department;
+			
+		public Employee()
+		{
+			serialNum++;
+			employeeId = serialNum;
+		}
+		
+		public int getEmployeeId() {
+			return employeeId;
+		}
+		public void setEmployeeId(int employeeId) {
+			this.employeeId = employeeId;
+		}
+		public String getEmployeeName() {
+			return employeeName;
+		}
+		public void setEmployeeName(String employeeName) {
+			this.employeeName = employeeName;
+		}
+		public String getDepartment() {
+			return department;
+		}
+		public void setDepartment(String department) {
+			this.department = department;
+		}
+}
+--------------
+package ch16;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+		Employee employeeLee = new Employee();
+		employeeLee.setEmployeeName("이순신");
+				
+		Employee employeeKim = new Employee();
+		employeeKim.setEmployeeName("김유신");
+				
+		System.out.println(employeeLee.getEmployeeName() + "," + employeeLee.getEmployeeId());
+		System.out.println(employeeKim.getEmployeeName() + "," + employeeKim.getEmployeeId());
+		
+		System.out.println(Employee.serialNum); //static변수는 클래스로 바로 접근 가능
+	}
+}
+===================================================================
+package ch17;
+
+public class Employee {
+	private static int serialNum = 1000; //private로 고쳤다 -> getter로 가져와야한다
+		
+		private int employeeId;
+		private String employeeName;
+		private String department;
+			
+		public Employee()
+		{
+			serialNum++;
+			employeeId = serialNum;
+		}
+		
+		public static int getSerialNum() {
+			return serialNum;
+		}
+	
+		public static void setSerialNum(int serialNum) {
+			int i = 0;
+			
+		//	employeeName = "Lee";  //오류발생 static이라서
+			Employee.serialNum = serialNum; //공통으로 쓰는 static값 변경
+		}
+	
+		public int getEmployeeId() {
+			return employeeId;
+		}
+		public void setEmployeeId(int employeeId) {
+			this.employeeId = employeeId;
+		}
+		public String getEmployeeName() {
+			return employeeName;
+		}
+		public void setEmployeeName(String employeeName) {
+			this.employeeName = employeeName;
+		}
+		public String getDepartment() {
+			return department;
+		}
+		public void setDepartment(String department) {
+			this.department = department;
+		}
+}
+----------------
+package ch17;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+		Employee employeeLee = new Employee();
+		employeeLee.setEmployeeName("이순신");
+				
+		Employee employeeKim = new Employee();
+		employeeKim.setEmployeeName("김유신");
+				
+		System.out.println(employeeLee.getEmployeeName() + "," + employeeLee.getEmployeeId());
+		System.out.println(employeeKim.getEmployeeName() + "," + employeeKim.getEmployeeId());
+		
+		System.out.println(Employee.getSerialNum()); //SerialNum은 private라서 getter로 가져옴
+	}
+}
+---------------------
+package ch17;
+
+public class EmployeeTest2 {
+
+	public static void main(String[] args) {
+		System.out.println(Employee.getSerialNum());
+		Employee.setSerialNum(1003);
+		System.out.println(Employee.getSerialNum());
+	}
+
+}
+================================================================================
+package singleton18;
+
+public class Company {
+	//싱글톤 패턴: 프로그램에서 인스턴스가 단 한 개만 생성되어야 하는 경우 사용하는 디자인 패턴
+	//Timezone같은 시간은 인스턴스를 각각 가질수없다. (동일한시간을 가져야하니까)
+	//회사라는 객체는 하나여야만한다.(사원도 또 늘어나니까)
+	//이런경우 싱글톤패턴이 필요
+	
+	//static은 프로그램실행될 때 메모리에 로드된다. 따라서 한번만 만든다.
+	private static Company instance = new Company(); //유일한 객체를 한번만 미리만들어놓는다.
+	
+	//컴파일러가 기본으로 생성하는 외부에서 Company를 마음대로 new할 수 없도록
+	private Company() {}
+	
+	//외부에서 쓸수있도록 static까지 
+	public static Company getInstance() {
+		if(instance == null) {
+			instance = new Company();
+		}
+		return instance;
+	}
+}
+---------------
+package singleton18;
+
+import java.util.Calendar;
+
+public class CompanyTest {
+	public static void main(String[] args) {
+		Company company1 = Company.getInstance(); //static이라 클래스로 접근
+		Company company2 = Company.getInstance();
+		
+		System.out.println(company1); //값이 같다.
+		System.out.println(company2);
+		
+		Calendar calendar = Calendar.getInstance(); //이것도 마찬가지
+		
+	}
+}
+=======================================================================
+package singletontest;
+
+public class CarFactory {
+	private static CarFactory instance = new CarFactory();
+		
+		private CarFactory() {}
+		
+		public static CarFactory getInstance() {
+			if(instance == null) {
+				instance = new CarFactory();
+			}
+			return instance;
+		}
+		
+		//공장안에서 Car를 만들기 때문에
+		public Car createCar() { //반환은 Car
+			
+			Car car = new Car(); 
+			return car;
+		}
+}
+---------------
+package singletontest;
+
+public class Car {
+	private static int serialNum = 10000;
+	private int carNum;
+	
+	public Car() {
+		serialNum++;
+		carNum = serialNum;
+	}
+
+	public int getCarNum() {
+		return carNum;
+	}
+
+	public void setCarNum(int carNum) {
+		this.carNum = carNum;
+	}
+	
+	
+}
+----------------
+package singletontest;
+
+public class CarFactoryTest {
+
+	public static void main(String[] args) {
+		CarFactory factory = CarFactory.getInstance();
+		Car mySonata = factory.createCar();
+		Car yourSonata = factory.createCar();
+		
+		System.out.println(mySonata.getCarNum());
+		System.out.println(yourSonata.getCarNum());
+	}
+
+}
+=================================================================
+package taxi;
+
+public class Student {
+	String studentName;
+	int grade;
+	int money;
+	
+	public Student(String studentName, int money) {
+		this.studentName = studentName;
+		this.money = money;
+	}
+	
+	public void takeTaxi(Taxi taxi) {
+		taxi.take(10000);  //taxi객체 money증가
+		this.money -= 10000;
+	}
+	
+	public void showInfo() {
+		System.out.println(studentName + "님의 남은 돈은 " + money + "원 입니다.");
+	}
+}
+----------------
+package taxi;
+
+public class Student {
+	String studentName;
+	int grade;
+	int money;
+	
+	public Student(String studentName, int money) {
+		this.studentName = studentName;
+		this.money = money;
+	}
+	
+	public void takeTaxi(Taxi taxi) {
+		taxi.take(10000);  //taxi객체 money증가
+		this.money -= 10000;
+	}
+	
+	public void showInfo() {
+		System.out.println(studentName + "님의 남은 돈은 " + money + "원 입니다.");
+	}
+}
+-----------------
+package taxi;
+
+public class Taxi {
+	String companyName;
+	int money;
+	
+	public Taxi(String companyName) {
+		this.companyName = companyName;
+	}
+	
+	public void take(int money) {
+		this.money += money;
+	}
+	
+	public void showTaxiInfo() {
+		System.out.println(companyName + "택시 수입은 " + money + "원 입니다.");
+	}
+}
+========================================================================================
+#)배열
+int[] arr1 = new int[10];
+int arr2[] = new int[10];
+int[] arr3 = new int[] {10,20,30};
+int[] arr4 = {10,20,30};
+
+int[] arr5;
+arr5 = new int[] {10,20,30};
+
+for(int i = 0, num=1; i<arr.length; i++) {
+	arr[i] = num++;
+}
+
+//처음부터 끝까지 돌릴때
+for(int num : arr) {
+	total += num;
+}
+
+//length를 활용하여 오류나는경우 -> length는 5인데 실제데이터는 3개만 들어가있다.
+double[] dArr = new double[5];
+
+dArr[0] = 1.1;
+dArr[1] = 1.1;
+dArr[2] = 1.1;
+
+double mtotal = 1;
+for(int i = 0; i<dArr.lengthl i++) {
+	mtotal *= dArr[i];
+}
+
+//해결법: 요소의 개수에 대한 변수(count)를 유지
+double[] dArr = new double[5];
+int count = 0;
+dArr[0] = 1.1; count++;
+dArr[1] = 1.1; count++;
+dArr[2] = 1.1; count++;
+
+double mtotal = 1;
+for(int i = 0; i<count; i++) {
+	mtotal *= dArr[i];
+}
+
+package ch20;
+
+public class CharArrayTest {
+	public static void main(String[] args) {
+		char[] alphabets = new char[26];
+		char ch = 'A';
+		
+		for(int i =0; i<alphabets.length; i++) {
+			alphabets[i] = ch++;
+		}
+		for(char alpha : alphabets) {
+			System.out.println(alpha + ", " + (int)alpha);
+		}
+	}
+}
+==========================================================================================
+package ch21;
+
+public class Book {
+	private String title;
+	private String author;
+	
+	public Book() {}
+	public Book(String title, String author) {
+		this.title = title;
+		this.author = author;
+	}
+	
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getAuthor() {
+		return author;
+	}
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+	
+	public void showInfo() {
+		System.out.println(title + ", " + author);
+	}
+	
+}
+------------------
+package ch21;
+
+public class BookTest {
+
+	public static void main(String[] args) {
+		Book[] library = new Book[5]; //null로 초기화, new한다고 Book개게가 만들어지는게 아니다.
+		
+		library[0] = new Book("태백산맥1", "조정래"); //객체를 만들어서 넣어야한다. 
+		library[1] = new Book("태백산맥2", "조정래");
+		library[2] = new Book("태백산맥3", "조정래");
+		library[3] = new Book("태백산맥4", "조정래");
+		library[4] = new Book("태백산맥5", "조정래");
+		
+		for(Book book : library) {
+			System.out.println(book); //ch21.Book@36aa7bc2  처럼 각기다른 5개 나옴
+			book.showInfo();
+		}
+		
+		
+	}
+
+}
+--------------------
+package ch21;
+
+public class ObjectCopyTest {
+	public static void main(String[] args) {
+		Book[] library = new Book[5]; //null로 초기화, new한다고 Book개게가 만들어지는게 아니다.
+		Book[] copyLibrary = new Book[5];
+		
+		library[0] = new Book("태백산맥1", "조정래"); //객체를 만들어서 넣어야한다. 
+		library[1] = new Book("태백산맥2", "조정래");
+		library[2] = new Book("태백산맥3", "조정래");
+		library[3] = new Book("태백산맥4", "조정래");
+		library[4] = new Book("태백산맥5", "조정래");
+		
+		System.arraycopy(library, 0, copyLibrary, 0, 5); //library 0번쨰부터 복사해서 copyLibrary의 0에서5까지 넣어라(주소가 같은 상태이다)
+	
+		//기존 book
+		for(Book book : library) {
+			System.out.println(book);  //주소가같다.
+			book.showInfo();
+		}
+		
+		//복사한
+		for(Book book : copyLibrary) { //주소가같다.
+			System.out.println(book); 
+			book.showInfo();
+		}
+		
+		//주소가같아서 library0번째만 바꿧는데 copyLibrary도 같이 바뀐다.
+		library[0].setAuthor("박완서");
+		library[0].setTitle("나목");
+		
+	}
+	//이런게 얕은복사이다.
+}
+-------------------
+package ch21;
+
+public class ObjectCopyTest2 {
+	public static void main(String[] args) {
+		Book[] library = new Book[5]; 
+		Book[] copyLibrary = new Book[5];
+		
+		library[0] = new Book("태백산맥1", "조정래");
+		library[1] = new Book("태백산맥2", "조정래");
+		library[2] = new Book("태백산맥3", "조정래");
+		library[3] = new Book("태백산맥4", "조정래");
+		library[4] = new Book("태백산맥5", "조정래");
+		
+		//깊은 복사 방식
+		copyLibrary[0] = new Book();
+		copyLibrary[1] = new Book();
+		copyLibrary[2] = new Book();
+		copyLibrary[3] = new Book();
+		copyLibrary[4] = new Book();
+		
+		for(int i =0; i<library.length; i++) {
+			copyLibrary[i].setAuthor(library[i].getAuthor());
+			copyLibrary[i].setTitle(library[i].getTitle());
+		}
+		
+		
+		//주소가같아서 library0번째만 바꿧는데 copyLibrary[0]는 안바뀐다.
+		library[0].setAuthor("박완서");
+		library[0].setTitle("나목");
+		
+				//기존 book
+				for(Book book : library) {
+					System.out.println(book);  //주소가다르다
+					book.showInfo();
+				}
+				
+				//복사한
+				for(Book book : copyLibrary) { //주소가 다르다
+					System.out.println(book); 
+					book.showInfo();
+				}
+	}
+}
+==============================================================================
+package ch22;
+
+public class TwoDimensionTest {
+	public static void main(String[] args) {
+		int[][] arr = { {1,2,3}, {4,5,6,7}};
+		//int[][] arr = new int[3][4];
+		
+		int i, j;
+		
+		for(i =0; i<arr.length; i++) {
+			for(j=0; j<arr[i].length; j++) {
+				System.out.print(arr[i][j] + " ");
+			}
+			System.out.println(", \t" + arr[i].length);
+			System.out.println();
+		}
+	}
+}
+/* 결과
+ * 1 2 3 , 3
+ * 
+ * 4 5 6 7 , 4
+ */
+ ==========================================================
+ package ch23;
+
+import java.util.ArrayList;
+
+import ch21.Book;
+
+public class ArrayListTest {
+
+	public static void main(String[] args) {
+		//기존 배열방식은 길이가 고정이라서 배열의 길이가 커지면 배열을 재할당하고 복사해야했다.
+		//ArrayList는 동적
+		
+		ArrayList<Book> library = new ArrayList<Book>(); //book객체를 가리키는 주소가 array형식으로 만들겠다.
+				
+				library.add(new Book("태백산맥1", "조정래"));
+				library.add(new Book("태백산맥2", "조정래"));
+				library.add(new Book("태백산맥3", "조정래"));
+				library.add(new Book("태백산맥4", "조정래"));
+				library.add(new Book("태백산맥5", "조정래"));
+				
+				for(int i =0; i<library.size(); i++) {
+					library.get(i).showInfo();
+				}
+			}
+
+}
+==============================================================
+package ch24;
+
+public class Subject {
+	private String name;
+	private int scorePoint;
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public int getScorePoint() {
+		return scorePoint;
+	}
+	public void setScorePoint(int scorePoint) {
+		this.scorePoint = scorePoint;
+	}
+}
+----------------
+package ch24;
+
+import java.util.ArrayList;
+
+public class Student {
+	int studentID;
+	String studentName;
+	ArrayList<Subject> subjectList;
+		
+	public Student(int studentID, String studentName){
+		this.studentID = studentID;
+		this.studentName = studentName;
+		
+		subjectList = new ArrayList<Subject>();
+	}
+	
+	public void addSubject(String name, int score){
+		Subject subject = new Subject();
+		
+		subject.setName(name);
+		subject.setScorePoint(score);
+		subjectList.add(subject);
+	}
+	
+	public void showStudentInfo()
+	{
+		int total = 0;
+		
+		for(Subject s : subjectList){
+			
+			total += s.getScorePoint();
+			System.out.println("학생 " + studentName + "의 " + s.getName() + " 과목 성적은 " + 
+			        s.getScorePoint() + "입니다.");
+		}
+			
+		System.out.println("학생 " + studentName + "의 총점은 " + total + " 입니다.");
+	}
+}
+-----------------
+package ch24;
+
+public class StudentTest {
+	public static void main(String[] args) {
+		Student studentLee = new Student(1001, "Lee");
+		
+		studentLee.addSubject("국어", 100);
+		studentLee.addSubject("수학", 50);
+		
+		Student studentKim = new Student(1002, "Kim");
+		
+		studentKim.addSubject("국어", 70);
+		studentKim.addSubject("수학", 85);
+		studentKim.addSubject("영어", 100);
+		
+		studentLee.showStudentInfo();
+		System.out.println("======================================");
+		studentKim.showStudentInfo();
+	}
+}
+==================================================================================
+
+
+
