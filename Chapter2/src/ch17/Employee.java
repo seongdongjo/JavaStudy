@@ -1,7 +1,7 @@
 package ch17;
 
 public class Employee {
-	private static int serialNum = 1000;
+	private static int serialNum = 1000; //private로 고쳤다 -> getter로 가져와야한다
 		
 		private int employeeId;
 		private String employeeName;
@@ -21,7 +21,7 @@ public class Employee {
 			int i = 0;
 			
 		//	employeeName = "Lee";  //오류발생 static이라서
-			Employee.serialNum = serialNum;
+			Employee.serialNum = serialNum; //공통으로 쓰는 static값 변경
 		}
 	
 		public int getEmployeeId() {

@@ -18,7 +18,7 @@ public class Person {
 		System.out.println(name + ", " + age);
 	}
 	public Person getPerson() {
-		return this;
+		return this; //생성자를 호출
 	}
 	
 	public static void main(String[] args) {
@@ -27,7 +27,7 @@ public class Person {
 		
 		System.out.println(person);  //ch12.Person@1175e2db
 		
-		Person person2 = person.getPerson();
+		Person person2 = person.getPerson(); //person2도 person을 바라본다.
 		System.out.println(person2); //ch12.Person@1175e2db 같다.  this == main의 Person 이 같은 Heap공간의 Person을 가리킨다
 		
 	}
