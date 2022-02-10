@@ -8,12 +8,12 @@ public class VIPCustomer extends Customer{
 	
 	public VIPCustomer() {
 		//super();
-		customerGrade = "VIP";    //오류 발생 -> extends를 해야한다(protected라서), private은 extends해도 안됨.
-		bonusRatio = 0.05; //마찬가지 
+		customerGrade = "VIP";//덮어쓰기    //오류 발생 -> extends를 해야한다(protected라서), private은 extends해도 안됨.
+		bonusRatio = 0.05; //덮어쓰기 마찬가지 
 		salesRatio = 0.1;
 	}
 	
-	public int getAgentID() {
+	public int getAgentID() { //안씀
 		return agentID;
 	}
 }

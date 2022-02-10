@@ -29,6 +29,6 @@ public class CustomerTest {
 	}
 	
 	//업캐스팅
-	//Customer customerLee = new VIPCustomer();]
+	//Customer customerLee = new VIPCustomer();
 	//customerLee.  으로 쓸수있는걸보면 Customer만 쓸수있다.
 }

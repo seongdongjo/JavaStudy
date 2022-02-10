@@ -39,7 +39,7 @@ public class VIPCustomer extends Customer{
 	
 	@Override
 	public String showCustomerInfo() {
-		return customerName + "님의 등급은 " + customerGrade + 
-				"이며, 보너스 포인트는 " + bonusPoint + "입니다(vip)";
+		return customerName + "님의 등급은 " + customerGrade +  
+				"이며, 보너스 포인트는 " + bonusPoint + "입니다(vip)";  //여기쓰인 변수들은 부모의 변수를 쓰고있다.
 	}
 }
