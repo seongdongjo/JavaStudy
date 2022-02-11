@@ -617,6 +617,7 @@ public class Company {
 	//컴파일러가 기본으로 생성하는 외부에서 Company를 마음대로 new할 수 없도록
 	private Company() {}
 	
+	//만약에 함수를 호출할 때
 	//외부에서 쓸수있도록 static까지 
 	public static Company getInstance() {
 		if(instance == null) {
