@@ -617,7 +617,6 @@ public class Company {
 	//컴파일러가 기본으로 생성하는 외부에서 Company를 마음대로 new할 수 없도록
 	private Company() {}
 	
-	//만약에 함수를 호출할 때
 	//외부에서 쓸수있도록 static까지 
 	public static Company getInstance() {
 		if(instance == null) {
@@ -1181,6 +1180,128 @@ public class CustomerTest {
 }
 
 =============================================================================
+package ch3;
+
+public class Customer {
+	protected int customerID;
+	protected String customerName;
+	protected String customerGrade;
+	int bonusPoint;
+	double bonusRatio;
+	
+	public Customer() {
+		customerGrade = "SILVER";
+		bonusRatio = 0.01;
+	}
+	
+	public Customer(int customerID, String customerName) {
+		this.customerID = customerID;
+		this.customerName = customerName;
+		
+		customerGrade = "SILVER";
+		bonusRatio = 0.01;
+	}
+	
+	public int calcPrice(int price) {
+		bonusPoint += price * bonusRatio; //가격의 1퍼센트를 기존 보너스포인트에 쌓는다.
+		return price;
+	}
+	
+	
+	public int getCustomerID() {
+		return customerID;
+	}
+
+	public void setCustomerID(int customerID) {
+		this.customerID = customerID;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getCustomerGrade() {
+		return customerGrade;
+	}
+
+	public void setCustomerGrade(String customerGrade) {
+		this.customerGrade = customerGrade;
+	}
+
+	public String showCustomerInfo() {
+		return customerName + "님의 등급은 " + customerGrade + 
+				"이며, 보너스 포인트는 " + bonusPoint + "입니다";
+		
+	}
+}
+-------------------
+package ch3;
+
+//만약에 VIPCustomer 클래스없이 Customer로만 만들려면 if문돌려서 gold,silver 분류해서 할인율, 또 요구조건이 생기면 계속 if문 쓰면 너무 번거롭다.
+//그래서 VIPCustomer로 별도로 뺸다.
+public class VIPCustomer extends Customer{
+	private int agentID;
+	double salesRatio; //VIP에만 있는 변수
+	
+	public VIPCustomer() {
+		//super();
+		customerGrade = "VIP"; 
+		bonusRatio = 0.05;
+		salesRatio = 0.1;
+	}
+	
+	public VIPCustomer(int customerID, String customerName) {
+		super(customerID, customerName);
+		customerGrade = "VIP"; //덮어쓰기 super()에서 정의된 customerGrade를   
+		bonusRatio = 0.05; //마찬가지로 덮어쓰기
+		salesRatio = 0.1;
+		//아직 보너스포인트, 가격은 정의안함
+	}
+	
+	public int getAgentID() {
+		return agentID;
+	}
+}
+----------------------
+package ch3;
+
+public class CustomerTest {
+	public static void main(String[] args) {
+		Customer customerLee = new Customer(); //디폴트 생성자
+		customerLee.setCustomerName("이순신");
+		customerLee.setCustomerID(10010);
+		customerLee.bonusPoint = 1000; //원래 가지고있던 보너스포인트
+		System.out.println(customerLee.showCustomerInfo());
+		
+		Customer customerLee2 = new Customer(10030, "홍길동");
+		//customerLee.setCustomerName("홍길동");
+		//customerLee.setCustomerID(10010);
+		customerLee2.bonusPoint = 1000; //원래 가지고있던 보너스포인트
+		System.out.println(customerLee2.showCustomerInfo());
+			
+			
+		VIPCustomer customerKim = new VIPCustomer();  //new VIPCustomer()를 호출하면 Customer()생성자가 먼저 호출된다.
+		customerKim.setCustomerName("김유신"); //부모의 메서드
+		customerKim.setCustomerID(10020);    //부모의 메서드
+		customerKim.bonusPoint = 10000;      //부모의 멤버변수
+		System.out.println(customerKim.showCustomerInfo());
+		
+		VIPCustomer customerKim2 = new VIPCustomer(10040, "강지은"); 
+		//customerKim.setCustomerName("김유신"); //부모의 메서드
+		//customerKim.setCustomerID(10020);    //부모의 메서드
+		customerKim2.bonusPoint = 10000;      //부모의 멤버변수
+		System.out.println(customerKim2.showCustomerInfo());
+	}
+	
+	//업캐스팅
+	//Customer customerLee = new VIPCustomer();
+	//customerLee.  으로 쓸수있는걸보면 Customer만 쓸수있다.
+}
+==========================================================================================
 
 
 
