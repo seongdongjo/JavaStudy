@@ -1010,8 +1010,8 @@ public class ArrayListTest {
 package ch24;
 
 public class Subject {
-	private String name;
-	private int scorePoint;
+	private String name; //과목이름
+	private int scorePoint; //점수
 	
 	public String getName() {
 		return name;
@@ -1034,7 +1034,7 @@ import java.util.ArrayList;
 public class Student {
 	int studentID;
 	String studentName;
-	ArrayList<Subject> subjectList;
+	ArrayList<Subject> subjectList; //이게 Has-A 방식 (subject를 상속받는게아니라) -> 클래스가 다른 클래스를 포함하는 관계
 		
 	public Student(int studentID, String studentName){
 		this.studentID = studentID;
@@ -1087,6 +1087,99 @@ public class StudentTest {
 	}
 }
 ==================================================================================
+package ch2;
+
+public class Customer {
+	protected int customerID;
+	protected String customerName;
+	protected String customerGrade;
+	int bonusPoint;
+	double bonusRatio;
+	
+	public Customer() {
+		customerGrade = "SILVER";
+		bonusRatio = 0.01;
+	}
+	
+	public int calcPrice(int price) {
+		bonusPoint += price * bonusRatio; //가격의 1퍼센트를 기존 보너스포인트에 쌓는다.
+		return price;
+	}
+	
+	
+	public int getCustomerID() {
+		return customerID;
+	}
+
+	public void setCustomerID(int customerID) {
+		this.customerID = customerID;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getCustomerGrade() {
+		return customerGrade;
+	}
+
+	public void setCustomerGrade(String customerGrade) {
+		this.customerGrade = customerGrade;
+	}
+
+	public String showCustomerInfo() {
+		return customerName + "님의 등급은 " + customerGrade + 
+				"이며, 보너스 포인트는 " + bonusPoint + "입니다";
+		
+	}
+}
+
+-----------------
+package ch2;
+
+//만약에 VIPCustomer 클래스없이 Customer로만 만들려면 if문돌려서 gold,silver 분류해서 할인율, 또 요구조건이 생기면 계속 if문 쓰면 너무 번거롭다.
+//그래서 VIPCustomer로 별도로 뺸다.
+public class VIPCustomer extends Customer{
+	private int agentID;
+	double salesRatio; //VIP에만 있는 변수
+	
+	public VIPCustomer() {
+		//super();
+		customerGrade = "VIP";//덮어쓰기    //오류 발생 -> extends를 해야한다(protected라서), private은 extends해도 안됨.
+		bonusRatio = 0.05; //덮어쓰기 마찬가지 
+		salesRatio = 0.1;
+	}
+	
+	public int getAgentID() { //안씀
+		return agentID;
+	}
+}
+
+---------------------
+package ch2;
+
+public class CustomerTest {
+	public static void main(String[] args) {
+		Customer customerLee = new Customer();
+		customerLee.setCustomerName("이순신");
+		customerLee.setCustomerID(10010);
+		customerLee.bonusPoint = 1000; //원래 가지고있던 보너스포인트
+		System.out.println(customerLee.showCustomerInfo());
+			
+			
+		VIPCustomer customerKim = new VIPCustomer();  //new VIPCustomer()를 호출하면 Customer()생성자가 먼저 호출된다.
+		customerKim.setCustomerName("김유신"); //부모의 메서드
+		customerKim.setCustomerID(10020);    //부모의 메서드
+		customerKim.bonusPoint = 10000;      //부모의 멤버변수
+		System.out.println(customerKim.showCustomerInfo());
+	}
+}
+
+=============================================================================
 
 
 
