@@ -1678,7 +1678,7 @@ public class CustomerTest {
 			int price = 10000;
 			for( Customer customer : customerList){
 				int cost = customer.calcPrice(price); //재정의된 calcPrice를 찾는다.
-				System.out.println(customer.getCustomerName() +" 님이 " +  + cost + "원 지불하셨습니다.");
+				System.out.println(customer.getCustomerName() +" 님이 " +  + cost + "원 지불하셨습니다."); //Customer로 업캐스팅 했기때문에 Customer의 bonusPoint를 가져올수있다.
 				System.out.println(customer.getCustomerName() +" 님의 현재 보너스 포인트는 " + customer.bonusPoint + "점입니다.");
 			}
 		}
