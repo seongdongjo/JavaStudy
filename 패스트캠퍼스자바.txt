@@ -378,8 +378,8 @@ public class Person {
 	public void showPerson() {
 		System.out.println(name + ", " + age);
 	}
-	public Person getPerson() {
-		return this; //생성자를 호출
+	public Person getPerson() { 
+		return this; //객체자신을 반환
 	}
 	
 	public static void main(String[] args) {
@@ -477,7 +477,7 @@ package ch16;
 
 public class Employee {
 	//static변수는 프로그램이 실행되면서 메모리에 로드될때 같이 적재된다. (객체 생성 전)
-	public static int serialNum = 1000; //public이라서 외부에서 클래스.serialNum 접근가능했다
+	public static int serialNum = 1000; //public이라서 외부에서 클래스.serialNum 접근가능하다
 	
 		private int employeeId;
 		private String employeeName;
@@ -546,7 +546,7 @@ public class Employee {
 			return serialNum;
 		}
 	
-		public static void setSerialNum(int serialNum) {
+		public static void setSerialNum(int serialNum) { //serialNum을 직접 변경할 때
 			int i = 0;
 			
 		//	employeeName = "Lee";  //오류발생 static이라서
@@ -617,7 +617,7 @@ public class Company {
 	//컴파일러가 기본으로 생성하는 외부에서 Company를 마음대로 new할 수 없도록
 	private Company() {}
 	
-	//외부에서 쓸수있도록 static까지 
+	//클래스로 바로 접근할수있게끔 static까지 
 	public static Company getInstance() {
 		if(instance == null) {
 			instance = new Company();
@@ -1241,8 +1241,6 @@ public class Customer {
 -------------------
 package ch3;
 
-//만약에 VIPCustomer 클래스없이 Customer로만 만들려면 if문돌려서 gold,silver 분류해서 할인율, 또 요구조건이 생기면 계속 if문 쓰면 너무 번거롭다.
-//그래서 VIPCustomer로 별도로 뺸다.
 public class VIPCustomer extends Customer{
 	private int agentID;
 	double salesRatio; //VIP에만 있는 변수
