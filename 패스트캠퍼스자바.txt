@@ -1296,8 +1296,8 @@ public class CustomerTest {
 	}
 	
 	//업캐스팅
-	//Customer customerLee = new VIPCustomer();
-	//customerLee.  으로 쓸수있는걸보면 Customer만 쓸수있다.
+	//Customer customerLee = new VIPCustomer(); 
+	//customerLee.  으로 쓸수있는걸보면 Customer만 쓸수있다.(오버라이딩된거, 부모의 멤버변수만 쓸수있다)
 }
 ==========================================================================================
 package ch4;
@@ -1509,7 +1509,7 @@ public class AnimalTest {
 		Animal eAnimal = new Eagle();
 		
 		//출력방법 1
-		AnimalTest test = new AnimalTest();
+		AnimalTest test = new AnimalTest(); //밑에 moveAnimal함수쓸려고 갹체 생성
 		test.moveAnimal(hAnimal);
 		test.moveAnimal(tAnimal);
 		test.moveAnimal(eAnimal);
