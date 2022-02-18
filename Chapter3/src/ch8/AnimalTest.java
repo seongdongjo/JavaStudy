@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 //다운캐스팅은 명시적으로 해야한다.
 //Customer vc = new VIPCustomer(); 묵시적
-//VIPCustomer vCustomer = (VIPCustomer)vc; 명시적
+//VIPCustomer vCustomer = (VIPCustomer)vc; 명시적(다운캐스팅)
 
 	class Animal{
 		
@@ -104,8 +104,9 @@ public class AnimalTest {
 	
 	
 	
-		public void moveAnimal(Animal animal) {
-			animal.move();
-			
-		}
+	/*
+	 * public void moveAnimal(Animal animal) { animal.move();
+	 * 
+	 * }
+	 */
 	}
