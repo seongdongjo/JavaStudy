@@ -1682,5 +1682,333 @@ public class CustomerTest {
 		}
 }
 ===================================================================
+package ch8;
+
+import java.util.ArrayList;
+
+//다운캐스팅은 명시적으로 해야한다.
+//Customer vc = new VIPCustomer(); 묵시적
+//VIPCustomer vCustomer = (VIPCustomer)vc; 명시적(다운캐스팅)
+
+	class Animal{
+		
+		public void move() {
+			System.out.println("동물이 움직입니다.");
+		}
+		
+		public void eating() {
+			
+		}
+	}
+
+	class Human extends Animal{
+		public void move() {
+			System.out.println("사람이 두발로 걷습니다.");
+		}
+		
+		public void readBooks() {
+			System.out.println("사람이 책을 읽습니다.");
+		}
+	}
+
+	class Tiger extends Animal{
+		
+		public void move() {
+			System.out.println("호랑이가 네 발로 뜁니다.");
+		}
+		
+		public void hunting() {
+			System.out.println("호랑이가 사냥을 합니다.");
+		}
+	}
+
+
+	class Eagle extends Animal{
+		public void move() {
+			System.out.println("독수리가 하늘을 날아갑니다.");
+		}
+		
+		public void flying() {
+			System.out.println("독수리가 날개를 쭉 펴고 멀리 날아갑니다");
+		}
+	}
+public class AnimalTest {
+	public static void main(String[] args) {
+		Animal hAnimal = new Human();  
+		Animal tAnimal = new Tiger();
+		Animal eAnimal = new Eagle();
+		
+		/*AnimalTest test = new AnimalTest();
+		test.moveAnimal(hAnimal);  //함수에전달(다형성)
+		test.moveAnimal(tAnimal);
+		test.moveAnimal(eAnimal);
+		*/
+		
+		//다운캐스팅
+		ArrayList<Animal> animalList = new ArrayList<Animal>();
+		animalList.add(hAnimal);
+		animalList.add(tAnimal);
+		animalList.add(eAnimal);
+		
+		AnimalTest test = new AnimalTest();
+		test.testDownCasting(animalList);
+		
+		
+		
+	/*	for(Animal animal : animalList) {
+			animal.move();
+		}
+		*/	
+	}
+	
+	//다시 원래 자기타입으로 되돌리고 싶으면 다운캐스팅 쓰고 그게아니면 그냥 다형성을 쓰는게 좋다 (moveAnimal 함수처럼)
+	public void testDownCasting(ArrayList<Animal> list) {
+			
+			for(int i =0; i<list.size(); i++) {
+				Animal animal = list.get(i);
+			
+				if ( animal instanceof Human) { //animal이 Human타입이냐
+					Human human = (Human)animal;
+					human.readBooks();
+				}
+				else if( animal instanceof Tiger) {
+					Tiger tiger = (Tiger)animal;
+					tiger.hunting();
+				}
+				else if( animal instanceof Eagle) {
+					Eagle eagle = (Eagle)animal;
+					eagle.flying();
+				}
+				else {
+					System.out.println("error");
+				}
+			
+			}
+		}
+	
+	
+	
+	/*
+	 * public void moveAnimal(Animal animal) { animal.move();
+	 * 
+	 * }
+	 */
+	}
+======================================================================================================
+#)추상클래스
+추상의 반댓말은 구체적
+추상클래스란 우리가 클래스를 구성할 떄 메서드를 구현하는데 추상클래스는 메서드의 선언만있다.
+추상클래스는 new할수없음.(인스턴스화 할수없다)
+abstract예약어사용
+
+int add(int x, int y);   -> 추상메서드(함수내용은 정의하지않음), 메서드선언만했다.
+위와같은 추상메서드를 포함한것이 추상클래스이다.
+
+=========================================================================================================
+package ch9;
+
+//부모
+public abstract class  Computer { //추상클래스는 상속을위한 클래스다.
+	
+	//메서드선언만했다.(추상메서드)
+	//상속받을 애들을 구체적으로 어떻게 구현할지 모르기때문에 display,typing은 자식이 알아서해라
+	//컴퓨터는 공통으로쓸 turnOn, turnOff만 구현하고 display(), typing()은 구현하지않았다. 하위클래스로 책임전가
+	abstract void display();
+	abstract void typing();
+	
+	//일반메서드
+	public void turnOn() {
+		System.out.println("전원을 켭니다.");
+	}
+	
+	public void turnOff() {
+		System.out.println("전원을 끕니다.");
+	}
+}
+---------------
+package ch9;
+
+public class DeskTop extends Computer{
+
+	@Override
+	void display() {
+		System.out.println("DeskTop display");
+	}
+
+	@Override
+	void typing() {
+		System.out.println("DeskTop typing");
+	}
+
+	@Override
+	public void turnOff() { //재정의도 가능
+		System.out.println("Desktop turnoff");
+	}
+}
+------------------
+package ch9;
+
+public abstract class NoteBook extends Computer{ //추상클래스 (구현안한 메서드가 display()가있는데 이거를 구현안하면 abstract를 붙힌다)
+	@Override
+	public void typing() {
+		System.out.println("NoteBook typing");		
+	}
+}
+-------------------
+package ch9;
+
+public class MyNoteBook extends NoteBook{ //추상클래스인 NoteBook을 상속받음(부모가 구현안한 display()를 구현)
+
+	@Override
+	void display() {
+		System.out.println("MyNoteBook display");		
+	}
+}
+------------------
+package ch9;
+
+public class ComputerTest {
+
+	public static void main(String[] args) {
+		Computer computer = new DeskTop(); //Computer는 추상클래스(인스턴스화할수없다new), DeskTop은 일반클래스
+		computer.display(); //오버라이딩된 인스턴스의 메서드를 찾아간다(desktop) -> 가상메서드
+		computer.turnOff();
+		
+		NoteBook myNote = new MyNoteBook();
+	}
+}
+==================================================================================
+jdk(라이브러리) -> 안에도 라이브러리있음. -> 내가 필요한 경우 가져다쓰지만 내가 구성을한다.
+
+안드로이드(프레임워크) -> 프레임워크를 도입한다는 애기는 이미 흐름이 정의되있다. 내가 어떤클래스를 넣으면 어떻게연동되고, 내가 값을 넣으면 어떻게 답이오고 영향을 주는지 등등
+화면이 어떻게돌아가고 클로즈가되고 destroy가 된다 등은 안드로이드 내부에 이미정의되있지만(프레임워크) 실제로 화면에서 어떤위젯이 올라가고 어떤액션을 할지는 우리가 짜는것이다.
+화면에 여러가지생성과정, 소멸과정 등은 정해져있지만 거기에 들어가는 기능들은 우리가해야한다.
+
+프레임워크에서 많이쓰는 패턴중에하나가 템플릿메서드패턴이다.
+- 추상 메서드나 구현된 메서드를 활용하여 코드의 흐름(시나리오)를 정의하는 메서드
+- final로 선언하여 하위클래스에서 재정의 할 수 없게한다.(흐름은 변하면안되기때문에)
+- 하위클래스에서 다르게 구현되어야 하는 부분은 추상메서드로 선언하여 하위 클래스에서 구현하도록 함
+
+==================================================================================
+package ch10;
+
+public abstract class Car {
+	
+	public abstract void drive(); //AI, 직접운전은 drive메서드는 자식이 구현해라
+	public abstract void stop(); //마찬가지
+	
+	//시동은 공통이니까 구현했음
+	public void startCar() {
+		System.out.println("시동을 켭니다.");
+	}
+	
+	public void turnOff() {
+		System.out.println("시동을 끕니다.");
+	}
+			
+	public void washCar() {} //구현되긴했다.
+	
+	final public void run() {
+		//시동을걸고 운전하다가 일이생기면 멈추고 시동꺼라 -> 시나리오(이거는 변하면안된다) -> run메서드를 재정의하면안되니까 final로 선언
+		startCar(); //일반
+		drive(); //추상
+		stop(); //추상 
+		turnOff(); //일반
+		washCar(); //재정의할수있게끔(ai에서만 써도됨), 일반자동차는 재정의안했음
+	}
+}
+------------------
+package ch10;
+
+public class AICar extends Car{
+	
+	//Car에서 상속받은 추상메서드 drive, stop 구현
+	@Override
+	public void drive() {
+		System.out.println("자율 주행합니다.");
+		System.out.println("자동차가 스스로 방향을 바꿉니다.");
+	}
+
+	@Override
+	public void stop() {
+		System.out.println("스스로 멈춥니다.");		
+	}
+
+	@Override
+	public void washCar() {
+		System.out.println("자동 세차를 합니다.");
+	}
+	
+	
+}
+-----------------------
+package ch10;
+
+public class ManualCar extends Car{
+
+	@Override
+	public void drive() {
+		System.out.println("사람이 운전합니다.");
+		System.out.println("사람이 핸들을 조작합니다.");		
+	}
+
+	@Override
+	public void stop() {
+		System.out.println("브레이크를 밟아서 정지합니다.");		
+	}
+
+}
+------------------------
+package ch10;
+
+public class CarTest {
+
+	public static void main(String[] args) {
+		Car aiCar = new AICar();
+		aiCar.run();
+		System.out.println("=================");
+		Car manualCar = new ManualCar();
+		manualCar.run();
+	}
+}
+========================================================================
+package ch10;
+
+//이렇게 상수는 따로 빼서 쓴다.
+public class Define {
+
+	public static final int MIN = 1;
+	public static final int MAX = 999999;
+	public static final double PI = 3.14;
+	public static final String GREETING = "Good Morning!";
+	public static final int MATH_CODE = 1001;
+	public static final int CHEMISTRY_CODE = 1002;
+	
+}
+-------------------
+package ch10;
+
+public class UsingDefine {
+
+	public static void main(String[] args) {
+
+		System.out.println(Define.GREETING);
+		System.out.println(Define.MIN);
+		System.out.println(Define.MAX);
+		System.out.println(Define.MATH_CODE);
+		System.out.println(Define.CHEMISTRY_CODE);
+		System.out.println("원주률은" + Define.PI + "입니다.");
+	}
+
+}
+===========================================================================
+
+
+
+
+
+
+
+
 
 
