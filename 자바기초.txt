@@ -66,3 +66,183 @@ cmd새로 열어서 -> %CATALINA_HOME% 입력 -> 톰캣홈디렉토리 나온다
 1. javac.exe -> 자바 컴파일러 javac hello.java -> hello.class로 변환 
 2. java.exe로(클래스파일실행) hello.class 파일을 실행
 ============================================================================
+build란 소스파일(.java)로 부터 프로그램을 만들어 내는 과정
+멀티컬럼모드 -> alt + shift + a + 화살표
+
+//자료형 (=Data Type) : 코드 내에서 데이터를 식별하는 기준
+		// 1. 기본 자료형
+		// boolean	1bit     참/거짓
+		// byte     1byte	 정수
+		// char     2byte	 문자
+		// short	2byte    정수
+		// int 	    4byte	 정수
+		// long     8byte    정수
+		// float    4byte    실수
+		// double   8byte    실수
+		
+		// 2. 참조 자료형
+		// 기본 자료형을 제외한 모두
+		// 클래스로 만들어진 자료형을 의미한다.
+		// 참조 자료형은 데이터를 직접 저장하지 않고, 다른 위치에 생성된 공간을 가리키는 자료형
+
+//배열도 참조 자료형에 해당한다.
+		int[] arr = new int[] {10,20,30,40,50};  //arr이 저기 있는 요소들을 가리킨다. (new가 힙에서 만들어진다)
+        System.out.println("arr = "+arr); //참조변수는 출력시, 해시코드라는 이상한 값이 출력된다.
+		System.out.println("arr[0]= "+arr[0]);
+==============================================================================
+1은 참은 맞지만 자바는 아니다. 자바는 true, false만
+boolean bo1 = true;
+boolean bo3 = 10 > 5;  // true
+boolean bo2 = false;
+
+//형변환은 반올림 생각하지 않는다.  .2f이런거는 가능
+		//그래서, 3.141592에서
+		//double result = Math.round(pi); // 3.0으로 출력(소수점위치에서 반올림)
+		//double result = Math.round(pi*100) / 100.0; //3.14로 출력
+================================================================================
+int num = 10;
+int bNum = 0B1010; //2진수
+int oNum = 012;  //8진수
+int xNum = 0XA; //16진수 10은 16진수로 A
+//출력: 10
+==================================================================================
+public class ex02 {
+	public static void main(String args[]) {
+		//Scanner라는 데이터를 읽는 도구를 사용해서 입력을 좀 더 수월하게 처리가능(통로에서 쓱 스캔)
+		//그래서 scanner는 system.in과 같이쓴다.
+		
+		//System : 표준 입출력 클래스
+		//System안에는 in이 있고  -> 표준 입력 스트림(한글자씩 통로를 통해 전달) 그래서 한번에 주는 scanner이용
+		//System안에는 out이 있고 -> 표준 출력 스트림
+		//System안에는 err가 있다. -> 표준 에러출력 스트림
+		//Scanner도 자료형인데 참조자료형이다(기본자료형을 제외한 모든 자료형은 참조자료형이다)
+		//즉, Scanner는 직접 공간을 가지고 있지 않다. 그래서 new로 공간을 만든다.
+		//import해줘야된다.
+		Scanner sc;  //Scanner앞에 커서두고 ctrl+space하면 import구문 알아서 들어간다.
+		sc = new Scanner(System.in);  //Scanner가 스트림을 스캔을 뜬다.(sc라는 변수가 전달)
+		                              //그 후 이 스트림(통로)를 닫아줘야한다.(보안상)
+		int n;
+		System.out.print("정수입력: ");
+		n = sc.nextInt();  //sc.next자료형();
+		System.out.println("n= "+n);
+		
+		sc.close();  //요즘에는 안닫아도 된다.(습관들이기 닫도록)
+	}
+}
+===============================================================================
+public class ex03 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int it;
+		String str;
+		double db;
+		
+		//위의 세변수에 입력을 받도록
+		System.out.print("1.정수입력: ");
+		it = sc.nextInt();
+		System.out.println("it = "+it+"\n");
+		
+		System.out.print("2.실수입력: ");
+		db = sc.nextDouble();
+		System.out.println("db = "+db+"\n");
+		
+		System.out.print("3.문자열 입력: ");
+		str = sc.next();  //문자열은 그냥 next
+		System.out.println("str = "+str+"\n");
+		
+		sc.close(); //Scanner는 중간에 닫으면 다시 열수 없기 때문에 마지막에 닫자!!
+		
+
+	}
+
+}
+=================================================================================
+public class ex04 {
+
+	public static void main(String[] args) {
+		//boolean, 정수, 실수는 next자료형() 형식으로 받을 수 있다.
+		//문자열과, 문자는 조금다름
+		
+		String test = "apple"; //인덱스가 01234 달려있다.
+		System.out.println("test = "+test);
+		System.out.println("test[1]="+test.charAt(1)); //p출력
+		
+		Scanner sc = new Scanner(System.in);
+		String str;
+		char ch;
+		
+		System.out.print("문자열 입력: ");
+		str = sc.next();
+		System.out.println("str = "+str);
+		
+		//문자입력 시
+		System.out.print("문자 입력: ");
+		ch = sc.next().charAt(0);  //문자는 0만쓰면된다.
+		System.out.println("ch = "+ch);
+		
+		sc.close();
+
+	}
+
+}
+=================================================================================
+변수란? 하나의 값을 저장할 수 있는 메모리 공간(변수명이 메모리공간을 가리킴)
+public class ex06 {
+
+	public static void main(String[] args) {
+		//nextLine() : 한 줄 전체를 입력 받는 구문, 버퍼를 비우는 용도로 사용되기도 한다.
+		Scanner sc = new Scanner(System.in);
+		
+		String lang;
+		int number;
+		String program;
+		System.out.print("공부중인 언어: ");
+		lang = sc.next(); //공백 이후 부터는 출력안된다. 
+		System.out.println("lang = "+lang); //자바 입니다~ 라고 입력하면 자바만 들어간다.
+		                                    //즉, 버퍼에 입니다~ 가 남아있다.
+		// 그래서 lang = sc.nextLine(); 이렇게 쓴다.
+		
+		//nextInt(); 는 \n을 안가져온다. 
+		
+		System.out.print("수업회차?");
+		number = sc.nextInt();
+		System.out.println(number + "일차~\n");
+		
+		sc.nextLine();  // nextInt()에서 \n을 가져오면 안되기 때문에 버퍼지우기
+		
+		System.out.print("사용중인 개발 도구는?");
+		program = sc.nextLine();
+		
+		System.out.println(program + "을 사용중");
+		
+		sc.close();
+	}
+
+}
+================================================================================
+public class Ex02 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		
+		String lang;
+		int number;
+		String program;
+		String base;
+		System.out.print("공부중인 언어: ");
+		//입력: c 언어
+		//출력: lang = c
+		       program = 언어(\n) ->다음 base에 \n을 넘겨주지않는다.
+		//띄어쓰기를 기준->next
+		lang = sc.next();
+		program = sc.next();
+		//base = sc.next();
+		System.out.println("lang = " + lang); 
+		System.out.println("program = " + program);
+		//System.out.println("base = " + base);
+	}
+
+}
+===================================================================================
+
