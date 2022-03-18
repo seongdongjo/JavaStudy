@@ -188,6 +188,10 @@ public class ex04 {
 }
 =================================================================================
 변수란? 하나의 값을 저장할 수 있는 메모리 공간(변수명이 메모리공간을 가리킴)
+상수란? 한번만 값을 저장가능 한 변수(변경불가)
+final int MAX = 100;
+리터럴? 값자체 (100같은게 리터럴이다)
+===================================================================================
 public class ex06 {
 
 	public static void main(String[] args) {
@@ -245,4 +249,488 @@ public class Ex02 {
 
 }
 ===================================================================================
+public class quiz02 {
+
+	public static void main(String[] args) {
+		
+		Scanner sc = new Scanner(System.in);
+		String name;
+		String address;
+		double height;
+		String phone;
+		int age;
+		
+		System.out.print("이름을 입력: ");
+		name = sc.next();
+		System.out.print("나이 입력: ");
+		age = sc.nextInt();
+		System.out.print("신장 입력: ");
+		height = sc.nextDouble();
+		sc.nextLine(); // \n 을 버린다
+		System.out.print("주소 입력: ");
+		address = sc.nextLine();
+		System.out.print("연락처: ");
+		phone=sc.next();
+		
+		System.out.printf("이름: %s(%d)세\n", name,age);
+		System.out.printf("신장: %.1fcm\n", height);
+		System.out.println("주소: "+address);
+		System.out.printf("연락처: %s", phone);
+	}
+
+}
+=============================================================================
+public class ex03 {
+	public static void main(String[] args) {
+		// 조건 연산자 : 조건에 따라서 값을 선택하는 연산자
+		Scanner sc = new Scanner(System.in);
+		int n1, n2;
+		n1 = sc.nextInt();
+		n2 = sc.nextInt();
+		
+		String result = n1 > n2 ? "n1이 큰값" : "n2가 큰값";
+		System.out.println("result: "+ result);
+		
+	}
+}
+==============================================================================
+문) 입력 받은 수가 3의 배수인지 판별
+package operator;
+
+import java.util.Scanner;
+
+public class quiz01 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int input;
+		
+		System.out.print("자연수 입력: ");
+		input = sc.nextInt();
+		
+		System.out.println(input % 3 == 0 ? "3의 배수입니다" : "3의 배수가 아닙니다");
+		//또는 result = (input % 3 == 0) ? n + "은 3의 배수입니다" : ~
+	}
+
+}
+==================================================================================
+문) 두수를 입력받아 큰수를 출력
+package operator;
+
+import java.util.Scanner;
+
+public class quiz02 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int input1, input2;
+		System.out.print("두 수를 입력하세요: ");
+		input1 = sc.nextInt();
+		input2 = sc.nextInt();
+		
+		int result = input1 > input2 ? input1 : input2;
+		System.out.printf("result : %d(이)가 더 크다", result );
+	}
+}
+==============================================================================
+//12345678900 같은 범위는 뒤에 L이나 l 붙여야한다.
+//byte는 127부터 -128까지 근데 byte bnum = 128; 이렇게 하면 에러난다.
+
+//long lnum = 1234;  -> 4byte가 8byte에 들어간다.
+
+//float fnum = 3.14; 이렇게 쓰면 에러가난다.(실수형에 접미사가 없으면 3.14d 라고생각 d가 생략)
+//float fnum = 3.14f; 실수는 기본적으로 double(8byte)에 저장이된다. 그래서 float에 저장할려니 에러 그래서 f붙임
+//long = 100000000000L; int형의 범위를 벗어나면 L붙여야됨
+//10f -> 10.0f
+//1e3 -> e는 10의n제곱을의미 -> 1000.0(e는 실수형 접미사)
+=================================================================================
+public class ex02 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int age;
+		
+		System.out.print("나이 입력: ");
+		age = sc.nextInt();
+		
+		if (age>=20) {  //if문은 피라미드구조로 해야된다. 범위가 젤 많은게 밑으로
+			System.out.print("성인");
+		}
+		else if(age >= 17) {
+			System.out.print("고등학생");
+		}
+		else if (age >= 14) {
+			System.out.print("중학생");
+		}
+		else {
+			System.out.print("초등학생 이하");
+		}
+		System.out.println("입니다~");
+		sc.close();    
+	}
+
+}
+==============================================================================
+public class ex03 {
+
+	public static void main(String[] args) {
+		//중첩 조건문 : 조건문 안에 조건문
+		//상세한 조건을 검사하기 위한 구문
+		
+		Scanner sc = new Scanner(System.in);
+		int n;
+		
+		System.out.print("정수 입력: ");
+		n = sc.nextInt();
+		
+		if(n % 2 == 0) {
+			System.out.println(n+"은 짝수");
+			if (n % 3 == 0) {
+				System.out.println(n+"은 짝수이며 3의 배수");
+			}
+		}
+		else {
+			System.out.println(n+"은 홀수");
+		}
+	}
+}
+=============================================================================
+문)세 정수 최대값
+public class quiz05 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int num1,num2,num3;
+		int max;
+		System.out.print("세 정수를 입력: ");
+		num1 = sc.nextInt();
+		num2 = sc.nextInt();
+		num3 = sc.nextInt();
+		
+		max = num1;
+		if(max < num2) {
+			max = num2;
+		}
+		if(max <num3) {
+			max = num3;
+		}
+		System.out.println("최대값: "+max);
+	}
+}
+=============================================================================
+문)
+#) 자바는 강제 형변환 없이 double -> int 대입 불가능
+#) 복합 대입 연산자는 알아서 처리해 준다는 특징이 있다.
+package controlset;
+
+import java.util.Scanner;
+
+public class quiz06 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int usb;
+		int gab;
+		int total;
+		System.out.print("usb 구매 갯수: ");
+		usb = sc.nextInt();
+		gab = usb * 5000;
+		
+		if (usb >= 100) {
+			total = gab *= 0.88;  // gab * 0.88 은 안된다.자료형때문에 그래서 복합대입쓴다.
+			System.out.printf("가격: %.0f원",total);
+		}
+		else if (usb >= 10) {
+			total = (int)(gab*0.9);
+			System.out.printf("가격: %.0f원",total);
+		}
+		else if (usb > 0) {
+			System.out.println("가격: "+gab+"원");
+		}
+		else {
+			System.out.println("잘못입력하셨습니다");
+		}
+
+	}
+=============================================================================
+public class quiz07 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int station;
+		int total;
+		
+		System.out.print("정거장 수?");
+		station=sc.nextInt();
+		
+		if(station < 10) {
+			total = station * 2; //2분씩
+			System.out.println("총 소요시간: "+total+"분");
+		}
+		else {
+			total = station * 4; //4분씩
+			if (total >=60) {
+				int hour=total/60;
+				int min=total % 60;
+				System.out.println("총 소요시간: " +hour + "시간"+min+"분");
+			}
+			else {
+				System.out.println("총 소요시간: "+total+"분");
+			}
+		}
+		sc.close();
+	}
+===============================================================================
+package _switch;   //switch(값) 값에 가능한 데이터는 정수와 문자열만 가능
+
+import java.util.Scanner;
+
+public class ex01 {
+	public static void main(String[] args) {
+		
+		//switch 로 만들어진 것은 if로 만들수있지만 반대는 제약이있다.
+		Scanner sc = new Scanner(System.in);
+		int menu;
+		System.out.print("메뉴 입력(1~3): ");
+		menu = sc.nextInt();
+		
+		switch(menu) {  //break를 넣어야한다. 안넣고 1치면 1,2,3 메뉴 다 출력된다.
+		case 1:
+			System.out.println("1번 메뉴 선택~");
+			break;
+		case 2:
+			System.out.println("2번 메뉴 선택");
+			break;
+		case 3:
+			System.out.println("3번 메뉴 선택");
+			break;
+		}
+		
+	}
+}
+============================================================================
+switch(menu) {
+		case 1:
+			System.out.println("1번 메뉴 선택~");  //이렇게 break가 없으면 1입력후 -> 1,2 출력 후 break만나서 그만 
+		case 2:
+			System.out.println("2번 메뉴 선택");
+			break;
+		case 3:
+			System.out.println("3번 메뉴 선택");
+			break;
+		default:  //default는 가장 밑에 쓸꺼면 break 필요없다.
+			System.out.println("없는 메뉴");
+		}
+==============================================================================
+public class ex02 {
+
+	public static void main(String[] args) {
+		//switch 문은 특정 값 하나에 대해서 처리하는데 특화
+		//즉, 범위 조건 처리가 힘들다.
+		
+		Scanner sc = new Scanner(System.in);
+		int num;
+		
+		System.out.print("정수 입력(1~10): ");
+		num = sc.nextInt();
+		
+		switch(num) {   // 5를 입력하면 5로 점프 후 break까지 
+		case 1: case 3: case 5: case 7: case 9:
+			System.out.println("홀수");
+			break;
+		case 2:
+		case 4:
+		case 6:
+		case 8:
+		case 10:
+			System.out.println("짝수");
+			break;
+		}
+	sc.close();
+}
+=============================================================================
+public class ex03 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		String menu;
+		
+		System.out.println("\t1. 짜장면");
+		System.out.println("\t2. 짬뽕");
+		System.out.println("\t3. 볶음밥");
+		System.out.println("\t4. 탕수육");
+		
+		System.out.print("\n>>> ");
+		menu = sc.next();
+		
+		switch(menu) {
+		case "짜장면" : case "1": 
+			System.out.println("짜장면 주문");
+			break;
+		case "짬뽕" :
+			System.out.println("짬뽕 주문");
+			break;
+		case "볶음밥" :
+			System.out.println("볶음밥 주문");
+			break;
+		case "탕수육" :
+			System.out.println("탕수육 주문");
+			break;
+		default :
+			System.out.println("없는 메뉴입니다");
+		}
+		sc.close();
+	}
+}
+============================================================================
+package loof;
+
+public class ex01 {
+	public static void main(String[] args) {
+		// 1. while(조건식) 조건식이 참이면 실행
+		
+		int i = 1;
+		while (i<=5) { // i가 5이하 일때까지 반복
+			System.out.println(i+": Hello World!!!");
+			i++;
+		}  //반복종료 후 i는 6이다!!!!
+	}
+}
+============================================================================
+#) 0입력시 종료
+package loof;
+
+import java.util.Scanner;
+
+public class ex02 {
+
+	public static void main(String[] args) {
+		//while의  주목적 불특정 반복
+		
+		Scanner sc = new Scanner(System.in);
+		int n=1;
+		
+		while(n != 0) {
+			System.out.print("정수 입력(0:종료): ");
+			n = sc.nextInt();
+			
+			System.out.println("n = " +n+"\n");
+		}
+		sc.close();
+	}
+}
+=============================================================================
+package loof;
+
+import java.util.Scanner;
+
+public class ex04 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int n2;
+		
+		do {  //파이썬은 do~while문이 없다.
+			System.out.print("정수 입력(0입력시 종료): ");
+			n2 = sc.nextInt();
+			System.out.println("n2 = "+n2+"\n");
+		}while(n2 != 0);
+		sc.close();
+	}
+}
+================================================================================
+문) 거꾸로 수 출력
+int n;
+while(n!=0){ // 몫이 0이면 종료
+	System.out.print(n%10);
+	n /= 10;
+}
+=====================================
+package loof;
+
+public class ex06 {
+
+	public static void main(String[] args) {
+		//for문 : 특정횟수, 배열의 반복에 특화
+		for (int i =1; i<=5; i++) {
+			System.out.print(i+" ");
+		} //i는 for문에서 만들어진 지역변수다. 그래서 밖에서 i출력하면 안나온다. 
+	}
+}
+=======================================
+package loof;
+
+public class ex06 {
+
+	public static void main(String[] args) {
+		//for문 : 특정횟수, 배열의 반복에 특화
+		for (int i =1; i<=5; i++) {
+			System.out.print(i+" ");
+		} //i는 for문에서 만들어진 지역변수다. 그래서 밖에서 i출력하면 안나온다. 
+	int j = 1;
+	for (j =1; j<=5; j++) {
+		System.out.println(~);   
+	}  //for문을 나와도 j는 6으로 사라지지 않는다.
+}
+=========================================
+package loof;
+
+public class ex08 {
+
+	public static void main(String[] args) {
+		//보조 제어문  : break, continue, return
+		
+		// 1. break : '제어문'을 즉시 탈출, 남은 아래 코드는 무시
+		for(int i = 1; i<=10; i++) {
+			if (i==5) {break;};
+			System.out.println(i+" ");
+		}
+		//2. continue : '제어문'실행에서 제외해야 하는 경우에 사용
+		for(int i = 1; i<=10; i++) {
+			if (i==5) {continue;};
+			System.out.println(i+" ");
+		}
+		// 3. return : '함수'를 즉시 종료, 남은 아래 코드는 무시
+				for(int i = 1; i<=10; i++) {
+					if (i==5) {return;};
+					System.out.println(i+" ");
+		}
+		System.out.println("이 구간은 함수종료시 실행되지 않습니다");
+	}
+}
+==================================================
+문) 소수판별
+	public static void main(String[] args) {
+		boolean isprime = true;
+		for(int i = 2; i<n; i++) { //1과 자기자신 빼고 나누어 졌을 때
+			if (n % i == 0) {
+				System.out.println("소수가 아님");
+				isprime = false;
+				break;
+			}
+		}
+		if(isprime)
+			System.out.println("소수다");
+	}
+	sc.close();
+=========================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
