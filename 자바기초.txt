@@ -714,8 +714,155 @@ public class ex08 {
 	}
 	sc.close();
 =========================================================
+package loop;
 
+import java.util.Scanner;
 
+public class quiz01 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int n, fac =1;
+		System.out.print("팩토리얼: ");
+		n = sc.nextInt();
+		for(int i =1; i<=n; i++) {
+			fac *= i;
+		}
+		System.out.println(n+"!="+fac);
+		sc.close();
+	}
+}
+=================================================
+문) 중첩반복문 
+*
+**
+***
+****
+*****
+package loop2;
+
+import java.util.Scanner;
+
+public class ex01 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int n;
+		System.out.print("찍을 별의 줄 수: ");
+		n = sc.nextInt();	
+		for(int i =1; i<=n; i++) {
+			for(int j=1; j<=i; j++) {
+				System.out.print("*");
+			}
+			System.out.println();
+		}
+
+	}
+
+}
+====================================================
+    *
+   ***
+  *****
+ *******
+*********
+public class quiz01 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int num;
+		System.out.print("찍을 별의 줄 수: ");
+		num = sc.nextInt();
+		
+		for(int i=0; i<num; i++){
+			for(int j = 1; j<num-i; j++) {
+				System.out.print(" ");
+			}
+			for(int k=0; k<i*2+1; k++) {
+				System.out.print("*");
+			}
+			System.out.println();
+		}
+
+	}
+
+}
+======================================================
+*********
+ *******
+  *****
+   *** 
+    *
+문) 역피라미드 
+for(int i=num; i>=0; i--) {
+	for(int k = 0; k<num-i; k++) {
+		System.out.print(" ");
+	}
+	for(int j = 0; j<i*2-1; j++) {
+		System.out.print("*");
+	}
+	System.out.println();
+}
+==========================================================
+****
+ ***
+  **
+   *
+package basic;
+
+import java.util.Scanner;
+
+public class Ex02 {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		
+		//System.out.print("수 입력: ");
+		//int n = sc.nextInt();
+		for(int i = 0; i < 4; i++) {
+			for(int k = 0; k < i; k++) {
+				System.out.print(" ");
+			}
+			for(int j = 4-i; j > 0; j--) {
+				System.out.print("*");
+			}
+		System.out.println();
+		}	
+	}
+}
+==================================================================
+*****
+*   *
+*   *
+*   *
+*****
+for(int i = 0; i<5; i++) {
+			for(int j=0; j<5; j++) {
+				if(i==0 || i==4 || j==0 || j==4) //i가0,4는 다찍기
+					System.out.print("*");
+				else
+					System.out.print(" ");
+			}	
+			System.out.println();
+		}
+	}
+====================================================================
+  *  
+  *  
+*****
+  *  
+  *  
+for(int i = 0; i<5; i++) {
+			for(int j=0; j<5; j++) {
+				if(i==2 || j==2)
+					System.out.print("*");
+				else
+					System.out.print(" ");
+			}	
+			System.out.println();
+		}
+		
+=======================================================================
 
 
 
