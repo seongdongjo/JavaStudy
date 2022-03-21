@@ -797,7 +797,7 @@ for(int i = 0, num=1; i<arr.length; i++) {
 for(int num : arr) {
 	total += num;
 }
-
+--------------
 //length를 활용하여 오류나는경우 -> length는 5인데 실제데이터는 3개만 들어가있다.
 double[] dArr = new double[5];
 
@@ -809,7 +809,7 @@ double mtotal = 1;
 for(int i = 0; i<dArr.lengthl i++) {
 	mtotal *= dArr[i];
 }
-
+--------------
 //해결법: 요소의 개수에 대한 변수(count)를 유지
 double[] dArr = new double[5];
 int count = 0;
@@ -821,7 +821,7 @@ double mtotal = 1;
 for(int i = 0; i<count; i++) {
 	mtotal *= dArr[i];
 }
-
+----------------
 package ch20;
 
 public class CharArrayTest {
@@ -1162,7 +1162,7 @@ public class VIPCustomer extends Customer{
 	private int agentID;
 	double salesRatio; //VIP에만 있는 변수
 	
-	public VIPCustomer() {
+	public VIPCustomer() { //생성자
 		//super();
 		customerGrade = "VIP";//덮어쓰기    //오류 발생 -> extends를 해야한다(protected라서), private은 extends해도 안됨.
 		bonusRatio = 0.05; //덮어쓰기 마찬가지 
@@ -1190,10 +1190,11 @@ public class CustomerTest {
 		customerKim.setCustomerName("김유신"); //부모의 메서드
 		customerKim.setCustomerID(10020);    //부모의 메서드
 		customerKim.bonusPoint = 10000;      //부모의 멤버변수
-		System.out.println(customerKim.showCustomerInfo());
+		System.out.println(customerKim.showCustomerInfo()); //vip로 생성자만들었으니 잘나온다.
 	}
 }
-
+이순신님의 등급은 SILVER이며, 보너스 포인트는 1000입니다
+김유신님의 등급은 VIP이며, 보너스 포인트는 10000입니다
 =============================================================================
 package ch3;
 
@@ -1384,7 +1385,7 @@ public class VIPCustomer extends Customer{
 	double salesRatio;
 	
 	/*public VIPCustomer() {
-		customerGrade = "VIP";    //오류 발생
+		customerGrade = "VIP";    //오류 발생, why? customer에서 기본생성자를 주석처리 했기때문에
 		bonusRatio = 0.05;
 		salesRatio = 0.1;
 		
@@ -1620,7 +1621,7 @@ public class GoldCustomer extends Customer{
 		
 			customerGrade = "GOLD"; //부모의 멤버변수니까 showInfo는 오버라이딩 안했음. 
 			bonusRatio = 0.02;   	//부모의 멤버변수
-			saleRatio = 0.1;
+			saleRatio = 0.1;		//내꺼
 		
 		}
 		@Override
@@ -1692,7 +1693,7 @@ public class CustomerTest {
 			for( Customer customer : customerList){
 				int cost = customer.calcPrice(price); //재정의된 calcPrice를 찾는다.
 				System.out.println(customer.getCustomerName() +" 님이 " +  + cost + "원 지불하셨습니다."); //Customer로 업캐스팅 했기때문에 Customer의 bonusPoint를 가져올수있다.
-				System.out.println(customer.getCustomerName() +" 님의 현재 보너스 포인트는 " + customer.bonusPoint + "점입니다.");
+				System.out.println(customer.getCustomerName() +" 님의 현재 보너스 포인트는 " + customer.bonusPoint + "점입니다."); //new로 생성할 때는 vip,customer,gold로 구분했기때문에 알아서 bonusPoint 찾아간다.
 			}
 		}
 }
@@ -1862,7 +1863,7 @@ public class DeskTop extends Computer{
 }
 ------------------
 package ch9;
-
+//추상클래스를 상속받으면 메소드를 다 구현해야된다. 안하면 abstract를 붙여야한다.
 public abstract class NoteBook extends Computer{ //추상클래스 (구현안한 메서드가 display()가있는데 이거를 구현안하면 abstract를 붙힌다)
 	@Override
 	public void typing() {
@@ -1908,7 +1909,7 @@ jdk(라이브러리) -> 안에도 라이브러리있음. -> 내가 필요한 경
 package ch10;
 
 public abstract class Car {
-	
+	//선언만했다.
 	public abstract void drive(); //AI, 직접운전은 drive메서드는 자식이 구현해라
 	public abstract void stop(); //마찬가지
 	
@@ -2018,12 +2019,12 @@ public class UsingDefine {
 }
 ===========================================================================
 #)인터페이스
-메소드를 선언하면 모든 메소드가 자동으로 public abstract로 선언이된다.
+인터페이스에서 메소드를 선언하면 모든 메소드가 자동으로 public abstract로 선언이된다.
 모든 변수는 상수로 선언된다. public static final
 
 interface 인터페이스 이름 {
 	(public static final)float pi = 3.14F;
-	public void makeSomthing(); //알아서 static으로 바뀜
+	public void makeSomthing(); //알아서 public abstract 으로 바뀜
 }
 
 ============================================================================
@@ -2038,6 +2039,83 @@ interface 인터페이스 이름 {
 인터페이스를 쓰고있는 여러 클래스가 있어도 동일한 방식으로 쓰인다.
 
 ex) jdbc 인터페이스 (connection도 인터페이스이다. -> 서드파티에서 메서드 구현했고 클라이언트는 골라쓰기만하면된다)
+
+================================================================================
+package ch11;
+
+public interface Calc {
+
+	double PI = 3.14; //static으로 바뀜
+	int ERROR = -99999999;
+	
+	int add(int num1, int num2); //인터페이스는 abstract와 달리 상속이아니라 구현이라는 것이다.(Calculator에서 구현해야됨)
+	int substract(int num1, int num2);
+	int times(int num1, int num2);
+	int divide(int num1, int num2);
+	
+}
+-----------------
+package ch11;
+
+public abstract class Calculator implements Calc{ //abstract를 붙여야됨. implements를 붙이는순간 4개의 메서드를 구현해야되는데 2개만 구현했음
+	//또, implement메서드는 자동으로 abstract가 붙기때문에 4개를 다 구현하지 않으면 abstract로 클래스를 만들어야한다.
+
+	@Override
+	public int add(int num1, int num2) {
+		return num1 + num2;
+	}
+	
+	@Override
+	public int substract(int num1, int num2) {
+		return num1 - num2;
+	}
+}
+
+-------------------
+package ch11;
+
+public class CompleteCalc extends Calculator{
+	
+	@Override
+	public int times(int num1, int num2) {
+		return num1 * num2;
+	}
+
+	@Override
+	public int divide(int num1, int num2) {
+		if( num2 == 0 )
+			return ERROR;
+		else 
+			return num1 / num2;
+	}
+	
+	public void showInfo() {
+		System.out.println("모두 구현하였습니다.");
+	}
+}
+-----------------
+package ch11;
+
+import java.util.Scanner;
+
+public class CalculatorTest {
+
+	public static void main(String[] args) {
+		Calc calc = new CompleteCalc(); //타입이 Calc이다.(인터페이스) 형변환, 인터페이스를 구현한 클래스는 인터페이스형으로 선언한 변수로 형 변환 할 수 있다.
+		//형변환이된경우 인터페이스에 선언된 메서드만을 사용가능하다.
+		int num1 = 10;
+		int num2 = 2;
+		
+		System.out.println(num1 + "+" + num2 + "=" + calc.add(num1, num2));
+		System.out.println(num1 + "-" + num2 + "=" +calc.substract(num1, num2));
+		System.out.println(num1 + "*" + num2 + "=" +calc.times(num1, num2));
+		System.out.println(num1 + "/" + num2 + "=" +calc.divide(num1, num2));
+		
+	}
+}
+==============================================================================
+
+
 
 
 
