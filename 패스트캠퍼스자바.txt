@@ -2240,7 +2240,96 @@ public class CalculatorTest {
 	}
 }
 ====================================================================
+#)여러 인터페이스 구현
+//자바의 인터페이스에는 구현코드가 없으므로 하나의 클래스가 여러 인터페이스는 구현할수있음
 
+buy(인터페이스)   sell(인터페이스)
+       \	      /
+      Customer(구현클래스) implements가 2개이다.
+
+//그렇다면 클래스에서 상속은 왜 하나만 될까
+예를들어 
+a라는 클래스에서 b(클래스)가 a를 상속받고, c(클래스)가 상속받고 a라는 클래스에서 정의한 a라는 메서드를 b,c클래스에서 재정의하고나서
+d라는 클래스가 d extends b extends c라고 한다면 무슨 메서드를 써야할지모른다. -> 따라서 다중상속이 안되는이유는 이러한 다이아몬드 상속때문이다.(c++은 가능하다. 어느클래스의 메서드를 써라는것을 지정가능)
+
+static메서드는 인터페이스이름으로 호출
+디폴트메서드가 중복되는 경우는 구현하는 클래스에서 재정의해야한다.(여러인터페이스호출시)
+
+여러인터페이스를 구현한 클래스는 인터페이스 타입으로 형변환되는 경우 해당인터페이스에 선언된 메서드만 사용가능하다.
+예를들어 buy로 인터페이스 타입선언되면 buy인터페이스 기능만 쓸수있다.
+
+package ch15;
+
+public interface Buy {
+
+	void buy();
+	
+	default void order() {
+		System.out.println("구매 주문");
+	}
+}
+--------------
+package ch15;
+
+public interface Sell {
+
+	void sell();
+	
+	default void order() {
+		System.out.println("판매 주문");
+	}
+}
+--------------
+package ch15;
+
+public class Customer implements Buy, Sell{
+
+	@Override
+	public void sell() {
+		System.out.println("customer sell");
+	}
+
+	@Override
+	public void buy() {
+		System.out.println("customer buy");		
+	}
+
+	@Override
+	public void order() { //default메서드를 재정의했다. 재정의나 명시적으로 누구의 메서드쓸지인지 선언 안하면에러가난다. 왜냐하면 buy,sell 디폴트메서드가 중복되기때문에
+		//명시적으로 누구의 디폴트메서드를 쓸지 정의해야한다.
+		//Sell.super.order();
+		//아니면 그냥 재정의하던지
+		System.out.println("customer order");
+	}
+
+	public void sayHello() { //내함수
+		System.out.println("Hello");
+	}
+
+}
+-----------------
+package ch15;
+
+public class CustomerTest {
+
+	public static void main(String[] args) {
+
+		Customer customer = new Customer();
+		customer.buy();
+		customer.sell();
+		customer.sayHello();
+		
+		Buy buyer = customer; //type을 바꾼다.(업캐스팅)
+		buyer.buy();
+		
+		Sell seller = customer;
+		seller.sell();
+		
+		buyer.order(); //디폴트메서드로 정의한 order는 공통적으로 쓸수있다.
+		seller.order();
+	}
+}
+====================================================================
 
 
 
