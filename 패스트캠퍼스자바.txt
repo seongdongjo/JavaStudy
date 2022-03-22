@@ -2114,7 +2114,132 @@ public class CalculatorTest {
 	}
 }
 ==============================================================================
+//인터페이스를 활용한 dao구현
+dao인터페이스를 하나만들고 하나는 oracle, 또 하나는 mysql, 또 하나는 mssql용으로 만든다.
+그러면 사용자는 implements로 바꾸기만 하면된다.
+이런게 다형성이다. 똑같은 인터페이스를 활용해서 메서드를 활용하지만 결과는다르다.
 
+===============================================================================
+//인터페이스에서 모든 변수는 상수로 변환된다. public static final
+//인터페이스에서 모든 선언된 메서드는 추상메서드로 선언된다.
+//자바8이후에 디폴트메서드가있는데 implements가 된 클래스쪽에서 공통으로(기본적으로 제공) 사용할 수 있는 기본메서드이다. 오버라이딩로 가능
+default void description() { //인터페이스쪽 
+	System.out.println("정수계산기를 구현합니다.");
+}
+
+@Override //implements쪽 (class ~~~ implements ~~~~) 되는데 여기는 new로 인스턴스화를 해야된다. class이기때문에 하지만 정적메서드는 static이라 안해도된다.(아래참조)
+public void description() {
+	System.out.println("재정의");
+}
+==============================================================================
+//또 자바8이후에 정적메서드를 제공한다.
+위와 다르게 인스턴스 생성(new)과 관계없이 인터페이스 타입으로 사용할 수 있는 메서드
+//자바 9이후에는 private메서드가 있다.
+private이기때문에 인터페이스 내부에서만 사용하기 위해 구현하는 메서드
+default메서드나 static메서드에서 사용한다.
+=============================================================================
+package ch14;
+
+public interface Calc {
+
+	double PI = 3.14;
+	int ERROR = -99999999;
+	
+	int add(int num1, int num2);
+	int substract(int num1, int num2);
+	int times(int num1, int num2);
+	int divide(int num1, int num2);
+	
+	default void description() {
+		System.out.println("정수 계산기를 구현합니다.");
+		myMethod(); 
+	}
+	
+	static int total(int[] arr) { //arr의 합구하기
+		int total = 0;
+		
+		for(int i: arr) {
+			total += i;
+		}
+		mystaticMethod(); //static메서드에서 private static호출가능(private이기때문에 클래스안에서만)
+		return total;
+	}
+	
+	private void myMethod() { //버전때문에 지금 private는 안된다. 상속받은 CompleteCalc에서 구현하라고 에러가뜸
+		System.out.println("private method");
+	}
+	
+	private static void mystaticMethod() { 
+		System.out.println("private static method");
+	}
+}
+--------------
+package ch14;
+
+public abstract class Calculator implements Calc{ //implements를 하면 4개 함수 (add등)다 구현해야하는데 2개만해서 abstract붙혔다.
+
+	@Override
+	public int add(int num1, int num2) {
+		return num1 + num2;
+	}
+
+	@Override
+	public int substract(int num1, int num2) {
+		return num1 - num2;
+	}
+}
+
+---------------
+package ch14;
+
+public class CompleteCalc extends Calculator{ //Calc interface의 private myMethod, mystaticMethod는 재정의,구현할수없다.
+	//즉, private메서드는 재정의할수없다.
+	@Override
+	public int times(int num1, int num2) {
+		return num1 * num2;
+	}
+
+	@Override
+	public int divide(int num1, int num2) {
+		if( num2 == 0 )
+			return ERROR;
+		else 
+			return num1 / num2;
+	}
+	
+	public void showInfo() { //내 함수
+		System.out.println("모두 구현하였습니다.");
+	}
+
+	@Override
+	public void description() { //Calc interface에 있는 default메서드이다.
+		System.out.println("CompleteCalc에서 재정의한 default 메서드");
+		//super.description(); 부모에있는걸쓰는게아니라 재정의하겠다. 위에서
+	}
+}
+----------------
+package ch14;
+
+public class CalculatorTest {
+
+	public static void main(String[] args) {
+		Calc calc = new CompleteCalc();
+		int num1 = 10;
+		int num2 = 2;
+		
+		System.out.println(num1 + "+" + num2 + "=" + calc.add(num1, num2));
+		System.out.println(num1 + "-" + num2 + "=" +calc.substract(num1, num2));
+		System.out.println(num1 + "*" + num2 + "=" +calc.times(num1, num2));
+		System.out.println(num1 + "/" + num2 + "=" +calc.divide(num1, num2));
+	
+		calc.description();
+		
+		int[] arr = {1,2,3,4,5};
+		int sum = Calc.total(arr); //total이라는 정적메서드이기때문에 바로 클래스를 호출했다.(private로 선언된 mystaticMethod도 호출했다 total에 같이선언되있으니)
+		System.out.println(sum);
+	}
+}
+====================================================================
 
 
 
