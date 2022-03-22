@@ -10,8 +10,8 @@ public class VIPCustomer extends Customer{
 		salesRatio = 0.1;
 		
 		System.out.println("VIPCustomer() 생성자 호출");
-	}
-	*/
+	}*/
+	
 	
 	public VIPCustomer(int customerID, String customerName) {
 		super(customerID, customerName);

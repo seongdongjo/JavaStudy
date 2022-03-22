@@ -1,6 +1,4 @@
-package ch11;
-
-import java.util.Scanner;
+package ch14;
 
 public class CalculatorTest {
 
@@ -13,19 +11,11 @@ public class CalculatorTest {
 		System.out.println(num1 + "-" + num2 + "=" +calc.substract(num1, num2));
 		System.out.println(num1 + "*" + num2 + "=" +calc.times(num1, num2));
 		System.out.println(num1 + "/" + num2 + "=" +calc.divide(num1, num2));
+	
+		calc.description();
 		
-		for(int i = 0; i<5; i++) {
-			for(int j=0; j<4-i; j++) {
-					System.out.print(" ");
-			}
-			for(int j=0; j<=i*2; j++) {
-				if (j==0 || j==i*2 || i ==2){
-					System.out.print("*");
-				}
-				else
-					System.out.print(" ");
-				}
-			System.out.println();
+		int[] arr = {1,2,3,4,5};
+		int sum = Calc.total(arr); //total이라는 정적메서드이기때문에 바로 클래스를 호출했다.(private로 선언된 mystaticMethod도 호출했다 total에 같이선언되있으니)
+		System.out.println(sum);
 	}
-}
 }
