@@ -2330,8 +2330,252 @@ public class CustomerTest {
 	}
 }
 ====================================================================
+//인터페이스 상속
+인터페이스 사이에도 상속을 사용할 수 있다.
+extends 키워드를 사용
+인터페이스는 다중상속이 가능하고 구현 코드의 상속이 아니므로 타입상속이라고 한다.
 
+package ch15;
 
+public interface X {
+
+	void x();
+}
+------------
+package ch15;
+
+public interface Y {
+
+	void y();
+}
+-------------
+package ch15;
+
+public interface MyInterface extends X, Y{  //인터페이스를 상속받음.
+
+	void myMethod();
+}
+---------------
+package ch15;
+
+public class MyClass implements MyInterface{ //인터페이스 기능을 다 구현해야한다.
+
+	@Override
+	public void x() {
+		System.out.println("x()");
+	}
+
+	@Override
+	public void y() {
+		System.out.println("y()");		
+	}
+
+	@Override
+	public void myMethod() {
+		System.out.println("myMethod()");		
+	}
+}
+----------------
+package ch15;
+
+public class MyClassTest {
+
+	public static void main(String[] args) {
+
+		MyClass mClass = new MyClass(); //인터페이스는 클래스를 만들수없으니
+		
+		X xClass = mClass; //x로 타입이 되면 x만 쓸수있다.
+		xClass.x();
+		
+		
+		Y yClass = mClass;
+		yClass.y();
+		
+		MyClass iClass = mClass;
+		iClass.x();
+		iClass.y();
+		iClass.myMethod();
+	}
+
+}
+========================================================
+	   shelf  queue
+(extends)\     /(implements)
+		BookShelf
+
+책이 순서대로 대여가 되는 도서관구현(FIFO)
+shelf클래스를 상속받고 queue를 구현한다.
+
+package ch15;
+
+import java.util.ArrayList;
+
+public class Shelf {
+
+	 protected ArrayList<String> shelf; //상속받기위해 protected
+	 
+	 public Shelf() {
+		 shelf = new ArrayList<String>();
+	 }
+	 
+	 public ArrayList<String> getShelf(){
+		 return shelf;
+	 }
+	 
+	 public int getCount() {
+		 return shelf.size();
+	 }
+	 
+}
+---------------
+package ch15;
+
+public interface Queue {
+
+	//함수 3개선언
+	void enQueue(String title);
+	String deQueue(); //꺼내면 책의 이름을 반환
+	
+	int getSize(); //몇개가있느냐
+}
+---------------
+package ch15;
+
+public class BookShelf extends Shelf implements Queue{
+
+	@Override
+	public void enQueue(String title) {
+		shelf.add(title); //shelf의 기능
+	}
+
+	@Override
+	public String deQueue() {
+		return shelf.remove(0); 
+	}
+ 
+	@Override
+	public int getSize() {
+		return getCount();
+	}
+
+}
+------------------
+package ch15;
+
+public class BookShelfTest {
+
+	public static void main(String[] args) {
+
+		Queue bookQueue = new BookShelf(); //큐타입, 인터페이스는 new해서 못만든다.
+		bookQueue.enQueue("태백산맥1");
+		bookQueue.enQueue("태백산맥2");
+		bookQueue.enQueue("태백산맥3");
+		
+		System.out.println(bookQueue.deQueue());
+		System.out.println(bookQueue.deQueue());
+		System.out.println(bookQueue.deQueue());
+	}
+
+}
+=========================================================================
+//상담원 작업분배 
+//1. 우선배분(priority)
+//2. 가장일이적은(leastjob)
+//3. 
+package ch16.scheduler;
+
+public interface Scheduler {
+	public void getNextCall();
+	public void sendCallToAgent();
+}
+---------------
+package ch16.scheduler;
+
+public class PriorityAllocation implements Scheduler{
+
+	@Override
+	public void getNextCall() {
+		System.out.println("고객등급이 높은 고객의 call을 먼저 가져옵니다");
+		
+	}
+
+	@Override
+	public void sendCallToAgent() {
+		System.out.println("업무 숙련도가 높은 상담원에게 먼저 배분합니다");		
+	}
+
+}
+-----------------
+package ch16.scheduler;
+
+public class LeastJob implements Scheduler{
+
+	@Override
+	public void getNextCall() {
+		System.out.println("상담 전화를 순서대로 대기열에서 가져옵니다.");
+		
+	}
+
+	@Override
+	public void sendCallToAgent() {
+		System.out.println("현재 상담업무가 없거나 상담대기가 가장 적은 상담원에게 할당합니다.");
+		
+	}
+
+}
+-------------------
+package ch16.scheduler;
+
+public class RoundRobin implements Scheduler{
+
+	@Override
+	public void getNextCall() {
+		System.out.println("상담 전화를 순서대로 대기열에서 가져옵니다.");
+	}
+
+	@Override
+	public void sendCallToAgent() {
+		System.out.println("다음 순서의 상담원에게 배분합니다.");
+	}
+
+}
+-----------------------
+package ch16.scheduler;
+
+import java.io.IOException;
+
+public class SchedulerTest {
+
+	public static void main(String[] args) throws IOException {
+
+		System.out.println("전화 상담원 할당 방식을 선택하세요");
+		System.out.println("R : 한명씩 차례대로");
+		System.out.println("L : 대기가 적은 상담원 우선");
+		System.out.println("P : 우선순위가 높은 고객우선 숙련도 높은 상담원");
+		
+		int ch = System.in.read();
+		Scheduler scheduler = null; //인터페이스
+		
+		if ( ch == 'R' || ch =='r') {
+			scheduler = new RoundRobin();
+		}
+		else if ( ch == 'L' || ch =='l') {
+			scheduler = new LeastJob();
+		}
+		else if ( ch == 'P' || ch =='p') {
+			scheduler = new PriorityAllocation();
+		}
+		else {
+			System.out.println("지원되지 않는 기능입니다.");
+			return;
+		}
+		
+		scheduler.getNextCall();
+		scheduler.sendCallToAgent();
+	}
+
+}
+===============================================================
 
 
 
