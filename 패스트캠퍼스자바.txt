@@ -4071,6 +4071,121 @@ public class MyListQueueTest {
 	}
 }
 =================================================================
+//무엇이든 담을 수 있는 제레닉(일반화) 프로그래밍
+여러 자료형이 쓰일 수 있는 변수일때 쓰인다. 자료형마다 클래스를 만들기에는 오버헤드라서...
 
+package ch06;
+
+public class Plastic {
+	public String toString() {
+		return "재료는 Plastic 입니다.";
+	}
+}
+-----------
+package ch06;
+
+public class Powder {
+	public String toString() {
+		return "재료는 Powder 입니다.";
+	}
+}
+-------------
+package ch06; //제네릭 타입을 안쓰면 이렇게 powder,material 자료형마다 클래스를 만들어줘야한다
+
+public class ThreeDPrinter1 {
+	private Powder material;
+		
+	public Powder getMaterial() {
+		return material;
+	}
+
+	public void setMaterial(Powder material) {
+		this.material = material;
+	}
+
+}
+---------------
+package ch06;
+
+public class ThreeDPrinter2 {
+	private Plastic material;
+		
+	public Plastic getMaterial() {
+		return material;
+	}
+
+	public void setMaterial(Plastic material) {
+		this.material = material;
+	}
+
+}
+----------------
+package ch06; 
+
+public class ThreeDPrinter3 {
+	private Object material; //우리는 제네릭을 쓰지않으면 이렇게 Object를 써야한다.(변수타입을 다 받기위해서)
+		
+	public Object getMaterial() {
+		return material;
+	}
+
+	public void setMaterial(Object material) {
+		this.material = material;
+	}
+
+}
+------------------
+package ch06;
+
+public class ThreeDPrinterTest {
+	public static void main(String[] args) {
+		Powder powder = new Powder();
+		ThreeDPrinter3 printer = new ThreeDPrinter3();
+		
+		printer.setMaterial(powder); //object로 받는다. printer는
+		
+		Powder p = (Powder)printer.getMaterial(); //이렇게 오브젝트로 쓰면 다운캐스팅을 해줘야한다. 이게 번거러우니 제네릭타입이 나온것이다.
+	}
+}
+=====================================================================================
+package ch06;
+
+public class GenericPrinter<T> {
+	private T material;
+	
+	public void setMaterial(T material) {
+		this.material = material;
+	}
+	
+	public T getMaterial() {
+		return material;
+	}
+	
+	public String toString(){
+		return material.toString();
+	}
+}
+--------------------
+package ch06;
+
+public class GenericPrinterTest {
+
+	public static void main(String[] args) {
+
+		//Powder powder = new Powder();
+		GenericPrinter<Powder> powderPrinter = new GenericPrinter<Powder>(); //GenericPrinter에서 <T>,T가 알아서 powder로 바뀐다.
+		//GenericPrinter<Powder> powderPrinter = new GenericPrinter<>(); <powder>생략가능하다. 
+		powderPrinter.setMaterial(new Powder());
+		System.out.println(powderPrinter);
+		Powder p = powderPrinter.getMaterial(); //다운캐스팅안해도 된다.
+		
+		GenericPrinter<Plastic> plasticPrinter = new GenericPrinter<Plastic>();
+		plasticPrinter.setMaterial(new Plastic());
+		System.out.println(plasticPrinter);
+		
+	}
+
+}
+==================================================================================================
 
 
