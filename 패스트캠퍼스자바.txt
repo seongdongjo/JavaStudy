@@ -3180,14 +3180,14 @@ public class MyArray {
 	public int ARRAY_SIZE;
 	public static final int ERROR_NUM = -999999999;
 	
-	public MyArray()
+	public MyArray()// 그냥 생성시 기본 배열 사이즈 10
 	{
 		count = 0;
 		ARRAY_SIZE = 10;
 		intArr = new int[ARRAY_SIZE];
 	}
 	
-	public MyArray(int size)
+	public MyArray(int size) //사이즈 정할 때
 	{
 		count = 0;
 		ARRAY_SIZE = size;
@@ -3196,10 +3196,11 @@ public class MyArray {
 	
 	public void addElement(int num)
 	{
-		if(count >= ARRAY_SIZE){
+		if(count >= ARRAY_SIZE){ //꽉찼을때
 			System.out.println("not enough memory");
 			return;
 		}
+		//꽉안찼을때
 		intArr[count++] = num;
 				
 	}
@@ -3368,15 +3369,15 @@ public class MyLinkedList {
 	public MyListNode addElement( String data ) //앞이나 뒤에 추가
 	{
 		
-		MyListNode newNode;
-		if(head == null){  //맨 처음일때
+		MyListNode newNode; //새로 들어갈 애
+		if(head == null){  //맨 처음일때는 링크 필요없이 데이터만 있으면 되니까
 			newNode = new MyListNode(data); //들어오는 데이터로 노드생성
 			head = newNode; //헤드가 첫번쨰노드가된다.
 		}
 		else{ //첫번째노드가 아닌경우(맨뒤인경우이다) 찾아가는 과정은 head부터 찾아가면된다. 그리고 맨마지막 노드는 가리키는 게 null이다.
-			newNode = new MyListNode(data);
+			newNode = new MyListNode(data); //next = null(마지막에 넣을거기 떄문에)
 			MyListNode temp = head; //헤드부터 돌수있게끔(헤드를 받아와서)
-			while(temp.next != null)   {//맨 뒤로 갈떄까지
+			while(temp.next != null) {//맨 뒤로 갈떄까지
 				temp = temp.next;
 			}
 			temp.next = newNode;
@@ -3397,7 +3398,7 @@ public class MyLinkedList {
 		}
 		
 		if(position == 0){  //맨 앞으로 들어가는 경우
-			newNode.next = head; //원래 head는 다음까를 가리킨다.
+			newNode.next = head; //newNode는 맨앞에 insert하려는 노드이다. 맨앞에 넣기때문에 head를 다음요소로 가리킨다.
 			head = newNode; //새로들어온게 head로 들어가고
 		}
 		else{
@@ -3414,7 +3415,7 @@ public class MyLinkedList {
 		return newNode;
 	}
 	
-	public MyListNode removeElement(int position)
+	public MyListNode removeElement(int position) //위치로 삭제
 	{
 		int i;
 		MyListNode tempNode = head;
@@ -3425,7 +3426,7 @@ public class MyLinkedList {
 			return null;
 		}
 		
-		if(position == 0){  //맨 앞을 삭제하는
+		if(position == 0){  //맨 앞을 삭제하면 다음요소가 헤드가된다.
 			head = tempNode.next;
 		}
 		else{ //중간에서 뺴는경우
@@ -3559,8 +3560,517 @@ public class MyLinkedListTest {
 	}
 }
 =========================================================================
+//스택
+package ch02;
 
+public class MyArray {
 
+	int[] intArr;   	//int array
+	int count;  		//개수
+		
+	public int ARRAY_SIZE;
+	public static final int ERROR_NUM = -999999999;
+	
+	public MyArray()// 그냥 생성시 기본 배열 사이즈 10
+	{
+		count = 0;
+		ARRAY_SIZE = 10;
+		intArr = new int[ARRAY_SIZE];
+	}
+	
+	public MyArray(int size) //사이즈 정할 때
+	{
+		count = 0;
+		ARRAY_SIZE = size;
+		intArr = new int[size];
+	}
+	
+	public void addElement(int num)
+	{
+		if(count >= ARRAY_SIZE){ //꽉찼을때
+			System.out.println("not enough memory");
+			return;
+		}
+		//꽉안찼을때
+		intArr[count++] = num;
+				
+	}
+
+	public void insertElement(int position, int num) //position은 0부터
+	{
+		int i;
+		
+		if(count >= ARRAY_SIZE){  //꽉 찬 경우
+			System.out.println("not enough memory");
+			return;
+		}
+		
+		if(position < 0 || position > count ){  //index error
+			System.out.println("insert Error");
+			return;
+		}
+		
+		for( i = count-1; i >= position ; i--){ //뒤에서부터 한칸씩밀고 넣어야한다.(덮어쓰기때문에)
+			intArr[i+1]  = intArr[i];        // 하나씩 이동
+		}
+		
+		intArr[position] = num;
+		count++;
+	}
+	
+	public int removeElement(int position)
+	{
+		int ret = ERROR_NUM;
+		
+		if( isEmpty() ){
+			System.out.println("There is no element");
+			return ret;
+		}
+		
+		if(position < 0 || position >= count ){  //index error, 포지션이 카운트랑같거나 크면(카운트는 인덱스 + 1이니까)
+			System.out.println("remove Error");
+			return ret;
+		}
+		
+		ret = intArr[position];
+		
+		for(int i = position; i<count -1; i++ ) //배열안의 개수 -1 까지이다. 배열의 길이가 아니라.
+		{
+			intArr[i] = intArr[i+1];
+		}
+		count--;
+		return ret;
+	}
+	
+	public int getSize()
+	{
+		return count;
+	}
+	
+	public boolean isEmpty()
+	{
+		if(count == 0){
+			return true;
+		}
+		else return false;
+	}
+	
+	public int getElement(int position)
+	{
+		if(position < 0 || position > count-1){
+			System.out.println("검색 위치 오류. 현재 리스트의 개수는 " + count +"개 입니다.");
+			return ERROR_NUM;
+		}
+		return intArr[position];
+	}
+	
+	public void printAll()
+	{
+		if(count == 0){
+			System.out.println("출력할 내용이 없습니다.");
+			return;
+		}
+			
+		for(int i=0; i<count; i++){
+			System.out.println(intArr[i]);
+		}
+		
+	}
+	
+	public void removeAll()
+	{
+		for(int i=0; i<count; i++){
+			intArr[i] = 0;
+		}
+		count = 0;
+	}
+}
+--------------
+package ch04;
+
+import ch02.MyArray;
+
+public class MyArrayStack {
+
+	int top;
+	MyArray arrayStack; 
+	
+	public MyArrayStack()
+	{
+		top = 0;
+		arrayStack = new MyArray();
+	}
+	
+	public MyArrayStack(int size) //사이즈만큼
+	{
+		arrayStack = new MyArray(size);
+	}
+	
+	public void push(int data)
+	{
+		if(isFull()){ //아래에 isFull함수가있다.
+			System.out.println("stack is full");
+			return;
+		}
+		
+		arrayStack.addElement(data); //배열의 맨뒤로 쭉쭉 들어간다.
+		top++;
+	}
+	
+	public int pop()
+	{
+		if (top == 0){
+			System.out.println("stack is empty");
+			return MyArray.ERROR_NUM;
+		}
+		return arrayStack.removeElement(--top);//탑1을 지울려면 removelemnet는 인덱스요소로 지우니까 --top으로 (0)번쨰
+		
+	}
+	
+	public int peek()
+	{
+		if (top == 0){
+			System.out.println("stack is empty");
+			return MyArray.ERROR_NUM;
+		}
+		return arrayStack.getElement(top-1);
+	}
+	
+	public int getSize()
+	{
+		return top;
+	}
+	
+	public boolean isFull()
+	{
+		if(top == arrayStack.ARRAY_SIZE){ //top이 개수와같다.
+			return true;
+		}
+		else return false;
+	}
+	
+	public boolean isEmpty()
+	{
+		if (top == 0){
+			return true;
+		}
+		else return false;
+	}
+	
+	public void printAll()
+	{
+		arrayStack.printAll();
+	}
+}
+----------------
+package ch04;
+
+public class MyArrayStackTest {
+
+	public static void main(String[] args) {
+
+		MyArrayStack stack = new MyArrayStack(3);
+		
+		stack.push(10);
+		stack.push(20);
+		stack.push(30);
+		stack.push(40);
+		
+		stack.printAll();
+		
+		System.out.println("top element is " + stack.pop());
+		stack.printAll();
+		System.out.println("stack size is " + stack.getSize());
+	}
+}
+============================================================================
+//큐 구현
+package ch03;
+
+public class MyListNode {
+
+	private String data;       // 자료
+	public MyListNode next;    // 다음 노드를 가리키는 링크
+	
+	public MyListNode(){
+		data = null;
+		next = null;
+	}
+	
+	public MyListNode(String data){
+		this.data = data;
+		this.next = null;
+	}
+	
+	public MyListNode(String data, MyListNode link){
+		this.data = data;
+		this.next = link;
+	}
+	
+	public String getData(){
+		return data;
+	}
+}
+--------------
+package ch03;
+
+public class MyLinkedList {
+
+	private MyListNode head;
+	int count;
+	
+	public MyLinkedList()
+	{
+		head = null;
+		count = 0;
+	}
+	
+	public MyListNode addElement( String data ) //앞이나 뒤에 추가
+	{
+		
+		MyListNode newNode; //새로 들어갈 애
+		if(head == null){  //맨 처음일때는 링크 필요없이 데이터만 있으면 되니까
+			newNode = new MyListNode(data); //들어오는 데이터로 노드생성
+			head = newNode; //헤드가 첫번쨰노드가된다.
+		}
+		else{ //첫번째노드가 아닌경우(맨뒤인경우이다) 찾아가는 과정은 head부터 찾아가면된다. 그리고 맨마지막 노드는 가리키는 게 null이다.
+			newNode = new MyListNode(data); //next = null(마지막에 넣을거기 떄문에)
+			MyListNode temp = head; //헤드부터 돌수있게끔(헤드를 받아와서)
+			while(temp.next != null) {//맨 뒤로 갈떄까지
+				temp = temp.next;
+			}
+			temp.next = newNode;
+		}
+		count++;
+		return newNode;
+	}
+	
+	public MyListNode insertElement(int position, String data )
+	{
+		int i;
+		MyListNode tempNode = head;
+		MyListNode newNode = new MyListNode(data);
+		
+		if(position < 0 || position > count ){
+			System.out.println("추가 할 위치 오류 입니다. 현재 리스트의 개수는 " + count +"개 입니다.");
+			return null;
+		}
+		
+		if(position == 0){  //맨 앞으로 들어가는 경우
+			newNode.next = head; //newNode는 맨앞에 insert하려는 노드이다. 맨앞에 넣기때문에 head를 다음요소로 가리킨다.
+			head = newNode; //새로들어온게 head로 들어가고
+		}
+		else{
+			MyListNode preNode = null;	 //중간에들어가는경우
+			for(i=0; i<position; i++){
+				preNode = tempNode;
+				tempNode = tempNode.next;
+				
+			}
+			newNode.next = preNode.next;
+			preNode.next = newNode;
+		}
+		count++;
+		return newNode;
+	}
+	
+	public MyListNode removeElement(int position) //위치로 삭제
+	{
+		int i;
+		MyListNode tempNode = head;
+		MyListNode preNode = null;
+		
+		if(position >= count ){
+			System.out.println("삭제 할 위치 오류입니다. 현재 리스트의 개수는 " + count +"개 입니다.");
+			return null;
+		}
+		
+		if(position == 0){  //맨 앞을 삭제하면 다음요소가 헤드가된다.
+			head = tempNode.next;
+		}
+		else{ //중간에서 뺴는경우
+			MyListNode preNode = null;	
+			for(i=0; i<position; i++){ 
+				preNode = tempNode;
+				tempNode = tempNode.next; //for문돌리면 tempNode가 내가 지우는 노드가 된다.
+			}
+			preNode.next = tempNode.next;
+		}
+		count--;
+		System.out.println(position + "번째 항목 삭제되었습니다.");
+		
+		return tempNode;
+	}
+	
+	public String getElement(int position)
+	{
+		int i;
+		MyListNode tempNode = head;
+		
+		if(position >= count ){
+			System.out.println("검색 위치 오류 입니다. 현재 리스트의 개수는 " + count +"개 입니다.");
+			return new String("error");
+		}
+		
+		if(position == 0){  //맨 인 경우
+
+			return head.getData();
+		}
+		
+		for(i=0; i<position; i++){
+			tempNode = tempNode.next;
+			
+		}
+		return tempNode.getData();
+	}
+
+	public MyListNode getNode(int position)
+	{
+		int i;
+		MyListNode tempNode = head;
+		
+		if(position >= count ){
+			System.out.println("검색 위치 오류 입니다. 현재 리스트의 개수는 " + count +"개 입니다.");
+			return null;
+		}
+		
+		if(position == 0){  //맨 인 경우
+
+			return head;
+		}
+		
+		for(i=0; i<position; i++){
+			tempNode = tempNode.next;
+			
+		}
+		return tempNode;
+	}
+
+	public void removeAll()
+	{
+		head = null;
+		count = 0;
+		
+	}
+	
+	public int getSize()
+	{
+		return count;
+	}
+	
+	public void printAll()
+	{
+		if(count == 0){
+			System.out.println("출력할 내용이 없습니다.");
+			return;
+		}
+		
+		MyListNode temp = head;
+		while(temp != null){
+			System.out.print(temp.getData());
+			temp = temp.next;
+			if(temp!=null){
+				System.out.print("->");
+			}
+		}
+		System.out.println("");
+	}
+	
+	public boolean isEmpty()
+	{
+		if(head == null) return true;
+		else return false;
+	}
+	
+}
+--------------
+package ch05;
+
+import ch03.MyLinkedList;
+import ch03.MyListNode;
+
+interface IQueue{
+	public void enQueue(String data);
+	public String deQueue();
+	public void printAll();
+}
+
+public class MyListQueue extends MyLinkedList implements IQueue{
+
+	MyListNode front;
+	MyListNode rear;
+		
+	
+	public MyListQueue()
+	{
+		front = null;
+		rear = null;
+	}
+	
+	public void enQueue(String data)
+	{
+		MyListNode newNode;
+		if(isEmpty())  //처음 항목
+		{
+			newNode = addElement(data); //맨뒤로 add되니까
+			front = newNode;
+			rear = newNode;
+		}
+		else
+		{
+			newNode = addElement(data);
+			rear = newNode;
+		}
+		System.out.println(newNode.getData() + " added");
+	}
+	
+	public String deQueue()
+	{
+		if(isEmpty()){
+			System.out.println("Queue is Empty");
+			return null;
+		}
+		String data = front.getData(); //맨앞에서 지워야하니까
+		front = front.next; //front는 이제 front.next를 가리키면된다.
+		if( front == null ){  // 근데 front가 null이면 마지막 항목이라는 소리이다.
+			rear = null;
+		}
+		return data;
+	}
+	
+	public void printAll()
+	{
+		if(isEmpty()){
+			System.out.println("Queue is Empty");
+			return;
+		}
+		MyListNode temp = front; //맨앞노드를 잠시 temp에 저장
+		while(temp!= null){ 
+			System.out.print(temp.getData() + ",");
+			temp = temp.next; //front가 next를 가리키는 곳을 temp에 다시저장 ... 반복
+		}
+		System.out.println();
+	}
+}
+------------------
+package ch05;
+
+public class MyListQueueTest {
+
+	public static void main(String[] args) {
+
+		MyListQueue listQueue = new MyListQueue();
+		listQueue.enQueue("A");
+		listQueue.enQueue("B");
+		listQueue.enQueue("C");
+		listQueue.enQueue("D");
+		listQueue.enQueue("E");
+		
+		System.out.println(listQueue.deQueue());
+		listQueue.printAll();
+	}
+}
+=================================================================
 
 
 
