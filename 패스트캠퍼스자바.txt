@@ -4187,5 +4187,162 @@ public class GenericPrinterTest {
 
 }
 ==================================================================================================
+//하지만, 제네릭을 쓰면 객체와 관계없는 것까지 타입으로 받을 수 있기때문에 문제가된다. 
+//그래서 <T extends 클래스> 를 사용한다
+//T자료형의 범위를 제한 할 수 있다.
+//상속을 받지 않는 경우 T는 Object로 변환되어 Object클래스가 기본으로 제공하는 메소드만 사용가능
 
+T에 무작위 클래스가 들어갈 수 없게 Material 클래스를 상속받은 클래스로 한정
+			Material
+		   /       \
+		Powder    Plastic
+
+=================================================================
+package ch07;
+
+public abstract class Material {
+	
+	public abstract void doPrinting(); //공통
+}
+-------------
+package ch07;
+
+public class Plastic extends Material{
+	@Override
+	public void doPrinting() {
+		System.out.println("Plastic 재료로 출력합니다");
+	}
+	
+	public String toString() {
+		return "재료는 Plastic 입니다";
+	}
+}
+-----------------
+package ch07;
+
+public class Powder extends Material{
+	@Override
+	public void doPrinting() {
+		System.out.println("Powder 재료로 출력합니다");
+	}
+	
+	public String toString() {
+		return "재료는 Powder 입니다";
+	}
+}
+------------------
+package ch07;
+
+public class GenericPrinter<T extends Material> { //Material을 상속받은 아이만 가능
+	private T material;
+	
+	public void setMaterial(T material) {
+		this.material = material;
+	}
+	
+	public T getMaterial() {
+		return material;
+	}
+	
+	public String toString(){
+		return material.toString();
+	}
+	
+	public void printing() {
+		material.doPrinting();
+	}
+}
+-----------------------
+package ch07;
+
+public class GenericPrinterTest {
+
+	public static void main(String[] args) {
+		
+		//Powder, Plastic은 Material을 상속받았기 때문에 GenericPrinter를 Class 생성가능
+		GenericPrinter<Powder> powderPrinter = new GenericPrinter<Powder>();
+		powderPrinter.setMaterial(new Powder());
+		Powder powder = powderPrinter.getMaterial(); // 형변환 하지 않음
+		System.out.println(powderPrinter);
+		
+		GenericPrinter<Plastic> plasticPrinter = new GenericPrinter<Plastic>();
+		plasticPrinter.setMaterial(new Plastic());
+		Plastic plastic = plasticPrinter.getMaterial(); // 형변환 하지 않음
+		System.out.println(plasticPrinter);
+		
+	/*	GenericPrinter powderPrinter2 = new GenericPrinter(); //자료형을 안쓸수도있다.
+		powderPrinter2.setMaterial(new Powder());
+		Powder powder = (Powder)powderPrinter.getMaterial();
+		System.out.println(powderPrinter);
+		*/
+		//GenericPrinter<Water> printer = new GenericPrinter<Water>();	이렇게쓸수는없다. 자식이 아니라서(extends의 장점)
+	}
+}
+------------------------
+package ch07;
+
+public class GenericPrinterTest2 {
+
+	public static void main(String[] args) {
+
+		GenericPrinter<Powder> powderPrinter = new GenericPrinter<Powder>();
+		powderPrinter.setMaterial(new Powder());
+		powderPrinter.printing();
+		
+		GenericPrinter<Plastic> plasticPrinter = new GenericPrinter<Plastic>();
+		plasticPrinter.setMaterial(new Plastic());
+		plasticPrinter.printing();
+	}
+}
+============================================================
+//제네릭 메서드
+//너비구하기
+package ch08;
+
+public class Point<T, V> { //Integer, double일수있으니
+	
+	T x;
+	V y;
+	
+	Point(T x, V y){
+		this.x = x;
+		this.y = y;
+	}
+	
+	public  T getX() {
+			return x;
+	}
+
+	public V getY() {
+		return y;
+    }
+}
+----------------
+package ch08;
+
+public class GenericMethod {
+
+	public static <T, V> double makeRectangle(Point<T, V> p1, Point<T, V> p2) {
+		double left = ((Number)p1.getX()).doubleValue();
+		double right =((Number)p2.getX()).doubleValue();
+		double top = ((Number)p1.getY()).doubleValue();
+		double bottom = ((Number)p2.getY()).doubleValue();
+		
+		double width = right - left; //거리 
+		double height = bottom - top; //거리
+		
+		return width * height;
+	}
+	
+	public static void main(String[] args) {
+		
+		Point<Integer, Double> p1 = new Point<Integer, Double>(0, 0.0); //한점
+		Point<Integer, Double> p2 = new Point<>(10, 10.0); //자료형 생략가능 <>
+		
+		double rect = GenericMethod.<Integer, Double>makeRectangle(p1, p2);
+		System.out.println("두 점으로 만들어진 사각형의 넓이는 " + rect + "입니다.");
+	}
+}
+//출력결과 : 100.0
+===============================================================
 
