@@ -4331,7 +4331,7 @@ public class GenericMethod {
 		double width = right - left; //거리 
 		double height = bottom - top; //거리
 		
-		return width * height;
+		return width * height; //double로 반환
 	}
 	
 	public static void main(String[] args) {
@@ -4339,10 +4339,267 @@ public class GenericMethod {
 		Point<Integer, Double> p1 = new Point<Integer, Double>(0, 0.0); //한점
 		Point<Integer, Double> p2 = new Point<>(10, 10.0); //자료형 생략가능 <>
 		
+		//static이라 클래스로 접근(굳이 함수를 static으로 선언할 필요는없다)
 		double rect = GenericMethod.<Integer, Double>makeRectangle(p1, p2);
 		System.out.println("두 점으로 만들어진 사각형의 넓이는 " + rect + "입니다.");
 	}
 }
 //출력결과 : 100.0
 ===============================================================
+//자바에서 제공되는 자료구조 구현 클래스들 - 컬렉션 프레임 워크
+//java.util 패키지에 구현되어있다.
 
+//Collection인터페이스 하위에 List, Set 인터페이스(중복허용x)가 있다.
+
+package ch10;
+
+public class Member {
+	
+	private int memberId;        //회원 아이디
+	private String memberName;   //회원 이름
+
+	public Member(int memberId, String memberName){ //생성자
+		this.memberId = memberId;
+		this.memberName = memberName;
+	}
+	
+	public int getMemberId() {  //
+		return memberId;
+	}
+	public void setMemberId(int memberId) {
+		this.memberId = memberId;
+	}
+	public String getMemberName() {
+		return memberName;
+	}
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+	
+	@Override
+	public String toString(){   //toString 메소드 오버로딩
+		return memberName + " 회원님의 아이디는 " + memberId + "입니다";
+	}
+}
+------------------
+package ch10;
+
+import java.util.ArrayList;  // 사용할 클래스 import
+import java.util.Iterator;
+
+public class MemberArrayList {
+
+	private ArrayList<Member> arrayList;  // ArrayList 선언 
+
+	public MemberArrayList(){
+		arrayList = new ArrayList<Member>();  //멤버로 선언한 ArrayList 생성
+	}
+	
+	public void addMember(Member member){  //ArrayList 에 멤버 추가
+		arrayList.add(member);
+	}
+	
+	public boolean removeMember(int memberId){  // 멤버 아이디를 매개변수로, 삭제 여부를 반환
+		
+		//Iterator안하면 이렇게해야된다.
+	/*	for(int i =0; i<arrayList.size(); i++){ // 해당 아이디를 가진 멤버를 ArrayList에서 찾음
+			Member member = arrayList.get(i); //하나씩 꺼낸다.
+			int tempId = member.getMemberId();
+			if(tempId == memberId){            // 멤버아이디가 매개변수와 일치하면 
+				arrayList.remove(i);           // 해당 멤버를 삭제
+				return true;                   // true 반환
+			}
+		}
+		*/
+		
+		Iterator<Member> ir = arrayList.iterator(); //<Member>라고안하면 알아서 Object로 된다
+		while(ir.hasNext()) {
+			Member member = ir.next();  //다음꺼를 반환후 그자리에 이동
+			int tempId = member.getMemberId();
+			if(tempId == memberId){            // 멤버아이디가 매개변수와 일치하면 
+				arrayList.remove(member);           // 해당 멤버를 삭제
+				return true;                   // true 반환
+			}
+		}
+		
+		System.out.println(memberId + "가 존재하지 않습니다");  //for 가 끝날때 까지 return 이 안된경우
+		return false;                   
+	}
+	
+	public void showAllMember(){
+		for(Member member : arrayList){
+			System.out.println(member);
+		}
+		System.out.println();
+	}
+}
+-------------------
+package ch10;
+
+public class MemberArrayListTest {
+
+	public static void main(String[] args) {
+
+		MemberArrayList memberArrayList = new MemberArrayList();
+		
+		Member memberLee = new Member(1001, "이순신");
+		Member memberKim = new Member(1002, "김유신");
+		Member memberKang = new Member(1003, "강감찬");
+		Member memberHong = new Member(1004, "홍길동");
+		
+		memberArrayList.addMember(memberLee);
+		memberArrayList.addMember(memberKim);
+		memberArrayList.addMember(memberKang);
+		memberArrayList.addMember(memberHong);
+		
+		memberArrayList.showAllMember();
+		
+		memberArrayList.removeMember(memberHong.getMemberId()); //한명지우기
+		memberArrayList.showAllMember();
+	}
+}
+==================================================================
+//Collection요소를 순회하는 Iterator
+순서가있는 List인터페이스는 Iterator를 사용하지않고 get(i)를 사용, Iterator써도됨
+Set경우에는 get이 없으므로 Iterator를 쓴다.
+===================================================================
+//중복되지 않게 자료를 관리하는 Set 인터페이스를 구현한 클래스와 그 활용
+HashSet 클래스
+- Set인터페이스를 구현한 클래스
+- 멤버의 중복여부를 체크하기 위해 인스턴스의 동일성을 확인해야함.
+- .add될때 equals, hashCode 를 확인한다.
+
+package ch12;
+
+import java.util.HashSet;
+
+public class HashSetTest {
+
+	public static void main(String[] args) {
+
+		HashSet<String> hashSet = new HashSet<String>();
+		hashSet.add(new String("김유신"));
+		hashSet.add(new String("이순신"));
+		hashSet.add(new String("홍연의"));
+		hashSet.add(new String("강감찬"));
+		hashSet.add(new String("강감찬"));
+		
+		System.out.println(hashSet); //중복은 한번만출력
+	}
+}
+=====================================================================
+
+package ch12;
+
+public class Member {
+	
+	private int memberId;        //회원 아이디
+	private String memberName;   //회원 이름
+
+	public Member(int memberId, String memberName){ //생성자
+		this.memberId = memberId;
+		this.memberName = memberName;
+	}
+	
+	public int getMemberId() {  //
+		return memberId;
+	}
+	public void setMemberId(int memberId) {
+		this.memberId = memberId;
+	}
+	public String getMemberName() {
+		return memberName;
+	}
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+
+	@Override
+	public int hashCode() {
+		return memberId;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if( obj instanceof Member){
+			Member member = (Member)obj;
+			if( this.memberId == member.memberId )
+				return true;
+			else 
+				return false;
+		}
+		return false;
+	}
+	
+	@Override
+	public String toString(){   //toString 메소드 오버로딩
+		return memberName + " 회원님의 아이디는 " + memberId + "입니다";
+	}
+}
+---------------
+package ch12;
+
+import java.util.HashSet;
+import java.util.Iterator;
+
+
+public class MemberHashSet {
+	private HashSet<Member> hashSet;
+
+	public MemberHashSet(){
+		hashSet = new HashSet<Member>();
+	}
+	
+	public void addMember(Member member){
+		hashSet.add(member);
+	}
+	
+	public boolean removeMember(int memberId){
+
+		Iterator<Member> ir = hashSet.iterator();
+		
+		while( ir.hasNext()){
+			Member member = ir.next();
+			int tempId = member.getMemberId();
+			if( tempId == memberId){
+				hashSet.remove(member);
+				return true;
+			}
+		}
+		
+		System.out.println(memberId + "가 존재하지 않습니다");
+		return false;
+	}
+	
+	public void showAllMember(){
+		for(Member member : hashSet){
+			System.out.println(member);
+		}
+		System.out.println();
+	}
+}
+-------------------
+package ch12;
+
+public class MemberHashSetTest {
+
+	public static void main(String[] args) {
+
+		MemberHashSet memberHashSet = new MemberHashSet();
+		
+		Member memberLee = new Member(1001, "이순신");
+		Member memberKim = new Member(1002, "김유신");
+		Member memberKang = new Member(1003, "강감찬");
+		
+		
+		memberHashSet.addMember(memberLee);
+		memberHashSet.addMember(memberKim);
+		memberHashSet.addMember(memberKang);
+		memberHashSet.showAllMember();
+		
+		Member memberHong = new Member(1003, "홍길동");  //1003 아이디 중복(equals, hashcode안쓰면 그냥 들어간다) 
+		memberHashSet.addMember(memberHong);
+		memberHashSet.showAllMember();
+	}
+}
+===========================================================================
