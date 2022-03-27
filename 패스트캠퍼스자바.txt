@@ -4908,4 +4908,357 @@ public class ComparatorTest {
 	}
 }
 ================================================================
- 
+//comapartor로 memberName으로 정렬
+package ch13;
+
+import java.util.Comparator;
+
+public class Member implements Comparator<Member>{
+
+	private int memberId;        //회원 아이디
+	private String memberName;   //회원 이름
+
+	public Member() {}
+	
+	public Member(int memberId, String memberName){ //생성자
+		this.memberId = memberId;
+		this.memberName = memberName;
+	}
+	
+	public int getMemberId() {  //
+		return memberId;
+	}
+	public void setMemberId(int memberId) {
+		this.memberId = memberId;
+	}
+	public String getMemberName() {
+		return memberName;
+	}
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+	
+	@Override
+	public String toString(){   //toString 메소드 오버로딩
+		return memberName + " 회원님의 아이디는 " + memberId + "입니다";
+	}
+
+	@Override
+	public int hashCode() {
+		return memberId;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if( obj instanceof Member){
+			Member member = (Member)obj;
+			if( this.memberId == member.memberId )
+				return true;
+			else 
+				return false;
+		}
+		return false;
+	}
+
+//	@Override
+//	public int compareTo(Member member) {
+//		
+//		//return (this.memberId - member.memberId);   //오름차순
+//		return (this.memberId - member.memberId) *  (-1);   //내림 차순
+//	}
+
+	@Override
+	public int compare(Member arg0, Member arg1) {
+		return (arg0.memberName.compareTo(arg1.memberName)) *-1 ; //내림차순, 원래 앞이 크면 양수이다.
+	}
+}
+--------------
+package ch13;
+
+import java.util.Iterator;
+import java.util.TreeSet;
+
+
+
+public class MemberTreeSet {
+
+	private TreeSet<Member> treeSet;
+
+	public MemberTreeSet(){
+		treeSet = new TreeSet<Member>(new Member());
+	}
+	
+	public void addMember(Member member){
+		treeSet.add(member);
+	}
+	
+	public boolean removeMember(int memberId){
+		
+		Iterator<Member> ir = treeSet.iterator();
+		
+		while( ir.hasNext()){
+			Member member = ir.next();
+			int tempId = member.getMemberId();
+			if( tempId == memberId){
+				treeSet.remove(member);
+				return true;
+			}
+		}
+		
+		System.out.println(memberId + "가 존재하지 않습니다");
+		return false;
+	}
+	
+	public void showAllMember(){
+		for(Member member : treeSet){
+			System.out.println(member);
+		}
+		System.out.println();
+	}
+}
+-----------------
+package ch13;
+
+public class MemberTreeSetTest {
+
+	public static void main(String[] args) {
+
+		MemberTreeSet memberTreeSet = new MemberTreeSet();
+		
+		
+		Member memberKim = new Member(1003, "김유신");
+		Member memberLee = new Member(1001, "이순신");
+		Member memberKang = new Member(1002, "강감찬");
+		
+		
+		memberTreeSet.addMember(memberKim);
+		memberTreeSet.addMember(memberLee);
+		memberTreeSet.addMember(memberKang);
+		memberTreeSet.showAllMember();
+		
+	}
+}
+====================================================================
+//쌍으로 자료를 관리하는 Map인터페이스를 구현한 클래스와 그 활용
+HashMap 클래스
+package ch14;
+
+public class Member {
+	
+	private int memberId;        //회원 아이디
+	private String memberName;   //회원 이름
+
+	public Member(int memberId, String memberName){ //생성자
+		this.memberId = memberId;
+		this.memberName = memberName;
+	}
+	
+	public int getMemberId() {  //
+		return memberId;
+	}
+	public void setMemberId(int memberId) {
+		this.memberId = memberId;
+	}
+	public String getMemberName() {
+		return memberName;
+	}
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+
+	@Override
+	public int hashCode() {
+		return memberId;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if( obj instanceof Member){
+			Member member = (Member)obj;
+			if( this.memberId == member.memberId )
+				return true;
+			else 
+				return false;
+		}
+		return false;
+	}
+	
+	@Override
+	public String toString(){   //toString 메소드 오버로딩
+		return memberName + " 회원님의 아이디는 " + memberId + "입니다";
+	}
+}
+---------------------
+package ch14;
+
+import java.util.HashMap;
+import java.util.Iterator;
+
+
+public class MemberHashMap {
+
+	private HashMap<Integer, Member> hashMap;
+	
+	public MemberHashMap()
+	{
+		hashMap = new HashMap<Integer, Member>();
+	}
+	
+	public void addMember(Member member){
+		
+		hashMap.put(member.getMemberId(), member); //key, value로 넣기
+		
+	}
+	
+	public boolean removeMember(int memberId){
+		
+		if(hashMap.containsKey(memberId)){ //containsKey, containsValue는 반환값이 boolean이다.
+			hashMap.remove(memberId);
+			return true;
+		}
+		
+		System.out.println(memberId + "가 존재하지 않습니다");
+		return false;
+	}
+	
+	public void showAllMember(){
+		Iterator<Integer> ir = hashMap.keySet().iterator(); //map자체에는 Iterator가 없으므로 key 또는 value에서 가져와야함
+		while (ir.hasNext()){
+			int key = ir.next();
+			Member member = hashMap.get(key); //value가 반환된다.
+			System.out.println(member);
+		}	
+		System.out.println();
+	}
+}
+--------------------
+package ch14;
+
+import java.util.HashMap;
+
+public class MemberHashMapTest {
+
+	public static void main(String[] args) {
+
+		MemberHashMap memberHashMap = new MemberHashMap();
+		
+		
+		Member memberLee = new Member(1001, "이순신");
+		Member memberKim = new Member(1002, "김유신");
+		Member memberKang = new Member(1003, "강감찬");
+		Member memberHong = new Member(1004, "홍길동");
+		
+		memberHashMap.addMember(memberLee);
+		memberHashMap.addMember(memberKim);
+		memberHashMap.addMember(memberKang);
+		memberHashMap.addMember(memberHong);
+		
+		memberHashMap.showAllMember();
+		
+		memberHashMap.removeMember(1004);
+		memberHashMap.showAllMember();
+		
+		HashMap<Integer,String> hashMap = new HashMap<Integer, String>();
+		hashMap.put(1001,"kim");
+		System.out.println(hashMap); // {1001=kim} 이렇게 keyvalue형식으로 나온다.
+	}
+}
+//여기서 key로 정렬하는게 TreeMap이다.
+=================================================================
+//내부클래스(중첩클래스)
+//클래스안의 클래스 선언
+//내부클래스 종류
+1. 인스턴스 내부 클래스
+- 내부에서 쓰니까 private, private가 아니면 외부에서 사용가능
+
+package ch01;
+
+class OutClass {
+
+	private int num = 10;
+	private static int sNum = 20;
+	private InClass inClass;
+	
+	public OutClass(){ 
+		inClass = new InClass(); // 아웃클래스 생성될때 내부 클래스 생성
+	}
+	
+	private class InClass{ //중첩클래스
+		
+		int inNum = 100;
+		//static int sInNum = 200;  //에러 난디. 아우터클래스가 먼저생성난 다음에 이너클래스가 생성되니까 
+		
+		void inTest(){
+			System.out.println("OutClass num = " +num + "(외부 클래스의 인스턴스 변수)");
+			System.out.println("OutClass sNum = " + sNum + "(외부 클래스의 스태틱 변수)");
+			System.out.println("InClass inNum = " + inNum + "(내부 클래스의 인스턴스 변수)");
+		}
+		
+	    //static void sTest(){  //에러 남
+	    	
+	    //}
+		
+	}
+	
+	public void usingClass(){
+		inClass.inTest(); //내부 클래스 변수를 사용하여 메서드 호출하기
+	}
+	
+	2. 정적내부클래스
+	static class InStaticClass{
+		
+		int inNum = 100;
+		static int sInNum = 200;
+		
+		void inTest(){   //정적 클래스의 일반 메서드
+			//num += 10;    // 외부 클래스의 인스턴스 변수는 사용할 수 없음.
+			System.out.println("InStaticClass inNum = " + inNum + "(내부 클래스의 인스턴스 변수 사용)"); 
+			System.out.println("InStaticClass sInNum = " + sInNum + "(내부 클래스의 스태틱 변수 사용)");
+			System.out.println("OutClass sNum = " + sNum + "(외부 클래스의 스태틱 변수 사용)");
+		}
+		
+		static void sTest(){  // 정적 클래스의 static 메서드
+			//num += 10;   // 외부 클래스의 인스턴스 변수는 사용할 수 없음.
+			//inNum += 10; // 내부 클래스의 인스턴스 변수는 사용할 수 없음
+			
+			System.out.println("OutClass sNum = " + sNum + "(외부 클래스의 스태틱 변수 사용)");
+			System.out.println("InStaticClass sInNum = " + sInNum + "(내부 클래스의 스태틱 변수 사용)");
+			
+		}
+	}	
+}
+
+public class InnerTest {
+
+	public static void main(String[] args) {
+		//정석방법 1
+	/*	OutClass outClass = new OutClass();
+		System.out.println("외부 클래스 이용하여 내부 클래스 기능 호출");
+		outClass.usingClass();    // 내부 클래스 기능 호출
+	    System.out.println();
+	    
+		//다른방법 1 (단, Inclass가 private이 아닌경우)
+		OutClass.InClass inClass = outClass.new InClass();   // 외부 클래스를 이용하여 내부 클래스 생성
+		System.out.println("외부 클래스 변수를 이용하여 내부 클래스 생성");
+		inClass.inTest();
+		
+		System.out.println();
+		*/
+		//외부 클래스 생성하지 않고 바로 정적 내부 클래스 생성
+		OutClass.InStaticClass sInClass = new OutClass.InStaticClass();  
+		System.out.println("정적 내부 클래스 일반 메서드 호출");
+		sInClass.inTest(); //일반메서드는 객체를 생성 후 호출
+		System.out.println();
+		
+		System.out.println("정적 내부 클래스의 스태틱 메소드 호출");
+		OutClass.InStaticClass.sTest(); //정적 메서드는 바로 호출가능
+	}
+
+}
+
+====================================================================
+
+2. 정적내부클래스
+3. 지역내부클래스
+4. 익명내부클래스
+
