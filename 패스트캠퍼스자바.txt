@@ -5257,8 +5257,94 @@ public class InnerTest {
 }
 
 ====================================================================
+3. 지역내부클래스(메서드 내부에 클래스 -> 이걸 이름을 없앤게 익명내부클래스)
+package ch01;
 
-2. 정적내부클래스
-3. 지역내부클래스
+class Outer{
+	
+	int outNum = 100;
+	static int sNum = 200;
+	
+		
+	Runnable getRunnable(final int i){ //Runnable한 타입을 반환해라.(메서드)
+		//매개변수(i) , num도 스택메모리에 올라간다.
+		int num = 100; //그냥 이렇게 선언해도 알아서 final이 붙음.(그래서 run메서드에서 출력가능하다. 스택에서 없어져도 상수영역에서 남기떄문에 run에서 출력가능한것이다)
+		
+		class MyRunnable implements Runnable{
+
+			int localNum = 10;
+				
+			@Override
+			public void run() {
+				//num = 200;   //에러 남. 지역변수는 상수로 바뀜, 메서드(getRunnable)는 호출하고 끝나면 스택에서 사라진다. 근데 run이라는 메서드는 다시호출될수있는데 num,i가 없을수도있으니 final붙임 (상수화시킴 -> 스택에서 사라지지만 상수영역에서남음)
+				//i = 100;     //에러 남. 매개 변수 역시 지역변수처럼 상수로 바뀜
+				System.out.println("i =" + i); //그래서 가져오는건 문제가안됌
+				System.out.println("num = " +num);  
+				System.out.println("localNum = " +localNum);
+					
+				System.out.println("outNum = " + outNum + "(외부 클래스 인스턴스 변수)"); //Outer가 생성되고 Runnable 메서드가 실행되니 가능
+				System.out.println("Outter.sNum = " + Outer.sNum + "(외부 클래스 정적 변수)");
+				}
+			}
+		 return new MyRunnable();
+	}
+}
+
+public class LocalInnerTest {
+
+	public static void main(String[] args) {
+
+		Outer out = new Outer();
+		Runnable runner = out.getRunnable(10); //이렇게 runner를 주고 메서드는 끝나면 스택에 있는 것들은 사라진다.(호출이끝났으니까)
+		runner.run(); //근데 여기서 호출이 되니까 값을 상수화시켜버린다, 예전에는 final을 강제적으로 븉여야됬지만 요즘은 알아서 컴파일러가 해준다.
+	}
+}
+//근데 MyRunnable이라는 클래스이름을 굳이 줄필요가있을까? 쓰지도 않는데 -> 익명내부클래스 
+===================================================================
 4. 익명내부클래스
+- 클래스의 이름을 생략하고 주로 하나의 인터페이스나 하나의 추상 클래스를 구현하여 반환
+package ch01;
+
+class Outter2{
+		
+		//방법 1
+	Runnable getRunnable(int i){
+
+		int num = 100;
+		
+		return new Runnable() { //클래스이름을 없앴다.
+				
+		@Override
+		public void run() {
+			//num = 200;   //에러 남
+			//i = 10;      //에러 남
+			System.out.println(i);
+			System.out.println(num);
+			}
+		}; //implements의 끝이 여기다
+	}
+	
+	//또 다른 방법(outter2의 인스턴스변수)
+	Runnable runner = new Runnable() {  //runner를 통해접근가능
+		
+		@Override
+		public void run() {
+			System.out.println("Runnable 이 구현된 익명 클래스 변수");
+			
+		}
+	};
+}
+
+public class AnonymousInnerTest {
+
+	public static void main(String[] args) {
+		Outter2 out = new Outter2();
+	
+		Runnable runnerble = out.getRunnable(10);
+		runnerble.run();
+		
+		out.runner.run();
+	}
+}
+=============================================================================
 
