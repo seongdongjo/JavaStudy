@@ -900,9 +900,9 @@ for(int i = 0; i<5; i++) {
 *       *
 for(int i = 0; i<5; i++) {
 			for(int j=0; j<4-i; j++) {
-					System.out.print(" ");
+					System.out.print(" "); //0,1,2,3까지 공백찍고 
 			}
-			for(int j=0; j<=i*2; j++) {
+			for(int j=0; j<=i*2; j++) { //4에 별찍고(여기서는 0)
 				if (j==0 || j==i*2 || i ==2){
 					System.out.print("*");
 				}
@@ -913,10 +913,301 @@ for(int i = 0; i<5; i++) {
 	}
 
 ============================================================================
+public class 개 {
+	void 먹기() {
+		System.out.println("개 같이 먹는다");
+	}
+	void 소리내기() {
+		System.out.println("개 소리 낸다");
+	}
+	void 움직이기() {
+		System.out.println("개 같이 움직인다");
+	}
+	void 개만가지는기능() {
+		System.out.println("개 기능");
+	}
+}
+---------------
+public class 고양이 {
+	void 먹기() {
+		System.out.println("고양이 같이 먹는다");
+	}
+	void 소리내기() {
+		System.out.println("고양이 소리 낸다");
+	}
+	void 움직이기() {
+		System.out.println("고양이 같이 움직인다");
+	}
+	void 개만가지는기능() {
+		System.out.println("고양이 기능");
+	}
+}
+-----------------
+public class Main {
+	개 dog = new 개();
+	dog.움직이기();
+	...
+	
+	고양이 cat = new 고양이();
+	cat.움직이기();
+	...
+	
+	//이렇게하면 class에서도 공통적으로 들어가는 게 많아서 비효율적 -> 추상화로 
+}
+====================================================================
+//우리가 동물 그 자체가 먹는 소리, 움직이는거 소리내는거(공통적인부분들) 명확하게 정의 할 수가 없다. -> 상속받은 애들이 알아서구현해라 
+public class Main {
+	개 dog = new 개();
+	dog.움직이기();
+	...
+	
+	고양이 cat = new 고양이();
+	cat.움직이기();
+	...
+	
+	//다형성이용
+	동물[] ani = new 동물[] { dog, cat};
+	for(int i = 0; i<ani.length; i++) {
+		ani[i].먹기();
+		ani[i].소리내기();
+		ani[i].움직이기();
+		//개만가지는기능, 고양이만 가지는 기능은 쓸수없다.->다운캐스팅
+		if(ani[i] instanceof 개) {
+			개 tmp = (개)api[i];
+			tmp.개만가지는기능();
+		}
+	}
+}
+----------------
+public class 개 extends 동물{
+	@Override
+	void 먹기() {
+		System.out.println("개 같이 먹는다");
+	}
+	@Override
+	void 소리내기() {
+		System.out.println("개 소리 낸다");
+	}
+	@Override
+	void 움직이기() {
+		System.out.println("개 같이 움직인다");
+	}
+	void 개만가지는기능() {
+		System.out.println("개 기능");
+	}
+}
+---------------
+public class 고양이 extends 동물{
+	@Override
+	void 먹기() {
+		System.out.println("고양이 같이 먹는다");
+	}
+	@Override
+	void 소리내기() {
+		System.out.println("고양이 소리 낸다");
+	}
+	@Override
+	void 움직이기() {
+		System.out.println("고양이 같이 움직인다");
+	}
+	void 개만가지는기능() {
+		System.out.println("고양이 기능");
+	}
+}
+------------------
+public class 동물 {
+	void 먹기() {}
+	void 소리내기() {}
+	void 움직이기() {}
+}
+=========================================================================
+public class Main {
+	개 ob1 = new 개();
+	고양이 ob2 = new 고양이();
+	고래 ob3 = new 고래();
+	상어 ob4 = new 상어();
+	펭귄 ob5 = new 펭귄();
+	독수리 ob6 = new 독수리();
+	
+	포유류[] 포 = new 포유류[] {ob1,ob2,ob3};
+	어류 어 = ob4;
+	조류[] 조 = new 조류[] {ob5,ob6};
+	
+	//다형성이용
+	동물[] ani = new 동물[] { ob1, ob2,ob3,ob4,ob5,ob6};
+	//또는
+	동물[] ani2 = new 동물[] {포[0], 포[1], 포[2], 어, 조[0], 조[1]};
+	
+	for(int i = 0; i<ani.length; i++) {
+		ani[i].먹기();
+		ani[i].소리내기();
+		ani[i].움직이기();
+		//개만가지는기능, 고양이만 가지는 기능은 쓸수없다.->다운캐스팅
+		if(ani[i] instanceof 개) {
+			개 tmp = (개)api[i];
+			tmp.개만가지는기능();
+		}
+	}
+}
+----------------
+public class 개 extends 포유류{ //동물 + 포유류의 추상메서드를 구현해야한다. 만약에 포유류에서 추상메서드가 정의되있으면 @Override안해도된다.
+	@Override
+	void 먹기() {
+		System.out.println("개 같이 먹는다");
+	}
+	@Override
+	void 소리내기() {
+		System.out.println("개 소리 낸다");
+	}
+	@Override
+	void 움직이기() {
+		System.out.println("개 같이 움직인다");
+	}
+	void 개만가지는기능() {
+		System.out.println("개 기능");
+	}
+	//이렇게 해도되고 아니면 포유류 class에서 포유류특징 메서드를 정의하면 된다.
+	@Override
+	void 포유류특징() {
+		
+	}
+}
+---------------
+public class 고양이 extends 포유류{
+	@Override
+	void 먹기() {
+		System.out.println("고양이 같이 먹는다");
+	}
+	@Override
+	void 소리내기() {
+		System.out.println("고양이 소리 낸다");
+	}
+	@Override
+	void 움직이기() {
+		System.out.println("고양이 같이 움직인다");
+	}
+	void 개만가지는기능() {
+		System.out.println("고양이 기능");
+	}
+}
+------------------
+public class 고래 extends 포유류{
+	@Override
+	void 먹기() {
+		System.out.println("고래 같이 먹는다");
+	}
+	@Override
+	void 소리내기() {
+		System.out.println("고래 소리 낸다");
+	}
+	@Override
+	void 움직이기() {
+		System.out.println("고래 같이 움직인다");
+	}
+	void 고래만가지는기능() {
+		System.out.println("고래 기능");
+	}
+}
+-------------------
+public class 독수리 extends 조류{
+	@Override
+	void 먹기() {
+		System.out.println("독수리 같이 먹는다");
+	}
+	@Override
+	void 소리내기() {
+		System.out.println("독수리 소리 낸다");
+	}
+	@Override
+	void 움직이기() {
+		System.out.println("독수리 같이 움직인다");
+	}
+	void 독수리만가지는기능() {
+		System.out.println("독수리 기능");
+	}
+}
+---------------------
+public class 상어 extends 어류{
+	@Override
+	void 먹기() {
+		System.out.println("상어 같이 먹는다");
+	}
+	@Override
+	void 소리내기() {
+		System.out.println("상어 소리 낸다");
+	}
+	@Override
+	void 움직이기() {
+		System.out.println("상어 같이 움직인다");
+	}
+	void 상어만가지는기능() {
+		System.out.println("상어 기능");
+	}
+}
+-------------------------
+public class 펭귄 extends 조류 implements 물생활{
+	@Override
+	void 먹기() {
+		System.out.println("펭귄 같이 먹는다");
+	}
+	@Override
+	void 소리내기() {
+		System.out.println("펭귄 소리 낸다");
+	}
+	@Override
+	void 움직이기() {
+		System.out.println("펭귄 같이 움직인다");
+	}
+	void 펭귄만가지는기능() {
+		System.out.println("펭귄 기능");
+	}
+	public void 물에서동작() {
+		System.out.println("펭귄이 물에서 생활");
+	}
+}
+-----------------------------
+public abstract class 조류 extends 동물{ 
+	void 조류특징() {
+		System.out.println("날개짓을 한다.");
+	}
+}
+----------------------------
+public abstract class 포유류 extends 동물{
+	abstract void 포유류특징();
+	//void 포유류특징() {  //이렇게하면 Override안해도된다.
+	//	System.out.println("새끼를 낳는다");
+	//}
+}
+------------------------------
+public abstract class 어류 extends 동물{
+	void 어류특징() {
+		System.out.println("물에서 산다");
+	}
+}
+//하지만 동물자체는 객체를 생성하면 안된다. 동물이라는 객체는 세상에 없다. 동물의 특성을 가지는 애들이 있을뿐이지.(개,고양이 등)
+public abstract class 동물 {
+	abstract void 먹기(); //동물이 어떻게 먹는지 모르기때문에 추상메서드
+	abstract void 소리내기();
+	abstract void 움직이기();
+}
+------------------
+또 보니까 물생활은 따로 묶어도되겠네? -> interface로 제공 
+public interface 물생활 {
+	public abstract void 물에서동작();
+}
 
+그러면 main에서
+//서로관련은 없지만 묶을 수 있다.
+물생활[] 물 = new 물생활[] {
+	ob3,ob4,ob5
+};
+for(int i = 0; i<물.length; i++) {
+	물[i].물에서동작();
+}
 
-
-
+======================================================================================
+//TV가 있고 리모콘이 있는데 서로 연관은 없는데 연결해야할때는 has ~ a 관계가 성립된다. 리모콘이 티비의 참조변수를 갖는다.(포함)
+//개,고양이가 공통적인게있고 동물로 묶으니까 개는 동물이다. 고양이는 동물이다. is ~ a 관계이다.
 
 
 
