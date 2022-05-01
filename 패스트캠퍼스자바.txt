@@ -5182,7 +5182,7 @@ class OutClass {
 	}
 	
 	public void usingClass(){
-		inClass.inTest(); //내부 클래스 변수를 사용하여 메서드 호출하기
+		inClass.inTest(); //내부 클래스 변수를 사용하여 메서드 호출하기(InClass 접근)
 	}
 	
 	2. 정적내부클래스
@@ -5620,3 +5620,82 @@ public class ReduceTest {
 	}
 }
 =================================================================================
+//스트림을 이용한 패키지 여행비용계산하기
+여행비용은 15세이상은 100만원 , 그 미만은 50만원
+package ch07;
+
+public class TravelCustomer {
+
+	private String name;   //이름
+	private int age;       //나이
+	private int price;     //가격
+	
+	public TravelCustomer(String name, int age, int price) {
+		this.name = name;
+		this.age = age;
+		this.price = price;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public int getPrice() {
+		return price;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
+	public String toString() {
+		return "name: " + name + "age: " + age + "price: " + price; 
+	}
+
+}
+--------------------
+package ch07;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TravelTest {
+
+	public static void main(String[] args) {
+		TravelCustomer customerLee = new TravelCustomer("이순신", 40, 100);
+		TravelCustomer customerKim = new TravelCustomer("김유신", 20, 100);
+		TravelCustomer customerHong = new TravelCustomer("홍길동", 13, 50);
+		
+		List<TravelCustomer> customerList = new ArrayList<>(); //<>안에 생략해도됌.
+		customerList.add(customerLee);
+		customerList.add(customerKim);
+		customerList.add(customerHong);
+		
+		System.out.println("== 고객 명단 추가된 순서대로 출력 ==");
+		customerList.stream().forEach(s->System.out.println(s)); // toString이 출력된다.(s)객체를 출력해라. 
+		customerList.stream().map(c->c.getName()).forEach(s->System.out.println(s)); // 이름만 출력된다. map이 중간연산, forEach가 최종연산이된다.
+		
+		int total = customerList.stream().mapToInt(c->c.getPrice()).sum();
+		System.out.println("총 여행 비용은 :" + total + "입니다");
+		
+		System.out.println("== 20세 이상 고객 명단 정렬하여 출력 =="); //20명이상은 mapping해서 다시 sorted(기본 오름차순)해서 출력
+		customerList.stream().filter(c->c.getAge() >= 20).map(c->c.getName()).sorted().forEach(s->System.out.println(s)); //최종연산은 한번만 사용된다.
+		//출력 
+		//김유신
+		//이순신
+	}
+
+}
+=============================================================================================
