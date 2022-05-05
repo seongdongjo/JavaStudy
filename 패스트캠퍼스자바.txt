@@ -5699,3 +5699,35 @@ public class TravelTest {
 
 }
 =============================================================================================
+#)예외처리하는 이유 -> 서비스가 죽지않기하기 위해서 (비정상종료 방지, 로그남겨서 그 상황이 무엇인지 버그를 알기위해)
+
+  throwable   (ERROR , Exception은 throwable에서 상속받았다)
+   |    |
+ERROR Exception(하위에 있는 Exception들이 엄청많다)
+
+#)이렇게 try를 해야 서비스 중지를 막을 수 있다.
+try {
+	예외가 발생할수있는 부분
+}catch(처리할 예외 타입 e) {
+	try 블록안에서 예외가 발생했을 떄 예외를 처리하는 부분(대부분 로그를 남긴다)
+}
+================================================================
+package ch08;
+
+public class ArrayExceptionHandling {
+
+	public static void main(String[] args) {
+		int[] arr = {1,2,3,4,5};
+		try{
+			for(int i=0; i<=5; i++){      //배열범위 예외
+				System.out.println(arr[i]);
+			}
+		}catch(ArrayIndexOutOfBoundsException e){   //콘솔에 빨갛게 글자가 뜨는게 아니라 검은색으로 글자가 나온다.
+			System.out.println(e);  //Index 5 out of bounds for length 5
+			System.out.println(e.getMessage());   //java.lang.ArrayIndexOutOfBoundsException: Index 5 out of bounds for length
+		}
+		System.out.println("비정상 종료되지 않았습니다.");
+	}
+}
+================================================================
+
