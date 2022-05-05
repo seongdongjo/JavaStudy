@@ -34,7 +34,7 @@ System.out.println((char)ch3);
 
 ========================================================================
 list, set 은 iterator사용가능
-map은 사용할려면 entryset 같은걸로 바꾸고 해야됌.
+map은 사용할려면 entryset 같은걸로 바꾸고 해야됌. -> foreach쓰기위해서
 
 #)map 사용
 public static void main(String[] args) {
