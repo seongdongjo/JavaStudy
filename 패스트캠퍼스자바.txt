@@ -5730,4 +5730,158 @@ public class ArrayExceptionHandling {
 	}
 }
 ================================================================
+//try-catch-finally 문 (소켓같은 close해줘야될때) finally는 catch에 return이 있어도 호출이된다.
 
+
+//잘못된 예시 (finally를 안쓸때)
+try {
+	fis = new FileInputStream("a.txt");
+	System.out.println("read");
+	
+	try {
+		fis.close();
+	}catch(IOException e) {
+		e.printStackTrace();
+	}
+}catch (FileNotFoundException e) {
+	System.out.println(e);
+	try {
+		fis.close();
+	}catch(IOException e1) {
+		e1.printStackTrace();
+	}
+	System.out.println("end");
+}
+=========================================================================
+
+package ch09;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+public class FileExceptionHandling {
+
+	public static void main(String[] args) {
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream("a.txt"); //파일을 읽어들인다(가장먼저 찾는 path는 프로젝트 폴더 바로 밑이다)
+		} catch (FileNotFoundException e) {
+			System.out.println(e);
+			//return; //return을 해도 finally는 불린다.
+		}finally{ //finally를 안쓰면 catch구간마다 close를 해줘야하니까 
+			if(fis != null){ //열려있을 떄 close해야함
+				try {
+					fis.close();
+				} catch (IOException e) { //IOException은 close할떄 나는 예외이다.
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			System.out.println("항상 수행 됩니다.");
+		}
+		System.out.println("여기도 수행됩니다.");
+	}
+}
+//근데 이거는 코드가 더럽다 -> 자바 7부터 try-with-resources가 있는데 자동으로 자원을 해제시켜준다.
+============================================================
+//이 처럼쓰면 알아서 close가 된다. (try안에 쓰면)
+//FileInputStream이 autoCloseable을 implements를 하고있는데 이거는 예외가 났던간에 끝나면 close메소드가 자동으로 호출되도록 하는 인터페이스이다.
+public class FileExceptionHandling {
+	public static void main(String[] args) {
+	try(FileInputStream fis = new FileInputStream("a.txt")) {
+		System.out.println("read") //에러나면 여기는 실행안한다.
+	} catch(FileNotFoundException e) {
+		e.printStackTrace();
+	} catch(IOException e) {
+		e.printStackTrace();
+	}
+	System.out.println("end"); //예외가 나도 실행
+	}
+}
+
+===================================================================
+//AutoCloseable 실습
+
+package ch09;
+
+public class AutoCloseObj implements AutoCloseable{
+
+	@Override //AutoCloseable에 있는 close를 오버라이딩
+	public void close() throws Exception {
+		System.out.println("리소스가 close() 되었습니다");   //예외든 아니든(try가 실행되면 close가 호출된다 -> autoCloseable을 implements한 obj를 썼으니)
+	}
+}
+-------------------
+package ch09;
+
+public class AutoCloseTest {
+	
+	public static void main(String[] args) {
+		
+		AutoCloseObj obj = new AutoCloseObj();
+    	try (obj){
+			throw new Exception(); //강제로 예외만들기
+		}catch(Exception e) { //모든 예외처리
+			System.out.println("예외 부분 입니다");
+		}
+	}
+}
+===================================================================
+package ch09;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+public class ThrowsException {
+
+	public Class loadClass(String fileName, String className) throws FileNotFoundException, ClassNotFoundException{ //여기서는 catch를 안쓰고 throws를 써보자(예외처리를 미루겠다) -> 어디로미루냐? -> loadClass라는 메소드를 호출하는 쪽에서 처리해라
+		FileInputStream fis = new FileInputStream(fileName); //FileNotFoundException 발생(fileName를 연다) -> throws로 던지고
+		Class c = Class.forName(className);  //ClassNotFoundException 발생
+		return c;
+	}
+
+	public static void main(String[] args) {
+
+		ThrowsException test = new ThrowsException();
+		
+		try {
+			test.loadClass("a.txt", "java.lang.String"); //loadClass메서드를 호출 -> 예외처리 , java.lang.Sttring이라는 클래스를 로드해라
+		
+		}catch (FileNotFoundException e) {
+			e.printStackTrace(); //로그남기기
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}catch (Exception e) {  //애를 맨위에 쓰면안된다.(업캐스팅되니까 여기오면)
+			e.printStackTrace();
+		}
+	}
+}
+================================================================
+//multi-exception
+package ch09;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+public class ThrowsException2 {
+
+	public Class loadClass(String fileName, String className) throws FileNotFoundException, ClassNotFoundException{
+		FileInputStream fis = new FileInputStream(fileName); //FileNotFoundException 발생
+		Class c = Class.forName(className);  //ClassNotFoundException 발생
+		return c;
+	}
+
+	public static void main(String[] args) {
+
+		ThrowsException2 test = new ThrowsException2();
+
+		try {
+			test.loadClass("a.txt", "java.lang.String");
+		} catch (FileNotFoundException | ClassNotFoundException e) { //둘중에 하나의 예외가 발생하면
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}
+=====================================================================
