@@ -543,7 +543,7 @@ public class Collapse {
 			//앞에 중복된 문자가 있으면  indexOf는 0으로 출력된다.
 			//중복이 아니면 해당 인덱스위치 반환
 			//str.charAt(i)와 i가 같다는것은 처음이자 중복되지않는걸 answer에 저장한다는거다
-			//System.out.println(str.charAt(i)+" "+i+" "+str.indexOf(str.charAt(i)));
+			//System.out.println(str.charAt(i)+" "+str.indexOf(str.charAt(i))+" "+ i );
 			// k 0 0
 			// s 1 1 
 			// e 2 2
