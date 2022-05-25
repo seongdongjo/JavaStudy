@@ -5866,7 +5866,7 @@ import java.io.FileNotFoundException;
 
 public class ThrowsException2 {
 
-	public Class loadClass(String fileName, String className) throws FileNotFoundException, ClassNotFoundException{
+	public Class loadClass(String fileName, String className) throws FileNotFoundException, ClassNotFoundException{ //예외를 던지겠다
 		FileInputStream fis = new FileInputStream(fileName); //FileNotFoundException 발생
 		Class c = Class.forName(className);  //ClassNotFoundException 발생
 		return c;
