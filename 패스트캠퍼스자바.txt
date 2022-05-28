@@ -5004,7 +5004,7 @@ public class MemberTreeSetTest {
 
 	public static void main(String[] args) {
 
-		MemberTreeSet memberTreeSet = new MemberTreeSet();
+		MemberTreeSet memberTreeSet = new MemberTreeSet(); //맵트리셋
 		
 		
 		Member memberKim = new Member(1003, "김유신");
