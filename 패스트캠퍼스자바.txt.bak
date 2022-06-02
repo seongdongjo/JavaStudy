@@ -4074,7 +4074,7 @@ public class MyListQueue extends MyLinkedList implements IQueue{
 			System.out.println("Queue is Empty");
 			return;
 		}
-		MyListNode temp = front; //맨앞노드를 잠시 temp에 저장(맨앞에서부터 출력하기 위해서)
+		MyListNode temp = front; //맨앞노드를 잠시 temp에 저장
 		while(temp!= null){ 
 			System.out.print(temp.getData() + ",");
 			temp = temp.next; //front가 next를 가리키는 곳을 temp에 다시저장 ... 반복
