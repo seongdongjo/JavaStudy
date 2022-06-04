@@ -5858,7 +5858,7 @@ public class ThrowsException {
 	}
 }
 ================================================================
-//multi-exception
+//multi-exception(한번에 처리 '|' 기호를 통해)
 package ch09;
 
 import java.io.FileInputStream;
