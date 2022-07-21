@@ -789,7 +789,7 @@ for(int i = 0; i<dArr.lengthl i++) {
 	mtotal *= dArr[i];
 }
 --------------
-//해결법: 요소의 개수에 대한 변수(count)를 유지
+//해결법: 요소의 개수에 대한 변수(count)를 유지 -> count를 1씩증가(for문돌리기위해 길이)
 double[] dArr = new double[5];
 int count = 0;
 dArr[0] = 1.1; count++;
