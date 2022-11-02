@@ -1,0 +1,42 @@
+#) 개발 플랫폼 변화
+메인프레임 -> 데스크탑 -> cs(client/server)는 점점 쇠퇘한다. cs는 반드시 하나의 화면을 개발하면 클라이언트들에게 배포해서 설치해야한다.
+그래서 클라이언트가 많아지면 힘들다 -> 웹사이트(웹브라우저한계) -> RIA(개발자가 was에 올리기만하면 전용브라우저를 통해 볼수있다) 하지만 전용브라우저의 문제점이 있다
+크롬같은곳에 보고싶어서 나온게 자바스크립트기반인 넥사크로가 나온것이다.
+
+넥사크로로 만든 소스 form.xfdl -> generate -> form.js로 변환 -> 배포(웹브라우저,웹뷰로 확인)
+
+form버튼을 만들면 어떻게 html구조로 만들어진걸까?? -> Work폴더위에 nexacro14lib가 있는데 거기에 button.js가 있다.
+
+****xadl(원본)에서 js로 변환 가능하지만 js -> xadl로 변환못한다. 그래서 관리는 xadl쪽에서 해야한다.
+원본폴더에는 Work, default_type.def, np0219.xadl 등이있고 build하는 순간 내가 지정한 위치에 nexacro14lib, Work, js들이 만들어진다.
+
+
+this.Button00_onclick = function(obj:Button, e:nexacro.ClickEventInfo)
+{
+	//scope -> 폼을지정
+	this.alert("Hello");
+	application.trace("Hello"); //브라우저에는 개발자도구 console에서 확인가능, 그냥 Runntime에는 아래 console에서 확인가능
+}
+
+========================================================================
+typedefinition을 더블클릭하면 modules에 compcom.json -> 아래 showjson을 보면 여러 js들이 있는데 이거를 쓸수있다.(사진참조)
+
+만약에 원본소스에서 work폴더를 복사해서 복사본을 work2로 만들었는데 넥사크로에서 프로젝트보면 refresh해도 work2라는 프로젝트가 안생긴다. -> typedefinition에 더블클릭해서 만들어야한다. work2, ./Work2/ 이렇게
+
+this.Button00_onclick = function(obj:Button, e:nexacro.ClickEventInfo)
+{
+	//scope -> 폼을지정
+	this.alert("Hello");
+	trace("Hello");
+}
+
+//변수확인하기
+this.Button01_onclick = function(obj:Button, e:nexacro.ClickEventInfo)
+{
+	//변수 get
+	trace(application.gv_id);
+	//변수 set
+	application.gv_id = "test"
+}
+
+===========================================================================

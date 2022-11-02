@@ -853,7 +853,7 @@ package ch21;
 public class BookTest {
 
 	public static void main(String[] args) {
-		Book[] library = new Book[5]; //null로 초기화, new한다고 Book개게가 만들어지는게 아니다.
+		Book[] library = new Book[5]; //null로 초기화, new한다고 Book객체가 만들어지는게 아니다.
 		
 		library[0] = new Book("태백산맥1", "조정래"); //객체를 만들어서 넣어야한다. 
 		library[1] = new Book("태백산맥2", "조정래");
@@ -1040,9 +1040,10 @@ public class Student {
 	public void addSubject(String name, int score){
 		Subject subject = new Subject();
 		
-		subject.setName(name);
-		subject.setScorePoint(score);
-		subjectList.add(subject);
+		subject.setName(name); //입력받은 이름 
+		subject.setScorePoint(score); //입력받은 점수
+		
+		subjectList.add(subject); //리스트에 add
 	}
 	
 	public void showStudentInfo()
@@ -1095,7 +1096,7 @@ public class Customer {
 		bonusRatio = 0.01;
 	}
 	
-	public int calcPrice(int price) {
+	public int calcPrice(int price) { //입력받은 price
 		bonusPoint += price * bonusRatio; //가격의 1퍼센트를 기존 보너스포인트에 쌓는다.
 		return price;
 	}
@@ -1240,7 +1241,7 @@ public class VIPCustomer extends Customer{
 	private int agentID;
 	double salesRatio; //VIP에만 있는 변수
 	
-	public VIPCustomer() {
+	public VIPCustomer() { //덮어쓰기
 		//super();
 		customerGrade = "VIP"; 
 		bonusRatio = 0.05;
@@ -1684,7 +1685,7 @@ package ch8;
 import java.util.ArrayList;
 
 //다운캐스팅은 명시적으로 해야한다.
-//Customer vc = new VIPCustomer(); 묵시적
+//Customer vc = new VIPCustomer(); 묵시적(업캐스팅)
 //VIPCustomer vCustomer = (VIPCustomer)vc; 명시적(다운캐스팅)
 
 	class Animal{
