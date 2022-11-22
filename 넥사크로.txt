@@ -40,3 +40,264 @@ this.Button01_onclick = function(obj:Button, e:nexacro.ClickEventInfo)
 }
 
 ===========================================================================
+// 주민번호(앞)
+this.div_area1_edt_pid1_onchanged = function(obj:Edit, e:nexacro.ChangeEventInfo)
+{
+	var jumin_f = obj.value; 
+	var jumin_b = this.fn_NullToEmpty(this.div_area1.edt_pid2.value); //이거는 lib - common에 있음
+	
+	if(jumin_f != "" && jumin_b != "") {
+		// 주민번호 정합성 체크
+		this.fn_jumin_chk(jumin_f + jumin_b);
+	}
+}
+
+// 주민번호(뒤)
+this.div_area1_edt_pid2_onchanged = function(obj:Edit, e:nexacro.ChangeEventInfo)
+{
+	var jumin_f = this.fn_NullToEmpty(this.div_area1.edt_pid1.value);
+	var jumin_b = obj.value; 
+	this.div_area1.edt_pid2.set_tooltiptext(jumin_b);
+	if(jumin_f != "" && jumin_b != "") {		
+		// 주민번호 정합성 체크
+		this.fn_jumin_chk(jumin_f + jumin_b);
+	}
+}
+
+
+// (조회조건)주민번호 정합성 체크
+this.fn_jumin_chk = function(juminNo){	
+	var rtn = this.fn_CheckJumin(juminNo);	//이거는 lib - common에 있음
+	if(rtn == -1){
+		this.alert("주민번호 형식이 올바르지않습니다.");
+		this.div_area1.edt_pid1.set_value("");
+		this.div_area1.edt_pid2.set_value("");
+		this.div_area1.edt_pid2.set_tooltiptext("");
+		this.div_area1.edt_pid1.setFocus();
+		return false;
+	}
+	return true;
+}
+======================================================================================
+//학교코드 조회 
+ds_main = sch_cd, sch_nm, office_id, user_id
+
+// 조회
+this.fn_search = function (){
+
+	var strSchName = this.div_search.edt_name_r.value;       // 학교명
+    	
+	var svcId = "search";
+	var url = "/std/schoolCode/selectSchoolCode.do";
+	var inDatasets = "";
+	var outDatasets = "ds_main=ds_schoolCode";
+	var argument = "";
+	
+	//처음에는 학교명이 null로 조회가 되니까
+	// Null이 아닌경우에 파라미터로 셋팅
+	if(strSchName != null && strSchName != ""){ argument += "strSchName="+nexacro.wrapQuote(strSchName); }
+	
+	// 콜백함수명
+	var callbackFunc = "fn_callback"; 
+	
+	ComFn.transaction(this, svcId, url, inDatasets, outDatasets, argument, callbackFunc);
+}
+
+---------------------
+/**
+	 * 학교코드 조회
+	 * @param NexacroMapDTO xpDto
+	 * @param Model model
+	 */
+	@RequestMapping("/std/schoolCode/selectSchoolCode.do")
+	public ModelAndView selectSchoolCode(NexacroMapDTO xpDto, Model model) {
+		ModelAndView mav = new ModelAndView("nexacroMapView");
+
+		try {
+			long startTime = System.currentTimeMillis();
+		
+			Map <String, Object> inVar 	       = xpDto.getInVariableMap();
+			Map <String, DataSetVO> outDataset = xpDto.getOutDataSetVO();
+			Map <String, Object> outVariableList = xpDto.getOutVariableMap();
+			
+			List<schoolCodeDTO> schoolCode = schoolCodeService.selectSchoolCode(inVar);
+			
+			DataSetVO schoolCodeVO = new DataSetVO();
+			schoolCodeVO.setRowVOs(schoolCode);
+			outDataset.put("ds_schoolCode", schoolCodeVO); 
+			long endTime = System.currentTimeMillis();
+			String executionTime = String.format("%.3f", (double)(endTime - startTime)*0.001);
+			outVariableList.put(NexacroConstant.EXECUTION_TIME, executionTime);
+			
+			mav.addObject(NexacroConstant.OUT_VARIABLES_ATT_NAME, xpDto.getOutVariableMap());
+			mav.addObject(NexacroConstant.OUT_DATASET_ATT_NAME, xpDto.getOutDataSetVO());
+			mav.addObject(NexacroConstant.ERROR_CODE, "0");
+			mav.addObject(NexacroConstant.ERROR_MSG, "");
+			
+		}catch( NexaServiceException e ){
+			// 메세지 처리는 에러코드에 따라 달라질수 있음.
+			mav.addObject(NexacroConstant.ERROR_CODE, "-1");
+			mav.addObject(NexacroConstant.ERROR_MSG, "failMessage");
+			throw e;
+		}
+		
+		return mav;
+	}
+
+--------------------------------
+/**
+	 * 학교코드 조회
+	 * @param schoolCodeDTO searchVO
+	 * @return List<schoolCodeDTO>
+	 * @throws NexaServiceException
+	 */
+	public List<schoolCodeDTO> selectSchoolCode(Map <String, Object> inVar) throws NexaDaoException {
+		
+		Map<String, Object> paraMap = new HashMap<String, Object>();
+		
+		// 파라메터 - 조회 조건 
+      	String strSchName 	= (String)inVar.get("strSchName"); 	// 학교명 
+      	paraMap.put("strSchName",strSchName);
+  		
+		return schoolCodeDAO.selectSchoolCode(paraMap);
+	}
+-----------------------------
+	/**
+	 * 학교코드 조회
+	 * @param Map searchVO
+	 * @return schoolCodeDTO
+	 * @throws NexaServiceException
+	 */
+	public List<schoolCodeDTO> selectSchoolCode(Map<String,Object> searchVO) throws NexaDaoException {
+		return selectList("schoolCode.selectSchoolCode",searchVO);
+	}
+-----------------------------
+<!-- 학교코드 조회 -->
+	<select id="selectSchoolCode" parameterType="map" resultType="schoolCodeDTO">                                                                                                           
+	<![CDATA[
+		SELECT SCH_CD,
+		       TRIM(SCH_NM) AS SCH_NM
+		  FROM S_SCH_CD
+         WHERE 1 = 1
+    ]]>
+	   	<!-- 차량명 -->
+	   	<if test='strSchName != null and strSchName != ""'>
+           AND SCH_NM like '%'||#{strSchName}||'%'
+        </if>
+      ORDER BY SCH_CD
+	</select>
+=================================================================
+//넥사크로 input규칙
+졸업연도 edt_gra_year_r (그냥 input type text)
+주민번호앞 edt_pid1_r
+주민번호뒤 edt_pid2_r
+이름 edt_name_r
+승/하선 cmb_dvn_r
+면허구분 cmb_license_r (selectbox)
+계열 cmb_sch_level
+학교명 cmb_sch_school
+
+================================================================
+원래 DB는 컬럼이 스네이크방식인데 DTO는 카멜케이스로 우리가 선언을 했다. 어떻게 그러면 자동매핑이 될까??
+-> sqlmap - mybatis-config.xml 설정파일
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+        <setting name="jdbcTypeForNull" value="VARCHAR"/>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>   //이부분이 자동변환설정이다.
+    </settings>
+    
+    <typeAliases>
+    	<typeAlias alias="hmap"    type="java.util.HashMap"/>
+    	<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    	<typeAlias alias="Integer" type="java.lang.Integer"/>
+    	<typeAlias alias="long"    type="java.lang.Long"/>
+    	<typeAlias alias="float"   type="java.lang.Float"/>
+    	<typeAlias alias="double"  type="java.lang.Double"/>
+    	<typeAlias alias="String"  type="java.lang.String"/>
+    	<typeAlias alias="map" 	   type="java.util.Map"/>
+    	
+    	<!-- common -->
+    	<package name="koswec.app.com.common.vo" />
+==========================================================================
+//svcId
+this.fn_callback = function(svcId, errorCode, errorMsg){
+	if(errorCode != 0){
+		// TODO : 공통메세지 처리
+		//alert(errorMsg);
+		ComFn.alert(this, "000022", "|");
+	}else{
+		// 리턴파라미터 svcId는 트랜잭션의 svcId 파라미터 값과 동일
+		if(svcId == "save"){
+			alert("저장되었습니다.");
+			this.fn_search();
+		
+		} else if(svcId == "school"){ 
+			this.ds_sch_r.copyData(this.ds_sch);
+			this.ds_sch_r.insertRow(0);
+			this.ds_sch_r.setColumn(0,"SCH_CD","");
+			this.ds_sch_r.setColumn(0,"SCH_NM","전체");
+			this.ds_sch_r.setColumn(0,"SCH_CDNM","전체");
+			this.div_search.cmb_sch_school.set_index(0);
+		
+		}else if(svcId == "search"){
+			trace(this.ds_main.saveXML());
+		}
+		
+		ComFn.alert(this, "000175", this.fv_curDs.rowcount+"|");
+	}	
+}
+==================================================================================
+//결과: 970103-1****** (PID)
+SELECT SUBSTR(DAMO.API_DEC(PID),1,6)||'-'|| SUBSTR(DAMO.API_DEC(PID),7,1)||'******' AS PID,
+                    SUBSTR(DAMO.API_DEC(PID),1,6) AS PID1,
+                    SUBSTR(DAMO.API_DEC(PID),7,7) AS PID2,
+                    GRADU_DAT,
+                    NM,
+                    SCH_CD,
+                    SUB_CD,
+                    F_SCH_NM(SCH_CD) AS SCH_NM,
+                    F_SUB_NM(SUB_CD) AS SUB_NM,
+                    ZIPCD, 
+==============================================================================
+// 조회전 
+this.fn_bfrSearch = function(){
+	//TODO : 조회전 로직 있다면 추가.
+
+	var jumin_f = this.fn_NullToEmpty(this.div_area1.edt_pid1.value);
+	var jumin_b = this.fn_NullToEmpty(this.div_area1.edt_pid2.value);
+
+	// 주민번호 필수입력 체크
+	if(jumin_f == "") {
+		this.alert("주민번호(앞)은 필수입력입니다.");
+		this.div_area1.edt_pid1.setFocus();
+		return;
+	}
+	if(jumin_b == "") {
+		this.alert("주민번호(뒤)는 필수입력입니다.");
+		this.div_area1.edt_pid2.setFocus();
+		return;
+	}
+	
+	// 주민번호 정합성 체크
+	if(this.fn_jumin_chk(jumin_f + jumin_b)) {
+		this.fn_search(jumin_f + jumin_b);
+	}	
+}
+
+// (조회조건)주민번호 정합성 체크
+this.fn_jumin_chk = function(juminNo){	
+	var rtn = this.fn_CheckJumin(juminNo);	
+	if(rtn == -1){
+		this.alert("주민번호 형식이 올바르지않습니다.");
+		this.div_area1.edt_pid1.set_value("");
+		this.div_area1.edt_pid2.set_value("");
+		this.div_area1.edt_pid2.set_tooltiptext("");
+		this.div_area1.edt_pid1.setFocus();
+		return false;
+	}
+	return true;
+}
+========================================================================
