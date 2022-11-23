@@ -301,3 +301,55 @@ this.fn_jumin_chk = function(juminNo){
 	return true;
 }
 ========================================================================
+//입력버튼을 처음 누를때 아래 행이 하나 추가되는데 만약에 추가된상태에서 한번더 누르게되면 필수입력값을 체크받게된다.
+//
+
+
+-----------------------
+// 추가(입력) 버튼
+this.fn_addRowBtn = function (){
+	
+	if(this.ds_main.rowcount > 0){ //한번더 입력을 눌럿을때
+		if(! this.fn_prevValidationCheck()){ //필수값체크
+			return;
+		}
+	}
+	
+	this.fn_addRowInit();
+}
+
+--------------------------------------
+//필수값체크 함수
+// 필수 입력 체크
+this.fn_prevValidationCheck = function(){
+	
+	if(this.pfn_divInputChk(this.div_area)) return false;  //div_area(레이아웃)안에 있는 input박스들이 넘어간다. 
+	
+	return true;
+}
+---------------------------------------
+this.pfn_divInputChk = function(objDiv){
+	var objStc;
+	
+	var cnt = objDiv.components.length;
+	
+	for( var i=0; i<cnt; i++){ //input요소 하나하나 null값 체크
+		if( (objDiv.components[i].userdata != "" && objDiv.components[i].userdata != null) && (objDiv.components[i].value == "" || objDiv.components[i].value == null)){
+			
+			alert(objDiv.components[i].userdata+"는(은) 필수입력사항입니다.");
+			return true;
+		}
+	}
+	return false;
+}
+=============================================================================
+//null값을 빈값으로 반환
+this.fn_NullToEmpty = function (sValue)
+{
+	if(sValue == null || sValue == "undefined" || sValue == undefined)
+	{
+		return "";
+	}
+	return sValue;
+}
+==============================================================================
