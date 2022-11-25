@@ -266,7 +266,8 @@ SELECT SUBSTR(DAMO.API_DEC(PID),1,6)||'-'|| SUBSTR(DAMO.API_DEC(PID),7,1)||'****
 this.fn_bfrSearch = function(){
 	//TODO : 조회전 로직 있다면 추가.
 
-	var jumin_f = this.fn_NullToEmpty(this.div_area1.edt_pid1.value);
+	var jumin_f = this.fn_NullToEmpty(
+	);
 	var jumin_b = this.fn_NullToEmpty(this.div_area1.edt_pid2.value);
 
 	// 주민번호 필수입력 체크
@@ -300,16 +301,66 @@ this.fn_jumin_chk = function(juminNo){
 	}
 	return true;
 }
+
+//주민번호 유효성 체크 공식
+//주민번호 각 자리수 * 2,3,4,5,6,7,8,9,2,3,4
+this.fn_CheckJumin = function(jumin_no) {
+
+	var tmp1, tmp2, tmp3;
+	var t1, t2, t3, t4, t5, t6, t7;
+	
+	tmp1 = jumin_no.substr(2,2); //01
+	tmp2 = jumin_no.substr(4,2); //03
+    tmp3 = jumin_no.substr(6,1); // 1
+       
+	if(jumin_no.length != 13) return -1;
+
+	if((tmp1 < "01") || (tmp1 > "12")) return -1;
+	if((tmp2 < "01") || (tmp2 > "31")) return -1;
+	if((tmp3 < "1" ) || (tmp3 > "4" )) return -1;
+	
+	F1 = jumin_no.substr(0, 1); //9
+	F2 = jumin_no.substr(1, 1); //7
+	F3 = jumin_no.substr(2, 1); //0
+	F4 = jumin_no.substr(3, 1); //1
+	F5 = jumin_no.substr(4, 1); //0
+	F6 = jumin_no.substr(5, 1); //3
+	B1 = jumin_no.substr(6, 1); //1
+	B2 = jumin_no.substr(7, 1); //1
+	B3 = jumin_no.substr(8, 1); //0
+	B4 = jumin_no.substr(9, 1); //...
+	B5 = jumin_no.substr(10,1); //...
+	B6 = jumin_no.substr(11,1); //...
+	B7 = jumin_no.substr(12,1); //...
+	
+	// 가중치 2 3 4 5 6 7 8 9 2 3 4 5
+	var tot = nexacro.toNumber(F1) * 2 + nexacro.toNumber(F2) * 3 + nexacro.toNumber(F3) * 4 + nexacro.toNumber(F4) * 5 + 
+	          nexacro.toNumber(F5) * 6 + nexacro.toNumber(F6) * 7;
+	   tot += nexacro.toNumber(B1) * 8 + nexacro.toNumber(B2) * 9 + nexacro.toNumber(B3) * 2 + nexacro.toNumber(B4) * 3 + 
+	          nexacro.toNumber(B5) * 4 + nexacro.toNumber(B6) * 5;
+		
+	// 결과를 11로 나눈 나머지
+	var result = nexacro.toNumber(tot) % 11;
+	// (11 - 나머지)를 10으로 나눈 나머지
+	result = (11 - nexacro.toNumber(result)) % 10;
+
+	// 주민번호 유효성에 걸리므로 예외처리
+	// 2022.06.15 추가, 2022.10.11 추가
+	if (jumin_no == '5001181574618' || jumin_no == '5711111105310') { 
+		return 0;
+	} else if (result == B7) {
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
 ========================================================================
 //입력버튼을 처음 누를때 아래 행이 하나 추가되는데 만약에 추가된상태에서 한번더 누르게되면 필수입력값을 체크받게된다.
-//
-
-
------------------------
 // 추가(입력) 버튼
-this.fn_addRowBtn = function (){
+this.fn_addRowBtn = function (){ //입력버튼을 누르면 제일먼저 실행이된다.
 	
-	if(this.ds_main.rowcount > 0){ //한번더 입력을 눌럿을때
+	if(this.ds_main.rowcount > 0){ //행이 하나이상있다면
 		if(! this.fn_prevValidationCheck()){ //필수값체크
 			return;
 		}
@@ -317,7 +368,31 @@ this.fn_addRowBtn = function (){
 	
 	this.fn_addRowInit();
 }
-
+-----------------------------------------
+// 입력
+this.fn_addRowInit = function(){
+	alert("fn_addRowInit");
+	if(this.ds_main.getRowCount() > 0){
+		if(! this.fn_prevValidationCheck()){
+			return;
+		}
+	}
+	
+	var row = this.ds_main.addRow();
+	
+	this.ds_main.setColumn(row,"OFFICE_ID", this.fn_getSession("MI_DCCODE")); //KA01 (누가 정보를 입력했는지 알기위해)
+	this.ds_main.setColumn(row,"USER_ID", this.fn_getSession("MI_ID"));	      //admin
+	
+	//ds-main DataSet 세팅 -> 알아서 바인딩되서 입력칸에 각각 맞게 뜸
+	this.ds_main.setColumn(row,"LCLIMITATION", "1");   // 면허한정  
+	this.ds_main.setColumn(row,"LCREISSUE_SAU", "5");  // 교부사유
+	this.ds_main.setColumn(row,"LCISSUE_KIND", "1");   // 교부구분
+	this.ds_main.setColumn(row,"LCCHECK", "0");        // 유.무효
+	this.ds_main.setColumn(row,"LCEXECUTION_DATE", ComFn.Util.getToday());	// 교부일
+	this.ds_main.setColumn(row,"LCLICENCE_DATE", ComFn.Util.getToday());	// 교부면허일
+	
+	this.div_area.edt_ident_no1.setFocus();	
+}
 --------------------------------------
 //필수값체크 함수
 // 필수 입력 체크
@@ -351,5 +426,29 @@ this.fn_NullToEmpty = function (sValue)
 		return "";
 	}
 	return sValue;
+}
+==============================================================================
+// 입력
+// 입력을 클릭하면 체크박스에 첫세팅해준다. -> 그러면 body에 알아서 바인딩되서 값이 들어있는 한줄이 추가된다.
+this.fn_addRowInit = function(){
+	if(this.ds_main.getRowCount() > 0){
+		if(! this.fn_prevValidationCheck()){
+			return;
+		}
+	}
+	
+	var row = this.ds_main.addRow();
+	
+	this.ds_main.setColumn(row,"OFFICE_ID", this.fn_getSession("MI_DCCODE"));
+	this.ds_main.setColumn(row,"USER_ID", this.fn_getSession("MI_ID"));	
+	
+	this.ds_main.setColumn(row,"LCLIMITATION", "1");   // 면허한정
+	this.ds_main.setColumn(row,"LCREISSUE_SAU", "5");  // 교부사유
+	this.ds_main.setColumn(row,"LCISSUE_KIND", "1");   // 교부구분
+	this.ds_main.setColumn(row,"LCCHECK", "0");        // 유.무효
+	this.ds_main.setColumn(row,"LCEXECUTION_DATE", ComFn.Util.getToday());	// 교부일
+	this.ds_main.setColumn(row,"LCLICENCE_DATE", ComFn.Util.getToday());	// 교부면허일
+	
+	this.div_area.edt_ident_no1.setFocus();	
 }
 ==============================================================================
