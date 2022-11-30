@@ -452,3 +452,37 @@ this.fn_addRowInit = function(){
 	this.div_area.edt_ident_no1.setFocus();	
 }
 ==============================================================================
+this.Div_edit_btn_empmn_ship_onclick = function(obj:Button, e:nexacro.ClickEventInfo)
+{
+	//팝업 오픈 설정값 셋팅
+	  var oData ={
+			 sId  : "seamanPop",    					  //callback id
+			 sUrl : "WEL_COMM::WELSearchCompanyPop.xfdl",      //url
+			 bshowtitlebar : true,             			  //title bar
+			 bAutoSize  : true,                			  //autosize
+			 bResize    : true,               			  //resize
+			 bShowtatusbar : true,            			  //statusbar
+			 sOpenalign    : "center middle",  			  //align
+			 oArgs :""                    		      // argument
+	  };
+
+	  //모달 팝업 오픈
+	  ComFn.showModal(this, oData, "fn_CompanyPop_callback");
+	  //ComFn.open(this, "seamanPop", "WEL_COMM::WELSearchSeamanPop.xfdl", args, "fn_seamanPop_callback"); 
+}
+
+//선원정보 팝업 리턴 
+this.fn_CompanyPop_callback=function(svcid, rtnV)
+{
+	
+	if(!(rtnV == undefined || rtnV == "")){
+		var rtnValue = JSON.parse(rtnV)
+		
+		var codeCd     = rtnValue.key1;            //채용선사Cd
+		var codeNm     = rtnValue.key2;		       //채용선사Nm
+		//this.ds_main.setColumn(this.ds_main.rowposition,"NSM_EMPMN_SHIPCD",codeCd);
+		this.ds_main.setColumn(this.ds_main.rowposition,"COM_CD",codeCd); //ds_main 데이터셋에 COM_CD 컬럼에다가 위에서 구한 codeCd를 ds_main에 넣어라
+		this.ds_main.setColumn(this.ds_main.rowposition,"NSM_EMPMN_SHIPNM",codeNm);
+	}
+}
+======================================================================================
