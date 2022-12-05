@@ -486,3 +486,36 @@ this.fn_CompanyPop_callback=function(svcid, rtnV)
 	}
 }
 ======================================================================================
+//onload할때 fn_getDuty() 이렇게 하는데 안에 함수 내용을 살펴보면 ds_duty 데이터셋에 넣어준다. 
+//그래서 우리가 데이터셋을통해 매핑이 가능한 것이다.
+this.fn_getDuty = function(sDutyDb){
+	
+	var svcId = "duty";
+	var url = "/com/code/selectJobDutyList.do";
+	var inDatasets = "";
+	var outDatasets = "ds_duty=ds_duty";  //여기가 핵심!!!!!!!
+	var argument = "";
+	var callbackFunc = "fn_callback"; 
+	
+	// Null이 아닌경우에 파라미터로 셋팅
+	if(sDutyDb != null && sDutyDb != ""){ argument += "schDutyGb="+nexacro.wrapQuote(sDutyDb); }
+
+	ComFn.transaction(this, svcId, url, inDatasets, outDatasets, argument, callbackFunc);
+}
+
+------------------------
+//fn_getDuty의 쿼리를 보자
+  SELECT JIKMU_CODE,                        
+                  JIKMU_SHORTNAME AS JIKMU_NAME,
+                  JIKMU_CODE||': '||JIKMU_SHORTNAME AS JIKMU_NM,
+                  JIKMU_ORDER                                        
+             FROM KOSWEC_JOB.SMCM12
+            WHERE 1=1
+    AND JIKMU_CODE NOT IN ('18','19','28','31','32','34','35','70','71','72','73','74','90','91','92','93','94','95','96','97','98')
+
+//결과
+jikmu_code   jikmu_name     jikmu_nm   jikmu_order
+12			 2등항해사        12: 2등항해사    C
+13           3등항해사        13: 3등항해사    D
+..
+===============================================================================
