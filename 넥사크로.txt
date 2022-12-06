@@ -11,6 +11,11 @@ form버튼을 만들면 어떻게 html구조로 만들어진걸까?? -> Work폴�
 원본폴더에는 Work, default_type.def, np0219.xadl 등이있고 build하는 순간 내가 지정한 위치에 nexacro14lib, Work, js들이 만들어진다.
 
 
+============================================================================
+#)넥사크로 라이센스 위치
+C:\eGovFrame-3.2\workspace\KOSWEC\src\main\resources
+============================================================================
+
 this.Button00_onclick = function(obj:Button, e:nexacro.ClickEventInfo)
 {
 	//scope -> 폼을지정
@@ -519,3 +524,93 @@ jikmu_code   jikmu_name     jikmu_nm   jikmu_order
 13           3등항해사        13: 3등항해사    D
 ..
 ===============================================================================
+// 저장
+this.fn_save = function(){
+
+	var svcId = "save";
+	var params = "/job/seekjob/seamanPkBook/multiSaveSmpm11.do";
+	var inDatasets = "input1=ds_main:U";
+	var outDatasets = "";
+	var argument = "";
+	var callbackFunc = "fn_callback"; 
+	
+	ComFn.transaction(this, svcId, params, inDatasets, outDatasets, argument, callbackFunc);
+}
+
+-----------------------------------
+// 콜백함수
+this.fn_callback = function(svcId, errorCode, errorMsg){
+	if(errorCode != 0){
+		// TODO : 공통메세지 처리
+		//alert(errorMsg);
+		ComFn.alert(this, "000022", "|");
+	}else{
+		// 리턴파라미터 svcId는 트랜잭션의 svcId 파라미터 값과 동일
+		if(svcId == "chung"){ // 공인청
+			var row = this.ds_chung.insertRow(0);
+			this.ds_chung.setColumn(0,"CHUNG_CODE","");
+			this.ds_chung.setColumn(0,"CHUNG_NAME2","-선택-");
+			this.div_area.cmb_cremaprove_chung.set_value("");   // 수첩교부기관
+						
+		} else if(svcId == "smcm15_01"){ // 수첩유무효구분
+			var row = this.ds_smcm15_01.insertRow(0);
+			this.ds_smcm15_01.setColumn(0,"CODE","");
+			this.ds_smcm15_01.setColumn(0,"CODE_NM","-선택-");
+			this.div_area.cmb_psissue_sau.set_value("");
+			
+		}else if(svcId == "save"){
+			alert("저장되었습니다.");
+			this.fn_search();
+		}
+		
+		ComFn.alert(this, "000175", this.fv_curDs.rowcount+"|");
+	}	
+}
+-----------------------------------
+/**
+	 * 선원수첩정보 저장
+	 * @param NexacroMapDTO xpDto
+	 * @param Model model
+	 * @throws EgovBizException 
+	 */
+	@RequestMapping("/job/seekjob/seamanPkBook/multiSaveSmpm11.do")
+	public ModelAndView multiSaveSmpm11(NexacroMapDTO xpDto,
+			                               Model model) throws EgovBizException {
+		ModelAndView mav = new ModelAndView("nexacroMapView");
+		
+		try {
+
+			Map <String, Object> inVar 			= xpDto.getInVariableMap();
+			Map <String, DataSetMap> inDataset 	= xpDto.getInDataSetMap();
+			
+			String result = seamanPkBookService.multiSaveSmpm11(inVar, inDataset);
+
+			if(result.equals("0")){
+				mav.addObject(NexacroConstant.ERROR_CODE, "0");
+				mav.addObject(NexacroConstant.ERROR_MSG, "");
+			}else{
+				mav.addObject(NexacroConstant.ERROR_CODE, "-1");
+				mav.addObject(NexacroConstant.ERROR_MSG, result);
+			}
+			
+		}catch( NexaServiceException e ){
+			mav.addObject(NexacroConstant.ERROR_CODE, "-1");
+			mav.addObject(NexacroConstant.ERROR_MSG, "save fail");
+		}
+		
+		return mav;
+	}
+	
+====================================================================================
+//졸업자 조회를 하면 body에 여러 행이 생기면서 조회가 되는데(조회를 하면 ds_main 데이터셋에 들어감) 그거를  for문으로 돌린것이다.
+for(var i=0; i<this.ds_main.getRowCount(); i++){
+			
+			var rowType = this.ds_main.getRowType(i);
+			//this.alert("로우타입");
+			//this.alert(rowType);			
+			var deleteRowColumn = this.ds_main.getDeletedColumn(i,"NM");  
+			//삭제를 한 행의 NM을 가져온다. 삭제후 해당 변수를 출력하면 삭제한 행의 이름을 가져온다.(양현수)
+======================================================================================
+//pid를 저렇게 넣어야 됨 -> pid1,2가 잘들어가야 뒤에 graduDat도 잘들어간다.
+DELETE FROM koswec_job.S_GRADUAT WHERE PID = DAMO.ENCRYPT_VAR('DA_API',#{pid1}||#{pid2},'') AND GRADU_DAT = #{graduDat}
+======================================================================================
