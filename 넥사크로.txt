@@ -614,3 +614,71 @@ for(var i=0; i<this.ds_main.getRowCount(); i++){
 //pid를 저렇게 넣어야 됨 -> pid1,2가 잘들어가야 뒤에 graduDat도 잘들어간다.
 DELETE FROM koswec_job.S_GRADUAT WHERE PID = DAMO.ENCRYPT_VAR('DA_API',#{pid1}||#{pid2},'') AND GRADU_DAT = #{graduDat}
 ======================================================================================
+// 저장하는 방법1)
+this.fn_save = function (){
+if(this.ds_main.getRowCount() > 0){ // ds_main에 값이 있을경우
+		
+		var chk = 0;
+		for(var i=0; i<this.ds_main.getRowCount(); i++){ //전체 한행 한행 결과를 가져와서
+		
+			var rowType = this.ds_main.getRowType(i);
+			//var deleteRowColumn = this.ds_main.getDeletedColumn(i,"NM");
+			
+			if(rowType == "2" || rowType == "4"){ // 추가, 수정일 경우
+				this.ds_main.setColumn(i,"USER_ID",this.fn_getSession("MI_ID"));
+				this.ds_main.setColumn(i,"OFFICE_ID", this.fn_getSession("MI_DCCODE"));
+				chk++;
+			}else if(this.fn_NullToEmpty(deleteRowColumn) != ""){ // 삭제일 경우
+				chk++;
+			}
+		}
+		if(chk > 0){ // 데이터셋이 변경된 것이 있다면 저장
+			var svcId = "save";
+			var params = "/sta/graduate/graduateMng/insertGraduate.do";
+			var inDatasets = "input1=ds_main:U";
+			var outDatasets = "";
+			var argument = "";
+			var callbackFunc = "fn_callback"; 
+			
+			ComFn.transaction(this, svcId, params, inDatasets, outDatasets, argument, callbackFunc);
+			
+		}else if(chk == 0){
+			this.alert("변경된 사항이 없습니다.");
+			return false;
+		}
+	}else if(this.ds_main.getRowCount() == 0 && this.ds_main.getDeletedRowCount() > 0){ // ds_main에 값이 없고 삭제된 값이있으면
+		var svcId = "save";
+		var params = "/sta/graduate/graduateMng/insertGraduate.do";
+		var inDatasets = "input1=ds_main:U";
+		var outDatasets = "";
+		var argument = "";
+		var callbackFunc = "fn_callback"; 
+		
+		ComFn.transaction(this, svcId, params, inDatasets, outDatasets, argument, callbackFunc);
+	}
+}
+
+----------------------
+//저장하는방법2
+this.fn_save = function (){
+
+	var userId = this.fn_getSession("MI_ID");             // 로그인ID
+	var officeId = this.fn_getSession("MI_DCCODE");       // 처리부서
+	
+	var svcId = "save";	
+	var url = "/sta/graduate/graduateMng/insertGraduate.do";
+	var inDatasets = "input1=ds_main:U";
+	var outDatasets = "";
+	var argument = "";
+
+	// Null이 아닌경우에 파라미터로 셋팅
+	if(!ComFn.Util.isEmpty(userId)){ argument += "userId="+nexacro.wrapQuote(userId); }
+	if(!ComFn.Util.isEmpty(officeId)){ argument += "officeId="+nexacro.wrapQuote(officeId); }
+	
+	// 콜백함수명
+	var callbackFunc = "fn_callback"; 
+	
+	ComFn.transaction(this, svcId, url, inDatasets, outDatasets, argument, callbackFunc);
+}
+
+======================================================================================================
