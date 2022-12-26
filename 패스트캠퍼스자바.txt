@@ -5886,6 +5886,201 @@ public class ThrowsException2 {
 	}
 }
 =====================================================================
+제네릭 타입
+<? extends Object> == <?> 같은의미이다. 어떤 자료형의 객체도 매개변수로 받겠다는 의미이다.
+
+public class WildTest {
+
+    public static void main(String[] args) {
+        // List는 인터페이스이기 때문에 ArrayList 생성 후 Upcasting 이용
+        List<String> list = new ArrayList();
+        list.add("test1");
+        list.add("test2");
+        list.add("test3");
+
+        // Integer 자료형 list2 객체 생성
+        List<Integer> list2 = new ArrayList();
+        list2.add(1);
+        list2.add(2);
+        list2.add(new Integer(3));
+
+        // Double형 list3 생성
+        List<Double> list3 = new ArrayList();
+        list3.add(10.1);
+        list3.add(11.2);
+        list3.add(12.3);
+
+        // static 메소드 호출
+        printData(list);
+        printData(list2);
+        printData(list3);
+
+        /*
+        test1    test2    test3
+        1        2        3
+        10.1    11.2    12.3
+        */
+
+    }
+
+    // 리스트 출력 메소드
+    public static void printData(List<?> list) {
+        for (Object v : list) { //Object로 받았음을 볼수가있다.
+            System.out.println(v);
+        }
+    }
+====================================================================
+위에는 extends Object였다면 이번에는 extends 클래스이다.
+
+class Test {
+	String name;
+}
+
+class Person {
+	String name;
+}
+
+//Person상속 Man 클래스
+class Man extends Person {
+	//생성자
+	Man(String name) {
+		this.name = name;
+	}
+	
+	//name 반환 메소드
+	public String toString() {
+		return name.toString();
+	}
+}
+
+// Person 상속 Woman 클래스
+class Woman extends Person {
+    Woman(String name) {
+        this.name = name;
+    }
+
+    public String toString() {
+        return name.toString();
+    }
+}
+
+public class WildExtends {
+
+    public static void main(String[] args) {
+
+        // Person
+        List<Person> listP = new ArrayList<Person>();
+        listP.add(new Person());
+        printData(listP);        // j200210.Person@15db9742
+
+        // Man
+        List<Man> listM = new ArrayList<Man>();
+        listM.add(new Man("이순신"));
+        listM.add(new Man("하현우"));
+        listM.add(new Man("박효신"));
+        printData(listM);    // 이순신    하현우    박효신
+
+        // Woman
+        List<Woman> listW = new ArrayList<Woman>();
+        listW.add(new Woman("유관순"));
+        listW.add(new Woman("백예린"));
+        listW.add(new Woman("박정현"));
+        printData(listW);    // 유관순    백예린    박정현
+
+        // Test
+        List<Test> listT = new ArrayList<Test>();
+        listT.add(new Test());
+//      printData(listT); → Person 클래스를 상속받지 않았기 때문에 메소드 호출 불가
+
+    }
+
+    // Person 클래스와 그 하위 클래스로 생성된 인스턴스만 매개변수로 전달 가능
+    public static void printData(List<? extends Person> list) {
+        for (Person obj : list) {
+            System.out.println(obj);
+        }
+    }
+
+}
+=====================================================================
+<? super 클래스>
+매개변수의 자료형을 특정 클래스와 그 클래스의 상위 클래스로만 제한함
+
+// Person 클래스
+class Person {
+    String name;
+
+    // 기본 생성자
+    Person() {
+    }
+	
+    // 생성자 오버로딩
+    Person(String name) {
+        this.name = name;
+    }
+
+    public String toString() {
+        return name;
+    }
+}
+
+//Person상속 Man 클래스
+class Man extends Person {
+	//생성자
+	Man(String name) {
+		this.name = name;
+	}
+	
+	//name 반환 메소드
+	public String toString() {
+		return name.toString();
+	}
+}
+
+// Person 상속 Woman 클래스
+class Woman extends Person {
+    Woman(String name) {
+        this.name = name;
+    }
+
+    public String toString() {
+        return name.toString();
+    }
+}
+
+public class WildSuper {
+
+    public static void main(String[] args) {
+
+        // Person
+        List<Person> listP = new ArrayList<Person>();
+        listP.add(new Person("사람"));
+        listP.add(new Person("인간"));
+        printData(listP); // 사람 인간
+
+        // Man
+        List<Man> listM = new ArrayList<Man>();
+        listM.add(new Man("하현우"));
+        listM.add(new Man("박효신"));
+        printData(listM); // 하현우 박효신
+
+        // Woman
+        List<Woman> listW = new ArrayList<Woman>();
+        listW.add(new Woman("백예린"));
+        listW.add(new Woman("박정현"));
+//      printData(listW); → Man 클래스의 상위 클래스가 아니기 때문에 메소드 호출 불가
+
+    }
+
+    // Man 클래스와 그 상위 클래스로 생성된 인스턴스만 매개변수로 전달 가능
+    public static void printData(List<? super Man> list) {
+        for (Object obj : list) {
+            System.out.println(obj);
+        }
+    }
+}
+
+=====================================================================
 //연결리스트
 ArrayList(배열)에 비해서 추가나 삭제 용이하지만 인덱스가 없어서 특정요소에 접근하기 위해서는 순차적으로 접근이 필요 -> 탐색속도가 떨어진다.
 그래서 탐색또는 정렬을 자주하는 경우엔 배열을 사용, 데이터의 추가,삭제가 많은 경우 연결리스트 사용한다.
@@ -6174,3 +6369,125 @@ public boolean remove(Object value) {
 	}
 }
 
+//이렇게 추가,삭제 메소드는 끝이 났고 추가적인 메소드를 알아보자
+1. get(int index)메소드
+우리가 구현했던 search()와 무슨차이일까?
+search()는 노드를 반환하고, get()메소드는 노드의데이터를 반환하는 것이다.
+
+public E get(int index) {
+	return search(index).data;
+}
+
+
+2. set(int index, E value)메소드
+해당 메소드는 index에 위치한 데이터를 새로운 데이터로 교체하는것이다. 노드의 데이터만 바꿔주면 된다
+search()메소드에서 잘못된 인덱스를 참조하고 있지 않은지 검사하기 때문에 따로 구현안해도된다.
+
+public void set(int index, E value) {
+	Node<E> replaceNode = search(index);
+	replaceNode.data = null;
+	replaceNode.data = value;
+}
+
+
+3. indexOf(Objec value) 메소드
+사용자가 찾고자하는 요소(value)의 위치(index)를 반환하는 메소드다.
+만약, 찾고자하는 요소가 중복되면 가장먼저 나오는 요소의 인덱스를반환하게 구현한다(기존에 indexOf메소드로 그렇게되어있다)
+
+중요한점은 객체끼리 비교할 때는 동등연산자(==)가 아니라 .equals로 해야한다. 동등연산자를 쓰면 주소를 비교하기 때문이다. 우리는 값을 비교해야한다.
+
+public int indexOf(Object value) {
+	int index = 0;
+	
+	for(Node<E> x = head; x != null; x=x.next) {
+		if(value.equals(x.data)) {
+			return index;
+		}
+		index++;
+	}
+	//찾고자 하는 요소를 찾지 못했을 경우 -1 반환
+	return -1;
+}
+
+4. contains(Object value)메소드
+- 사용자가 찾고자 하는 요소(value)가 존재하는지, 안하는지만 확인하면된다. indexOf는 해당위치를 반환하지만 이거는 그냥 여부만 반환하면된다.
+
+public boolean contains(Object item) {
+	return indexOf(item) >= 0;
+}
+
+5. isEmpty() 메소드
+- 리스트가 비어있을경우 true, 아니면 false를 반환
+
+public boolean isEmpty() {
+	return size == 0;
+}
+
+
+6. clear() 메소드
+- 객체 자체를 null해주기 보다는 모든 노드를 하나하나 null해주는 것이 자바의 가비지 컬렉터가 명시적으로 해당 메모리를 안쓴다고 인지하기 때문에 메모리 관리효율에서 더 좋다.
+
+public void clear() {
+	for(Node<E> x = head; x != null;) {
+		Node<E> nextNode = x.next;
+		x.data = null;
+		x.next = null;
+		x = nextNode;
+	}
+	head = tail = null;
+	size = 0;
+}
+
+
+7. clone()메소드
+- 사용자가 사용하고 있던 LinkedList를 하나 복제하고 싶을 때 쓰는 메소드이다.
+- 단순히 '=' 연산으로 객체를 복사하게되면 주소를 복사하기때문에 복사한 객체에서 데이터를 수정하면 원본객체까지 영향을 미치게된다.
+- 즉, 얕은 복사가 되는것이다.
+
+SLinkedList<Integer> original = new SLinkedList<>();
+original.add(10);
+
+SLinkedList<Integer> copy = original;
+copy.add(20);
+
+//original 리스트 조회
+for(int i = 0; i<original.size(); i++) {
+	System.out.println("index " + i + "data = " + original.get(i));
+}
+
+//copy 리스트 조회
+for(int i = 0; i<copy.size(); i++) {
+	System.out.println("index " + i + "data = " + copy.get(i));
+}
+
+//결과 둘다 값이 같아져버린다.
+//즉, 객체가 하나로 같은걸 바라보고있는것이다.
+
+따라서 이러한 얕은 복사를 방지하기 위해 깊은 복사를 하는데, 이때 clone()을 쓴다.
+Object에 있는 메소드이지만 접근제어자가 protected로 되어있어 우리가 만든 것 처럼 사용자 클래스의 경우 Cloneable 인터페이스를 implement 해야한다.
+
+즉, public class LinkedList<E> implements List<E> 에 Cloneable도 추가해주어야 한다. 만약 안하고서 구현하면 CloneNotSupportedException 에러가 난다.
+
+그리고나서 clone()을 구현하면 되는데, 다음과 같이 재정의를 하면 된다.
+
+public Object clone() throws CloneNotSupportedException {
+ 
+	@SuppressWarnings("unchecked")
+	SLinkedList<? super E> clone = (SLinkedList<? super E>) super.clone();
+ 
+	clone.head = null;
+	clone.tail = null;
+	clone.size = 0;
+ 
+	for (Node<E> x = head; x != null; x = x.next) {
+		clone.addLast(x.data);
+	}
+ 
+	return clone;
+}
+ 
+
+super.clone() 을 해주면, 객체 자체는 생성되나 내부까지 데이터 복제가 이루어지는 것이 아닌 얕은복사가 되어버린다. 그렇기 때문에 새로 만들어진 객체의 내부에 데이터를 새로 설정해주어야 한다.
+
+즉, 각 노드를 일단 끊고, 처음부터 끝까지 현재 리스트의 데이터를 clone 리스트에 넣어주어야 한다.
+=====================================================================
