@@ -6491,3 +6491,116 @@ super.clone() 을 해주면, 객체 자체는 생성되나 내부까지 데이�
 
 즉, 각 노드를 일단 끊고, 처음부터 끝까지 현재 리스트의 데이터를 clone 리스트에 넣어주어야 한다.
 =====================================================================
+//Student클래스가 Comparable을 구현하지 않았을 경우
+//1. 명시적으로 Arrays.sort()에 정렬방법을 알려주던가
+//2. Student 클래스에 정렬방법을 구현하던가
+public class test {
+	public static void main(String[] args) {
+		SLinkedList<Student> list = new SLinkedList<>();
+ 
+		list.add(new Student("김자바", 92));
+		list.add(new Student("이시플", 72));
+		list.add(new Student("조시샵", 98));
+		list.add(new Student("파이손", 51));
+		
+		list.sort(); //여기서 에러가난다.
+		
+		for(int i = 0; i < list.size(); i++) {
+			System.out.println(list.get(i));
+		}
+	}
+}
+ 
+class Student {
+	String name;
+	int score;
+	
+	Student(String name, int score){
+		this.name = name;
+		this.score = score;
+	}
+	
+	public String toString() {
+		return "이름 : " + name + "\t성적 : " + score;
+	}
+}
+==================================================================
+1. Comparator의 구현을 통해 명시적으로 Arrays.sort()에 파라미터로 넘기는 방법
+public class test {
+	public static void main(String[] args) {
+		SLinkedList<Student> list = new SLinkedList<>();
+ 
+		list.add(new Student("김자바", 92));
+		list.add(new Student("이시플", 72));
+		list.add(new Student("조시샵", 98));
+		list.add(new Student("파이손", 51));
+ 
+		list.sort(customComp);	// Comparator을 파라미터로 넘겨준다.
+        
+		for(int i = 0; i < list.size(); i++) {
+			System.out.println(list.get(i));
+		}
+		
+	}
+	// 사용자 설정 comparator(비교기)
+	static Comparator<Student> customComp = new Comparator<Student>() {
+		@Override
+		public int compare(Student o1, Student o2) {
+			return o2.score - o1.score; //내림차순
+		}
+	};
+ 
+}
+ 
+class Student {
+	String name;
+	int score;
+	
+	Student(String name, int score){
+		this.name = name;
+		this.score = score;
+	}
+	
+	public String toString() {
+		return "이름 : " + name + "\t성적 : " + score;
+	}
+}
+========================================================================
+2. Comparable의 구현을 통해 객체의 정렬방법을 설정하는 방법
+
+public class test {
+	public static void main(String[] args) {
+		SLinkedList<Student> list = new SLinkedList<>();
+ 
+		list.add(new Student("김자바", 92));
+		list.add(new Student("이시플", 72));
+		list.add(new Student("조시샵", 98));
+		list.add(new Student("파이손", 51));
+ 
+		list.sort();
+		for(int i = 0; i < list.size(); i++) {
+			System.out.println(list.get(i));
+		}
+		
+	}
+}
+ 
+class Student implements Comparable<Student> {
+	String name;
+	int score;
+	
+	Student(String name, int score){
+		this.name = name;
+		this.score = score;
+	}
+	
+	public String toString() {
+		return "이름 : " + name + "\t성적 : " + score;
+	}
+ 
+	@Override
+	public int compareTo(Student o) {
+		return o.score - this.score;
+	}
+}
+==========================================================================
