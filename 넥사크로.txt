@@ -681,4 +681,44 @@ this.fn_save = function (){
 	ComFn.transaction(this, svcId, url, inDatasets, outDatasets, argument, callbackFunc);
 }
 
+========================================================================
+//계열 선택에 따른 콤보박스 목록 변경
+this.div_search_cmb_sch_level_onitemchanged = function(obj:Combo, e:nexacro.ItemChangeEventInfo)
+{
+	// 학교Combo박스 셋팅
+	if(obj.value == "1") {
+		this.ds_sch.filter("SCH_CD == '' || (SCH_CD >= '100' && SCH_CD <= '199')");  // 해양계
+	} else if(obj.value == "2") {
+		this.ds_sch.filter("SCH_CD == '' || (SCH_CD >= '200' && SCH_CD <= '299')");  // 수산계
+	} else if(obj.value == "3") {
+		this.ds_sch.filter("SCH_CD >= '300' && SCH_CD <= '399'");  // 단기
+	}
+	this.div_search.cmb_sch_school.set_index(0);
+}
+==========================================================================
+//null이면 strGYear1을 만들지 않는다.
+if(!ComFn.Util.isEmpty(strGYear1)){ argument += "strGYear1="+nexacro.wrapQuote(strGYear1); } 
 ======================================================================================================
+//합계 구할 때
+- 레이아웃 더블클릭 -> 우클릭하면 row 생성할 수 있다.(summ으로 생성해야함 row가 밑으로가게끔)
+- 
+
+
+======================================================================================================
+// %를 아래처럼 써도된다
+<!-- 계열 -->
+                 <if test='strSchLevel == "" or strSchLevel == null'>
+						<choose>
+							<when test='strDiv == "1"'>  <!-- 해양계 전체 -->
+								AND SCH_CD LIKE '1%'
+							</when>
+							<when test='strDiv == "2"'> <!-- 수산계 전체 -->
+								AND SCH_CD LIKE '2%'
+							</when>
+							<when test='strDiv== "3"'> <!-- 단기 전체 -->
+								AND SCH_CD LIKE '3%'
+							</when>
+							<otherwise>AND SCH_CD = #{strSchCd} </otherwise>
+						</choose>
+					</if>
+=======================================================================================================

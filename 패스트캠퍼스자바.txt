@@ -5886,3 +5886,78 @@ public class ThrowsException2 {
 	}
 }
 =====================================================================
+//연결리스트
+ArrayList(배열)에 비해서 추가나 삭제 용이하지만 인덱스가 없어서 특정요소에 접근하기 위해서는 순차적으로 접근이 필요 -> 탐색속도가 떨어진다.
+그래서 탐색또는 정렬을 자주하는 경우엔 배열을 사용, 데이터의 추가,삭제가 많은 경우 연결리스트 사용한다.
+
+ArrayList는 내부 배열에 객체를 저장해서 인덱스로 관리하는데 비해서 LinkedList는 위와 같이 인접 참조를 링크해서 체인처럼 관리합니다. 
+
+예시) LinkedList<Studnet> members = new LinkedList<Student>();
+     LinkedList<Integer> num = new LinkedList<Integer>();
+
+<>안에 선언할수 있는게 제네릭스 타입인데 제네릭스는 선언할 수 있는 타입이 객체타입이다.
+int는 기본자료형이기때문에 들어갈수없으므로 int를 객체화시킨 wrapper클래스를 사용해야한다. 그래서 Integer를 썻다
+
+LinkedList<Integer> list = new LinkedList<Integer>();
+list.addFirst(1); //가장 앞에 데이터추가
+list.addLast(2); //가장 뒤에 데이터추가
+list.add(3); //데이터 추가(인덱스 생략시 마지막에 추가)
+list.add(1,10); // index 1에 데이터 10 추가
+
+----------------------
+//LinkedList 값 출력
+LinkedList<Integer> list = new LinkedList<Integer>(Arrays.asList(1,2,3));
+
+System.out.println(list.get(0));//0번째 index 출력
+				
+for(Integer i : list) { //for문을 통한 전체출력
+    System.out.println(i);
+}
+
+Iterator<Integer> iter = list.iterator(); //Iterator 선언 
+while(iter.hasNext()){//다음값이 있는지 체크
+    System.out.println(iter.next()); //값 출력
+}
+
+======================================================================
+		-------------
+Head -> |data | link|
+        -------------
+
+public class LinkedList {
+	//첫번째 노드를 가리키는 필드 
+	private Node head;
+	//마지막 노드를 가리키는 필드 
+	private Node tail;
+	private int size = 0;
+	
+	private class Node { //하나의 노드에는 data,next가 있다.(next는 node를 가리켜야하니 타입이 Node이다) 
+		private Object data; //데이터가 저장될 필드
+		private Node next;	//다음 노드를 가리키는 필드
+		
+		public Node(Object input) {
+			this.data = input;
+			this.next = null;
+		}
+	}
+	//노드 내용 확인
+	public String toString() {
+		String.valueOf(this.data);
+	}
+}
+
+또는
+
+public class SLinkedList<E> implements List<E> {
+	private Node<E> head; //노드의 첫부분
+	private Node<E> tail; //노드의 마지막부분
+	private int size;
+	
+	//생성자
+	public SLinkedList() {
+		this.head = null;
+		this.tail = null;
+		this.size = 0;
+	}
+}
+
