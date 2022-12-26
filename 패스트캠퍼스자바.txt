@@ -5949,15 +5949,228 @@ public class LinkedList {
 또는
 
 public class SLinkedList<E> implements List<E> {
-	private Node<E> head; //노드의 첫부분
+	private Node<E> head; //노드의 첫부분(리스트의 가장 첫 노드를 가리키는 변수다)
 	private Node<E> tail; //노드의 마지막부분
-	private int size;
+	private int size; //(연결된 노드 개수)
 	
-	//생성자
+	//생성자(null,0 초기화)
 	public SLinkedList() {
 		this.head = null;
 		this.tail = null;
 		this.size = 0;
+	}
+}
+
+//search 메소드 구현(특정위치의 노드를 반환하는 메서드)
+private Node<E> search(int index) {
+	
+	//범위 밖(잘못된 위치)일 경우 예외던지기
+	if(index < 0 || index >= size) {
+		throw new IndexOutOfBoundsException();
+	}
+	
+	Node<E> x = head; //head가 가리키는 노드부터 시작(순차적으로) x에는 data,next가 있다, 즉 headNode부터 시작
+	
+	for(int i = 0; i<index; i++) {
+		x = x.next;  //x.next는 다음 노드자체를 가리킨다.
+	}
+	 return x;
+}
+
+//addFirst(E value) 맨 앞에 추가 메소드
+1. new Node(data,null)를 생성해서 head앞에 놓아야하는데 그럴려면
+2. 링크작업이필요하다. new Node의 링크는 헤드를 가리켜야한다.
+3. 링크작업이끝나면 head를 new Node로 바꾼다.
+
+public void addFirst(E value) {
+	
+	Node<E> newNode = new Node<E>(value); //새 노드생성
+	newNode.next = head; //링크작업
+	head = newNode; //헤드를 newNode로 바꾸기
+	size++;
+	
+	if(head.next == null) {
+		tail = head;
+	}
+}
+
+
+//add(E value) 또는 addLast(E value)
+1. new Node(data,null)를 생성해서 tail 뒤에 놓아야하는데 그럴려면
+2. 링크작업이 필요하다. 기존에 tail(data,null)인데  기존 tail의 link를 newNode자체를 가리켜야한다.
+3. 그 후 tail을 newNode로 바꾼다.
+
+public boolean add(E value) {
+	addLast(value);
+	return true;
+}
+
+public void addLast(E value) {
+	Node<E> newNode = new Node<E>(value); //새 노드생성
+	
+	if(size == 0) { //처음 넣는 노드일 경우 addFirst로 추가
+		addFirst(value);
+		return;
+	}
+
+	tail.next = newNode; //기존의 tailNode는 newNode를 가리키고
+	tail = newNode;
+	size++;
+}
+
+
+//add(중간삽입)
+public void add(int index, E value) {
+	
+	//잘못된 인덱스를 참조할 경우 예외 발생
+	if(index < size || index < 0) {
+		throw new IndexOutOfBoundsException();
+	}
+	
+	//추가하려는 index가 가장 앞이면 addFirst호출
+	if(index == 0) {
+		addFirst(value);
+		return;
+	}
+	
+	//추가하려는 index가 마지막 위치일 경우 addLast호출
+	if(index == size) {
+		addLast(value);
+		return;
+	}
+	
+	//추가하려는 위치의 이전노드
+	Node<E> prev_Node = search(index - 1); //추가하려는 위치의 이전노드를 받는다.
+	
+	//추가하려는 위치의 노드 -> 이전 노드가 가리키고있던 노드를 받는다. (추가하는 노드에 부여하기위해)
+	Node<E> next_Node = prev_Node.next; 
+
+	//추가하려는 노드
+	Node<E> newNode = new Node<E>(value);
+	
+	//이전노드가 가리키는 노드를 끊은 뒤 만든 새노드를 연결
+	prev_Node.next = null;
+	prev_Node.next = newNode;
+	
+	//새노드는 이전노드가 가리켰던 노드를 가리켜야한다.
+	newNode.next = next_Node;
+	size++;
+}
+
+
+//삭제할때
+1. 가장 앞의 요소 제거 remove()
+2. 특정 index의 요소를 제거 remove(int index)
+3. 특정 요소를 제거 remove(Object value)
+
+1. 가장 앞의 요소 제거 remove()
+//가장 앞의 요소 제거는 쉽게 head가 가리키는 노드의링크, 데이터를 null로 지워준 뒤 head를 다음 노드로 업데이트만 해주면된다.
+//그리고 삭제하려는 노드가 리스트에서의 유일한 노드였을 경우 해당 노드를 삭제하면 tail이 가리키는 노드 또한 없어지게된다.(요소가 한개일경우 head와 tail이 가리키는 노드가 같기때문)
+public E remove() {
+	Node<E> headNode = head;
+	
+	if(headNode == null) {
+		throw new NoSuchElementException();
+	}
+	
+	//삭제된 노드를 반환하기 위한 변수
+	E element = headNode.data;
+	
+	//head의 다음 노드
+	Node<E> nextNode = head.next;
+	
+	//head 노드의 값들 모두 삭제
+	head.data = null;
+	head.next = null;
+	
+	//head를 nextNode로 변경
+	head = nextNode;
+	size--;
+	
+	//삭제된 요소가 리스트의 유일한 요소일 경우 그 요소는 head이자 tail이다.
+	if(size == 0) {
+		tail = null;
+	}
+	return element;
+}
+
+2. 특정 index의 요소를 제거 remove(int index)
+
+public E remove(int index) {
+	
+	//삭제하려는 노드가 첫 번째 원소일 경우
+	if(index == 0) {
+		return remove();
+	}
+	
+	//잘못된 범위에 대한 예외
+	if(index >= size || index < 0) {
+		throw new IndexOutOfBoundsException();
+	}
+	
+	Node<E> prevNode = search(index - 1); //삭제할 노드의 이전 노드
+	Node<E> removedNode = prevNode.next; //삭제할 노드
+	Node<E> nextNode = removedNode.next; //삭제할 노드의 다음 노드
+	
+	E element = removedNode.data; //삭제되는 노드의 데이터 반환
+	
+	//삭제하려는 노드가 가리키는 노드를 이전노드가 받아야한다.
+	preNode.next = nextNode;
+	
+	//만약 삭제했던 노드가 마지막 노드라면 tail을 prevNode로 바꾼다.
+	if(prevNode.next = null) {
+		tail = prevNode;
+	}
+	
+	//데이터 삭제
+	removedNode.next = null;
+	removedNode.data = null;
+	size--;
+	
+	return element;
+}
+
+3. 사용자가 원하는 특정 요소(value)를 리스트에서 찾아서 삭제
+- 여기서 핵심은 삭제하려는 요소가 존재하는지를 먼저 봐야한다. -> false, true
+
+public boolean remove(Object value) {
+	
+	Node<E> prevNode = head;
+	boolean hasValue = false;
+	Node<E> x = head; //삭제할 value를 찾기위해 head부터 순차적으로 돌아야하니
+	
+	// value와 일치하는 노드를 찾는다.
+	for(; x != null; x=x.next) {
+		if(value.equals(x.data)) {
+			hasValue = true;
+			break;
+		}
+		prevNode = x;  //삭제할 노드의 이전노드를 prevNode에 대입
+	}
+	
+	//일치하는 요소가 없을 경우 false 반환
+	if(x == null) {
+		return false;
+	}
+	
+	//만약 삭제하려는 노드가 head라면 기존 remove()를 사용
+	if(x.equals(head)) {
+		remove();
+		return true;
+	}
+	
+	else {
+		//삭제하려는 노드의 링크를 이어받아서 이전노드의 링크에 대입
+		prevNode.next = x.next;
+		
+		//만약 삭제했던 노드가 마지막 노드라면 tail을 prevNode로 바꾼다.
+		if(prevNode.next == null) {
+			tail=prevNode;
+		}
+		x.data = null;
+		x.next = null;
+		size--;
+		return true;
 	}
 }
 
