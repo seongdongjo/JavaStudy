@@ -6861,3 +6861,568 @@ b E Type : java.lang.Integer
 <T> returnType : ClassName
 <T> returnType : java.lang.Double
 ============================================================
+//제한된 제네릭
+지금까지는 제네릭의 가장 일반적인 예시들을 보여주었다. 
+예로들어 타입을 T라고 하고 외부클래스에서 Integer을 파라미터로 보내면 T 는 Integer가 되고, String을 보내면 T는 String이 된다. 
+만약 당신이 Student 라는 클래스를 만들었을 때 T 파라미터를 Student로 보내면 T는 Student가 된다. 
+즉, 제네릭은 참조 타입 모두 될 수 있다.
+
+근데, 만약 특정 범위 내로 좁혀서 제한하고 싶다면 어떻게 해야할까? 
+
+이 때 필요한 것이 바로 extends 와 super, 그리고 ?(물음표)다. ? 는 와일드 카드라고 해서 쉽게 말해 '알 수 없는 타입'이라는 의미다.
+
+1. <K extends T>, <? extends T>
+상한 한계. 즉 extends 뒤에 오는 타입이 최상위 타입으로 한계가 정해지는 것이다.
+T타입을 포함한 자식만 가능
+
+대표적인 예로는 제네릭 클래스에서 수를 표현하는 클래스만 받고 싶은 경우가 있다. 
+대표적인 Integer, Long, Byte, Double, Float, Short 같은 래퍼 클래스들은 Number 클래스를 상속 받는다.
+
+즉,  Integer, Long, Byte, Double, Float, Short 같은 수를 표현하는 래퍼 클래스만으로 제한하고 싶은 경우 다음과 같이 쓸 수 있다.
+
+public class ClassName<K extends Number> {}
+
+--------------------------------------------------
+이렇게 특정 타입 및 그 하위 타입만 제한 하고 싶을 경우 쓰면 된다. 
+좀 더 구체적으로 예로 들자면, 다음과 같다. Integer는 Number 클래스를 상속받는 클래스라 가능하지만, 
+String은 Number클래스와는 완전 별개의 클래스이기 때문에 에러(Bound mismatch)를 띄운다.
+
+public class ClassName <K extends Number> { 
+	... 
+}
+ 
+public class Main {
+	public static void main(String[] args) {
+ 
+		ClassName<Double> a1 = new ClassName<Double>();	// OK!
+ 
+		ClassName<String> a2 = new ClassName<String>();	// error!
+	}
+}
+==========================================================================
+2. <K super T>,<? super T>
+T타입의 부모(조상)타입만 가능하다.
+하한 한계. 즉 super 뒤에 오는 타입이 최하위 타입으로 한계가 정해지는 것이다.
+
+대표적으로는 해당 객체가 업캐스팅(Up Casting)이 될 필요가 있을 때 사용한다.
+예로들어 '과일'이라는 클래스가 있고 이 클래스를 각각 상속받는 '사과'클래스와 '딸기'클래스가 있다고 가정해보자.
+
+이 때 각각의 사과와 딸기는 종류가 다르지만, 둘 다 '과일'로 보고 자료를 조작해야 할 수도 있다. 
+(예로들면 과일 목록을 뽑는다거나 등등..) 그럴 때 '사과'를 '과일'로 캐스팅 해야 하는데, 과일이 상위 타입이므로 업캐스팅을 해야한다. 이럴 때 쓸 수 있는 것이 바로 super라는 것이다.
+
+조금 더 현실성 있는 예제라면 제네릭 타입에 대한 객체비교가 있다.
+
+
+
+public class ClassName <E extends Comparable<? super E>> { ... }
+
+E extends Comparable 부터 한 번 분석해보자. 
+
+extends는 앞서 말했듯 extends 뒤에오는 타입이 최상위 타입이 되고, 해당 타입과 그에 대한 하위 타입이라고 했다. 그럼 역으로 생각해보면 이렇다. E 객체는 반드시 Comparable을 구현해야한다는 의미 아니겠는가?
+
+예제로 보면 이렇다는 것이다.
+
+public class SaltClass <E extends Comparable<E>> { ... }
+ 
+public class Student implements Comparable<Student> {
+	@Override
+	public int compareTo(Person o) { ... };
+}
+ 
+public class Main {
+	public static void main(String[] args) {
+		SaltClass<Student> a = new SaltClass<Student>();
+	}
+}
+ 
+이렇게만 쓴다면 E extends Comparable<E> 까지만 써도 무방하다.
+즉, SaltClass의 E 는 Student 이 되어야 하는데, Comparable<Student> 의 하위 타입이어야 하므로 거꾸로 말해 Comparable을 구현해야한다는 의미인 것이다.
+======================================================================
+그러면 왜 Comparable<E> 가 아닌 <? super E> 일까?
+
+잠깐 설명했지만, super E는 E를 포함한 상위 타입 객체들이 올 수 있다고 했다.
+
+ 
+
+만약에 위의 예제에서 학생보다 더 큰 범주의 클래스인 사람(Person)클래스를 둔다면 어떻게 될까? 한마디로 아래와 같다면?
+
+public class SaltClass <E extends Comparable<E>> { ... }	// Error가능성 있음
+public class SaltClass <E extends Comparable<? super E>> { ... }	// 안전성이 높음
+ 
+public class Person {...}
+ 
+public class Student extends Person implements Comparable<Person> {
+	@Override
+	public int compareTo(Person o) { ... };
+}
+ 
+public class Main {
+	public static void main(String[] args) {
+		SaltClass<Student> a = new SaltClass<Student>();
+	}
+}
+ 
+
+쉽게 말하면 Person을 상속받고 Comparable 구현부인 comparTo에서 Person 타입으로 업캐스팅(Up-Casting) 한다면 어떻게 될까?
+
+ 
+
+만약 <E extends Comparable<E>>라면 SaltClass<Student> a 객체가 타입 파라미터로 Student를 주지만, 
+Comparable에서는 그보다 상위 타입인 Person으로 비교하기 때문에 
+Comparable<E>의 E인 Student보다 상위 타입 객체이기 때문에 제대로 정렬이 안되거나 에러가 날 수 있다.
+
+그렇기 때문에 E 객체의 상위 타입, 즉 <? super E> 을 해줌으로써 위와같은 불상사를 방지할 수가 있는 것이다.
+
+즉, <E extends Comparable<? super E>> 는 쉽게 말하자면 E 타입 또는 E 타입의 슈퍼클래스가
+Comparable을 의무적으로 구현해야한다는 뜻으로 슈퍼클래스타입으로 Up Casting이 발생하더라도 안정성을 보장받을 수 있다.
+======================================================================================
+- Comparable 인터페이스 사용할려면
+compareTo(T o) 메소드를 재정의해야한다.
+
+- Comparator 인터페이스는 
+compare(T o1, T o2) 메소드를 정의해야한다.
+
+그럼 왜 파라미터 개수가 다를까?
+
+일단, 두 인터페이스를 구체적으로 알아보기에 앞서 먼저 정답부터 말하자면, Comparable은 "자기 자신과 매개변수 객체를 비교"하는 것이고, 
+Comparator는 "두 매개변수 객체를 비교"한다는 것이다.
+
+쉽게 말하자면, Comparable은 자기 자신과 파라미터로 들어오는 객체를 비교하는 것이고, Comparator는 자기 자신의 상태가 어떻던 상관없이 파라미터로 들어오는 두 객체를 비교하는 것이다. 
+즉, 본질적으로 비교한다는 것 자체는 같지만, 비교 대상이 다르다는 것이다.
+
+또 다른 차이점이라면 Comparable은 lang패키지에 있기 때문에 import 를 해줄 필요가 없지만, Comparator는 util패키지에 있다.
+
+이 것만 기억해도 일단 기초는 이해한 것이라고 보면 된다.
+ 
+===========================================================================================
+1. Comparable
+보면은 public interface Comparable<T> {}로 되있다. -> implements
+
+public class ClassName implements Comparable<Type> { 
+ 
+/*
+  ...
+  code
+  ...
+ */
+ 
+	// 필수 구현 부분
+	@Override
+	public int compareTo(Type o) { //Type이 객체일수도있고 뭐든될수있다. 반환은 계산 후 int형
+		/*
+		 비교 구현
+		 */
+	}
+}
+
+
+이 때, 필수 구현 부분인 compareTo() 메소드가 바로 우리가 객체를 비교할 기준을 정의해주는 부분이 된다.
+쉽게 생각하면 이렇다. 여러분이 클래스를 만들 때, ClassName을 비교하고 싶을 것이다.
+
+아까 Comparable은 자기 자신과 매개변수 객체를 비교한다고 했다. 즉, 자기자신은 ClassName으로 생성한 객체 자신이 되고,
+매개변수 객체는 ClassName.compareTo(o); 를 통해 들어온 파라미터 o가 비교 할 객체가 되는 것이다.
+
+예 들어보자. 아까 Student클래스를 비교하고자 했으니 이를 위 방법에 맞게 적용하려면 어떻게 해야할까?
+
+일단, Student 클래스에 Comparable 을 implements 해야한다. 그리고 <> 사이에 들어갈 타입은 무엇일까? 
+Student 객체와 또 다른 Student 객체를 비교하고 싶다면, <> 사이에 들어갈 타입 또한 Student가 되어야하지 않겠는가?
+
+즉, Type 은 Student로 바뀌게 된다.
+
+위를 다음과 같이 작성할 수 있겠다.
+
+class Student implements Comparable<Student> {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+	@Override
+	public int compareTo(Student o) {
+		/*
+		 * 비교 구현
+		 */
+	}
+}
+
+-------------------------------------
+이제 compareTo 메소드를 구현해야 할 것이다. 만약 나이를 기준으로 비교(대소 관계)를 하고자 한다면 어떻게 하면 될까?
+자기 자신의 age(나이)와 매개변수로 들어온 o의 age(나이)의 값을 비교하면 된다.
+
+일단, 말로 설명하기 전에 코드로 먼저 보자면 이렇다.
+
+class Student implements Comparable<Student> {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+	@Override
+	public int compareTo(Student o) {
+    
+		// 자기자신의 age가 o의 age보다 크다면 양수
+		if(this.age > o.age) {
+			return 1;
+		}
+		// 자기 자신의 age와 o의 age가 같다면 0
+		else if(this.age == o.age) {
+			return 0;
+		}
+		// 자기 자신의 age가 o의 age보다 작다면 음수
+		else {
+			return -1;
+		}
+	}
+}
+
+--------------------------------------
+아마 많은 분들도 1, 0, -1 을 반환값으로 썼거나 그렇게 배웠을 것이다. 
+하지만, 꼭 1, 0, -1 이 아니라 양수, 0, 음수로 표현해도 된다는 것이다.
+
+//아래처럼해도 큰 문제가 되지 않는다.
+//하지만 당연히 이런 방법은 특수한 경우가 아니라면 추천하진 않는다
+class Student implements Comparable<Student> {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+	@Override
+	public int compareTo(Student o) {
+    
+		// 자기자신의 age가 o의 age보다 크다면 양수
+		if(this.age > o.age) {
+			return 142352;
+		}
+		// 자기 자신의 age와 o의 age가 같다면 0
+		else if(this.age == o.age) {
+			return 0;
+		}
+		// 자기 자신의 age가 o의 age보다 작다면 음수
+		else {
+			return -1324;
+		}
+	}
+}
+------------------------------------
+자. 다시 한 번 복기해보자. Comparable의 compareTo는 자기 자신과 매개변수를 비교한다고 했고, compareTo는 정수를 반환하며, 자기 자신을 기준으로 상대방과의 차이 값을 비교하여 반환한다고 했다.
+이를 좀 더 생각해보면 -1, 0, 1로 반환할 수도 있으나, 그냥 두 비교대상의 값 차이를 통해 양수인지 음수인지 같은지를 반환해도 되지 않겠는가?
+
+class Student implements Comparable<Student> {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+	@Override
+	public int compareTo(Student o) {
+ 
+		/*
+		 * 만약 자신의 age가 o의 age보다 크다면 양수가 반환 될 것이고,
+		 * 같다면 0을, 작다면 음수를 반환할 것이다.
+		 */
+		return this.age - o.age;
+	}
+}
+------------------------------------------
+public class Test {
+	public static void main(String[] args)  {
+ 
+		Student a = new Student(17, 2);	// 17살 2반
+		Student b = new Student(18, 1);	// 18살 1반
+		
+		
+		int isBig = a.compareTo(b);	// a자기자신과 b객체를 비교한다.
+		
+		if(isBig > 0) {
+			System.out.println("a객체가 b객체보다 큽니다.");
+		}
+		else if(isBig == 0) {
+			System.out.println("두 객체의 크기가 같습니다.");
+		}
+		else {
+			System.out.println("a객체가 b객체보다 작습니다.");
+		}
+		
+	}
+ 
+}
+ 
+class Student implements Comparable<Student> {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+	@Override
+	public int compareTo(Student o) {
+		return this.age - o.age; //return this.classNumber - o.classNumber; 도 가능
+	}
+}
+==========================================================
+//단, 여기서 주의해야할것이 있다.
+연산과정에서 자료형의 범위를 넘어버리는 경우
+int는 -2,147,483,648 ~ 2,147,483,647 이다.
+
+만약 해당 범위 밖을 넘게되면 반대편의 값으로 넘어가게 된다.
+즉, -2,147,483,648 -1 = -2,147,483,649 일것같지만 실제로는 2,147,483,647 로 int형의 최댓값으로 반환하게된다. -> underflow
+반대로 2,147,483,647 + 1 = 2,147,483,648 일 것이다. 
+하지만 마찬가지로 int 자료형에서 표현할 수 없는 수로 -2,147,483,648 이 되어 int 형의 최솟값으로 반환된다. 
+이렇게 주어진 범위의 상한선을 넘어버리는 것을 'Overflow' 라고 한다
+
+예로들어 다음과 같은 두 값이 있다고 해보자.
+
+o1 = 1,   o2 = -2,147,483,648
+그리고 두 수를 위 처럼 return o1 - o2; 형식으로 하면 어떻게 될까?
+
+우리는 '음수'가 나올 때 선행(자기 자신) 원소가 후행 원소보다 작다고 판단했다. 하지만 위 연산을 자세히 보자. 
+
+1 - (-2,147,483,648) = 2,147,483,649 이 되어야 하지만 -2,147,483,648 이 되어 음수값이 나와버린다. 그러면 1인 o1이 -2,147,483,648인 o2보다 작다는 상황이 와버린다.
+
+그렇기 때문에 여러분이 compareTo를 구현하거나, 이후 설명 할 compare을 구현 할 때 대소비교에 있어 이러한 Overflow 혹은, Underflow가 발생할 여지가 있는지를 반드시 확인하고 사용해야 한다.
+
+=====================================================================
+//Comparator
+- 자기자신이 아니라 매개변수로 들어오는 두 객체를 비교하는것이다.
+public interface Comparator<T> {} 
+이 부분은 Comparable에서 설명했던 것과 같이 <T>는 하나의 객체 타입이 지정 될 자리라고 생각하면 된다. 
+
+import java.util.Comparator;	// import 필요
+public class ClassName implements Comparator<Type> { 
+ 
+/*
+  ...
+  code
+  ...
+ */
+ 
+	// 필수 구현 부분
+	@Override
+	public int compare(Type o1, Type o2) {
+		/*
+		 비교 구현
+		 */
+	}
+}
+
+--------------------------------------------------
+import java.util.Comparator;	// import 필요
+public class ClassName implements Comparator<Student> { 
+ 
+/*
+  ...
+  code
+  ...
+ */
+ 
+	// 필수 구현 부분
+	@Override
+	public int compare(Student o1, Student o2) {
+		/*
+		 비교 구현
+		 */
+	}
+}
+-----------------------------------------------
+import java.util.Comparator;	// import 필요
+class Student implements Comparator<Student> {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+	@Override
+	public int compare(Student o1, Student o2) {
+    
+		// o1의 학급이 o2의 학급보다 크다면 양수
+		if(o1.classNumber > o2.classNumber) {
+			return 1;
+		}
+		// o1의 학급이 o2의 학급과 같다면 0
+		else if(o1.classNumber == o2.classNumber) {
+			return 0;
+		}
+		// o1의 학급이 o2의 학급보다 작다면 음수
+		else {
+			return -1;
+		}
+	}
+}
+-----------------------------------------------
+좀 더 구체적으로 말하자면 Comparable의 compareTo는 선행 원소가 자기 자신이 되고, 
+후행 원소가 매개 변수로 들어오는 o 가 되는 반면에, Comparator의 compare는 선행 원소가 o1이 되고, 후행 원소가 o2가 된다.
+
+//좀 더 간단하게 표현
+import java.util.Comparator;	// import 필요
+class Student implements Comparator<Student> {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+	@Override
+	public int compare(Student o1, Student o2) {
+ 
+		/*
+		 * 만약 o1의 classNumber가 o2의 classNumber보다 크다면 양수가 반환 될 것이고,
+		 * 같다면 0을, 작다면 음수를 반환할 것이다.
+		 */
+		return o1.classNumber - o2.classNumber;
+	}
+}
+==============================================================
+보다시피 a객체의 compare 메소드를 통해 비교하지만, 그 내부에선 두 매개변수인 b(o1)과 c(o2) 가 비교되는 것이기 때문에 a객체와는 관련 없이 두 객체의 비교 값을 반환하게 되는 것이다.
+
+만약에 a.compare 메소드에서 a와 비교하고 싶다면 다음과 같이 해주면 되는 것이다.
+a.compare(a, b); 
+
+즉, 객체 자체와는 상관 없이 독립적으로 매개변수로 넘겨진 두 객체를 비교하는 것이 포인트다.
+ 
+그리고 여기서도 마찬가지로 위 예시처럼 수의 범위를 넘어가지 않을 때는 return o1.classNumber - o2.classNumber으로 해주어도 올바른 결과를 얻겠지만, 만약 오버플로우 혹은 언더플로우가 발생할 경우 잘못 된 결과를 얻게 된다.
+import java.util.Comparator;
+ 
+public class Test {
+	public static void main(String[] args)  {
+ 
+		Student a = new Student(17, 2);	// 17살 2반
+		Student b = new Student(18, 1);	// 18살 1반
+		Student c = new Student(15, 3);	// 15살 3반
+			
+		// a객체와는 상관 없이 b와 c객체를 비교한다.
+		int isBig = a.compare(b, c);
+		
+		if(isBig > 0) {
+			System.out.println("b객체가 c객체보다 큽니다.");
+		}
+		else if(isBig == 0) {
+			System.out.println("두 객체의 크기가 같습니다.");
+		}
+		else {
+			System.out.println("b객체가 c객체보다 작습니다.");
+		}
+		
+	}
+}
+ 
+class Student implements Comparator<Student> {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+	@Override
+	public int compare(Student o1, Student o2) {
+		return o1.classNumber - o2.classNumber;
+	}
+}
+===========================================================
+하지만 위에 처럼 하면은 a.compare()이렇게 compare메소드를 활용하기위한 객체가(a) 필요하게된다.
+다음과 같은 상황이 오게 된다.
+public class Test {
+	public static void main(String[] args)  {
+ 
+		Student a = new Student(17, 2);	// 17살 2반
+		Student b = new Student(18, 1);	// 18살 1반
+		Student c = new Student(15, 3);	// 15살 3반
+        
+		int isBig = a.compare(a, b); //b.compare, c.compare() 상관없다
+        
+		int isBig2 = a.compare(b, c);
+    
+		int isBig3 = b.compare(a, c);
+		
+	}
+}
+ 
+===================================================================
+물론, 비교만을 위해 Student 객체를 하나 더 생성해줘도 되지만, 굳이 쓸모없는 매개변수까지 넣으며 변수를 만들필요가없다.
+public class Test {
+	public static void main(String[] args)  {
+ 
+		Student a = new Student(17, 2);		// 17살 2반
+		Student b = new Student(18, 1);		// 18살 1반
+		Student c = new Student(15, 3);		// 15살 3반
+		Student comp = new Student(0, 0);	// 비교만을 위해 사용할 객체
+
+		int isBig = comp.compare(a, b);
+
+		int isBig2 = comp.compare(b, c);
+
+		int isBig3 = comp.compare(a, c);
+		
+	}
+}
+===============================================================
+그래서 우리는 Comparator 기능만 따로 두고싶은데 -> 익명객체(클래스)활용
+public class Anonymous {
+	public static void main(String[] args) {
+	
+		Rectangle a = new Rectangle();
+		
+		//익명객체는 블록이 중심이다!!!!!!!!!!
+		// 익명 객체 1  
+		Rectangle anonymous1 = new Rectangle() {
+		
+			@Override
+			int get() {
+				return width;
+			}
+		};
+		
+		System.out.println(a.get());
+		System.out.println(anonymous1.get());
+		System.out.println(anonymous2.get());
+	}
+	
+	// 익명 객체 2
+	static Rectangle anonymous2 = new Rectangle() {
+		
+		int depth = 30;
+		@Override
+		int get() {
+			return width * height * depth;
+		}
+	};
+}
+ 
+class Rectangle {
+	
+	int width = 10;
+	int height = 20;
+	
+	int get() {	
+		return height;
+	}
+===========================================================
