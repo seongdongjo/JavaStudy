@@ -7607,3 +7607,271 @@ Student 클래스 내부에서 우린 Comparator을 구현해줄 필요가 없�
 위에서 생성한 익명객체를 가리키는 comp 를 통해 comp.compare(b, c) 이런 식으로 해주면 된다는 것이다.
 
 ===========================================================================
+import java.util.Comparator;
+ 
+public class Test {
+	public static void main(String[] args)  {
+ 
+		Student a = new Student(17, 2);	// 17살 2반
+		Student b = new Student(18, 1);	// 18살 1반
+		Student c = new Student(15, 3);	// 15살 3반
+			
+		// comp 익명객체를 통해 b와 c객체를 비교한다.
+		int isBig = comp.compare(b, c);
+		
+		if(isBig > 0) {
+			System.out.println("b객체가 c객체보다 큽니다.");
+		}
+		else if(isBig == 0) {
+			System.out.println("두 객체의 크기가 같습니다.");
+		}
+		else {
+			System.out.println("b객체가 c객체보다 작습니다.");
+		}
+		
+	}
+	
+	public static Comparator<Student> comp = new Comparator<Student>() {
+		@Override
+		public int compare(Student o1, Student o2) {
+			return o1.classNumber - o2.classNumber;
+		}
+	};
+}
+ 
+class Student {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+}
+익명 객체를 사용하면 좋은 점이 하나 더 있다. 다시 한 번 복기해보자. 익명 객체는 이름이 정의되지 않은 하나의 새로운 클래스와 같다고 보면 된다.
+
+클래스를 상속(구현)할 때, 이름만 다르게 하면 몇 개던 여러개를 생성할 수 있듯이, 익명 객체 또한 마찬가지다. 다만, 이름이 없을 뿐이라는 것이다.
+
+즉, 익명 객체를 가리키는 변수명만 달리하면 몇 개든 자유롭게 생성할 수 있다. 위 예제에서는 학급을 기준으로 대소 비교를 했지만, 
+만약 나이를 기준으로도 대소 비교를 하고 싶다면 다음과 같이 하나의 또다른 익명 객체를 생성 할 수 있다는 것이다.
+===========================================================================
+import java.util.Comparator;
+ 
+public class Test {
+	public static void main(String[] args)  {
+ 
+		Student a = new Student(17, 2);	// 17살 2반
+		Student b = new Student(18, 1);	// 18살 1반
+		Student c = new Student(15, 3);	// 15살 3반
+			
+		// 학급 기준 익명객체를 통해 b와 c객체를 비교한다.
+		int classBig = comp.compare(b, c);
+		
+		if(classBig > 0) {
+			System.out.println("b객체가 c객체보다 큽니다.");
+		}
+		else if(classBig == 0) {
+			System.out.println("두 객체의 크기가 같습니다.");
+		}
+		else {
+			System.out.println("b객체가 c객체보다 작습니다.");
+		}
+		
+		// 나이 기준 익명객체를 통해 b와 c객체를 비교한다.
+		int ageBig = comp2.compare(b, c);
+		
+		if(ageBig > 0) {
+			System.out.println("b객체가 c객체보다 큽니다.");
+		}
+		else if(ageBig == 0) {
+			System.out.println("두 객체의 크기가 같습니다.");
+		}
+		else {
+			System.out.println("b객체가 c객체보다 작습니다.");
+		}
+		
+	}
+	
+	// 학급 대소 비교 익명 객체
+	public static Comparator<Student> comp = new Comparator<Student>() {
+		@Override
+		public int compare(Student o1, Student o2) {
+			return o1.classNumber - o2.classNumber;
+		}
+	};
+	
+	// 나이 대소 비교 익명 객체
+	public static Comparator<Student> comp2 = new Comparator<Student>() {
+		@Override
+		public int compare(Student o1, Student o2) {
+			return o1.age - o2.age;
+		}
+	};
+}
+ 
+class Student {
+ 
+	int age;			// 나이
+	int classNumber;	// 학급
+	
+	Student(int age, int classNumber) {
+		this.age = age;
+		this.classNumber = classNumber;
+	}
+	
+}
+===========================================================================
+//우리는 이때까지 Comparator를 익명객체로 만들어서 구현했다.
+//그러면 Comparable은 익명객체로 생성해서 쓰면안돼??
+//생성은가능하지만 복잡해진다.
+만약 Comparable을 익명객체로 다음과 같이 생성했다고 해보자
+public static Comparable<Student> comp = new Comparable<Student>() {
+	@Override
+	public int compareTo(Student o1) {
+		// 구현부
+	}
+};
+
+그러면 Comparable에서 자기 자신은 무엇인가? 익명 객체가 될 것이다. 
+Student객체가 아니라는 것이다. 즉, 익명의 객체와 Student가 비교하는 것이지, Student와 Student가 비교되는 것이 아니라는 것이다.
+
+public class Test {
+	public static void main(String[] args)  {
+ 
+		Student a = new Student(17, 2);	// 17살 2반
+		Student b = new Student(18, 1);	// 18살 1반
+        
+		/*
+		 * Stduent b 객체는 comp의 30이랑 비교되는 것이다.
+		 * 즉, a.compareTo(b) 처럼 서로 다른 객체에 대한 비교가 불가능하다.
+		 */
+		int classBig = comp.compareTo(b);
+        
+		
+	}
+	
+	// 학급 대소 비교 익명 객체
+	public static Comparable<Student> comp = new Comparable<Student>() {
+		int a = 30;
+		@Override
+		public int compareTo(Student o) {
+			return a - o.classNumber;
+		}
+	};
+}
+// Student 클래스 생략
+한 마디로 여러분이 자기 동일한 타입의 자신의 객체와 어떤 객체를 비교하고자 하면 
+Comparable을 익명객체로 선언한다고 한들, 동일한 타입 비교는 불가능하다는 것이다.
+
+======================================================================
+//자바에서는 오름차순을 디폴트 기준으로 삼고있다. 즉, 선행원소가 후행원소보다 작다는 뜻이다.
+//compare 혹은 compareTo를 사용하여 객체를 비교 할 경우 음수가 나오면 두 원소의 위치를 바꾸지 않는다는 것이다.
+그 다음 정렬 알고리즘에 의해 index 1 원소와 index 2 원소를 비교한다고 해보자.
+선행 원소인 3이 2보다 크다. -> 양수가 나오면 두 원소의 위치를 바꾼다.
+
+일반화를 하면
+[두 수의 비교 결과에 따른 작동 방식]
+음수일 경우 : 두 원소의 위치를 교환 안함
+양수일 경우 : 두 원소의 위치를 교환 함
+
+public class Test {
+	
+	public static void main(String[] args) {
+		
+		MyInteger[] arr = new MyInteger[10];
+		
+		// 객체 배열 초기화 (랜덤 값으로) 
+		for(int i = 0; i < 10; i++) {
+			arr[i] = new MyInteger((int)(Math.random() * 100));
+		}
+	}
+	
+}
+ 
+class MyInteger {
+	int value;
+	
+	public MyInteger(int value) {
+		this.value = value;
+	}
+}
+----------------------------------------------------
+위 객체인 MyInteger 클래스는 사용자가 만든 객체라 아직 비교 기준이 없다. 그러면 어떻게 해주어야 하겠는가?
+
+앞서 배웠던 비교 기준을 생성하면 되는 것이다. 우리는 비교 기준을 설정하는 방법 두 가지를 배웠다. Comparable과 Comparator다.
+Comparable을 사용한다면 MyInteger 클래스에 구현(implements)을 해야 할 것이다.
+
+class MyInteger implements Comparable<MyInteger> {
+	int value;
+	
+	public MyInteger(int value) {
+		this.value = value;
+	}
+ 
+	// 자기 자신의 value을 기준으로 파라미터 값과의 차이를 반환한다.
+	@Override
+	public int compareTo(MyInteger o) {
+		return this.value - o.value;
+	}
+	
+}
+=============================================================================
+그리고 나서 정렬 메소드로 가장 자주 쓰이는 Arrays.sort()메소드에 한 번 돌려서 테스트를 해보자. 다음과 같이 말이다.
+
+import java.util.Arrays;
+ 
+public class Test {
+	
+	public static void main(String[] args) {
+		
+		MyInteger[] arr = new MyInteger[10];
+		
+		// 객체 배열 초기화 (랜덤 값으로) 
+		for(int i = 0; i < 10; i++) {
+			arr[i] = new MyInteger((int)(Math.random() * 100));
+		}
+ 
+		// 정렬 이전
+		System.out.print("정렬 전 : ");
+		for(int i = 0; i < 10; i++) {
+			System.out.print(arr[i].value + " ");
+		}
+		System.out.println();
+		
+		Arrays.sort(arr);
+        
+		// 정렬 이후
+		System.out.print("정렬 후 : ");
+		for(int i = 0; i < 10; i++) {
+			System.out.print(arr[i].value + " ");
+		}
+		System.out.println();
+	}
+	
+}
+ 
+class MyInteger implements Comparable<MyInteger> {
+	int value;
+	
+	public MyInteger(int value) {
+		this.value = value;
+	}
+	
+	@Override
+	public int compareTo(MyInteger o) {
+		return this.value - o.value;
+	}
+	
+}
+
+결과는 다음과 같이 나온다.
+//정렬전 : 51 24 10 ...
+//정렬후 : 10 12 20 ...
+
+만역에 위에서 compareTo를 정의하지않으면 에러가난다. 
+MyInteger 클래스를 Arrays.sort 안에서 정렬을 하면서 원소를 비교하려 하는데, 
+해당 클래스가 비교할 수 있는 기준이 정의되어있지 않아서 정렬 자체가 불가능한 것이다.
+
+=========================================================================
