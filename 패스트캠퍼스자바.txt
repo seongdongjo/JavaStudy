@@ -7875,3 +7875,392 @@ MyInteger 클래스를 Arrays.sort 안에서 정렬을 하면서 원소를 비�
 해당 클래스가 비교할 수 있는 기준이 정의되어있지 않아서 정렬 자체가 불가능한 것이다.
 
 =========================================================================
+//만약에 Comparable 대신 Comparator을 쓴다면 ??
+//익명객체를 생성하여 MyInteger에 대한 Comparator를 구현해주는것이다.
+import java.util.Arrays;
+import java.util.Comparator;
+ 
+public class Test {
+	
+	public static void main(String[] args) {
+		
+		MyInteger[] arr = new MyInteger[10];
+		
+		// 객체 배열 초기화 (랜덤 값으로) 
+		for(int i = 0; i < 10; i++) {
+			arr[i] = new MyInteger((int)(Math.random() * 100));
+		}
+	}
+ 
+	
+	static Comparator<MyInteger> comp = new Comparator<MyInteger>() {
+		
+		@Override
+		public int compare(MyInteger o1, MyInteger o2) {
+			return o1.value - o2.value;
+		}
+	};
+}
+ 
+ 
+class MyInteger {
+	int value;
+	
+	public MyInteger(int value) {
+		this.value = value;
+	}
+	
+}
+==============================================================
+//위에서 쓰였던 Arrays.sort() 내부를 보면 배열만 파라미터로 받는게아니라 Comparator 또한 파라미터로 받는다.
+public static <T> void sort(T[] a, Comparator<? super T> c) 
+즉, Comparator 파라미터로 넘어온 c의 비교기준을 갖고 파라미터로 넘어온 객체배열 a을 정렬하겠다는 의미다.
+
+우리가 그동안 Arrays.sort()를 쓸 때 Arrays.sort(array); 이런식으로 배열만 넘겨주었지만
+사실은 Comparator로 구현된 객체를 파라미터로 같이 넘겨주어 Arrays.sort(array, comp); 로도 쓸 수 있다는 것이다.
+
+import java.util.Arrays;
+import java.util.Comparator;
+ 
+public class Test {
+	
+	public static void main(String[] args) {
+		
+		MyInteger[] arr = new MyInteger[10];
+		
+		// 객체 배열 초기화 (랜덤 값으로) 
+		for(int i = 0; i < 10; i++) {
+			arr[i] = new MyInteger((int)(Math.random() * 100));
+		}
+ 
+		// 정렬 이전
+		System.out.print("정렬 전 : ");
+		for(int i = 0; i < 10; i++) {
+			System.out.print(arr[i].value + " ");
+		}
+		System.out.println();
+		
+		Arrays.sort(arr, comp);		// MyInteger에 대한 Comparator을 구현한 익명객체를 넘겨줌
+        
+		// 정렬 이후
+		System.out.print("정렬 후 : ");
+		for(int i = 0; i < 10; i++) {
+			System.out.print(arr[i].value + " ");
+		}
+		System.out.println();
+	}
+ 
+	
+	static Comparator<MyInteger> comp = new Comparator<MyInteger>() {
+		
+		@Override
+		public int compare(MyInteger o1, MyInteger o2) {
+			return o1.value - o2.value;
+		}
+	};
+}
+ 
+ 
+class MyInteger {
+	int value;
+	
+	public MyInteger(int value) {
+		this.value = value;
+	}
+	
+	
+}
+======================================================================
+import java.util.Arrays;
+import java.util.Comparator;
+ 
+public class Test {
+	
+	public static void main(String[] args) {
+		
+		Student[] arr = new Student[9];
+		
+		arr[0] = new Student(3, 70);	// 3반 70점
+		arr[1] = new Student(1, 70);	// 1반 70점
+		arr[2] = new Student(1, 50);	// 1반 50점
+		arr[3] = new Student(2, 60);	// 2반 60점
+		arr[4] = new Student(2, 80);	// 2반 80점
+		arr[5] = new Student(1, 30);	// 1반 30점
+		arr[6] = new Student(2, 70);	// 2반 70점
+		arr[7] = new Student(3, 90);	// 3반 90점
+		arr[8] = new Student(3, 60);	// 3반 60점
+		
+		Student[] arr2 = arr.clone();	// 정렬 테스트를 위한 arr 객체 복사
+		Student[] arr3 = arr.clone();	// 정렬 테스트를 위한 arr 객체 복사
+		
+		System.out.println("(c, s) -> (classNum, score)");
+		// 정렬 이전
+		System.out.print("정렬 전 : ");
+		for(Student v : arr) {
+			System.out.print(v);
+		}
+		System.out.println();
+ 
+		Arrays.sort(arr);	// Comparable 사용
+		
+ 
+		System.out.print("\n학급 오름차순 정렬(같을 경우 성적 내림차순) : ");
+		for(Student v : arr) {
+			System.out.print(v);
+		}
+		System.out.println();
+		
+		
+		
+		Arrays.sort(arr2, comp1);	// Comparator 사용 
+		
+		System.out.print("\n학급 오름차순 정렬(같을 경우 성적 오름차순) : ");
+		for(Student v : arr2) {
+			System.out.print(v);
+		}
+		System.out.println();
+	
+		
+		
+		Arrays.sort(arr3, comp2);	// Comparator 사용
+		
+		System.out.print("\n성적 내림차순 정렬(같을 경우 학급 오름차순) : ");
+		for(Student v : arr3) {
+			System.out.print(v);
+		}
+		System.out.println();
+		
+	}
+ 
+	
+	static Comparator<Student> comp1 = new Comparator<Student>() {
+		
+		@Override
+		public int compare(Student o1, Student o2) {
+			
+			// 만약 학급이 같다면 성적을 기준으로 "오름차순"으로 정렬한다.
+			if(o1.classNum == o2.classNum) {
+				return o1.score - o2.score;
+			}
+			return o1.classNum - o2.classNum;	// 학급 기준 오름차순으로 정렬한다.
+		}
+	};
+	
+	static Comparator<Student> comp2 = new Comparator<Student>() {
+		
+		@Override
+		public int compare(Student o1, Student o2) {
+			
+			// 만약 성적이 같다면 학급을 "오름차순"으로 정렬한다.
+			if(o1.score == o2.score) {
+				return o1.classNum - o2.classNum;
+			}
+			return o2.score - o1.score;	// 성적을 내림차순으로 정렬한다.
+		}
+	};
+}
+ 
+ 
+class Student implements Comparable<Student> {
+ 
+	int classNum;
+	int score;
+	
+	public Student(int classNum, int score) {
+		this.classNum = classNum;
+		this.score = score;
+	}
+	
+	@Override
+	public int compareTo(Student o) {
+		
+		// 만약 학급이 같다면 성적을 기준으로 "내림차순"으로 정렬한다.
+		if(this.classNum == o.classNum) {
+			return o.score - this.score;
+		}
+		return this.classNum - o.classNum;	// 학급 기준 오름차순으로 정렬한다.
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "("+classNum + ", " + score + ")  ";
+	}
+	
+}
+================================================================
+ArrayList를 구현하기 전에 잠깐 알아두고 가야할 점이 있다.
+ArrayList는 다른 자료구조와 달리 Object[] 배열(객체 배열)을 두고 사용한다는 점이다. 일단은 다른 자료구조는 살펴보지 않았으니 이렇다는 정도만 알고계시면 될 것 같다.
+
+또한 모든 자료구조는 '동적 할당'을 전제로 한다. 가끔 ArrayList를 구현 할 때, 
+리스트가 꽉 차면 리스트의 크기를 늘리지 않고 그냥 꽉 찼다고 더이상 원소를 안받도록 구현한 경우가 많은데 이는 자료구조를 구현하는 의미가 없다.
+
+동적 할당을 안하고 사이즈를 정해놓고 구현한다면 메인함수에서 정적배열을 선언하는 것과 차이가 없다.
+
+데이터의 개수를 알 수 없는데 배열을 쓰고 싶을 때 여러분은 어떤 방법을 선택하는가?
+ArrayList, LinkedList 등의 자료구조를 선택할 것이다. 왜냐면 사이즈를 정하지 않고 동적으로 활용할 수 있기 때문이다.
+ 
+마지막으로 리스트 계열 자료구조는 데이터 사이에 빈 공간을 허락하지 않는다.
+아래 예를 들어보자.
+Object[] a = {"a", "b", "c", "d"}; 
+이러한 배열이 있고, 만약 "c"라는 데이터를 삭제하려고 한다. (a[2] = null)
+
+그러면 a배열은 다음과 같은 상황일 것이다.
+Object[] a = {"a", "b", null, "d"};
+
+이렇게 데이터 사이에 빈 공간이 생길 경우 빈공간을 없애야 한다. 즉, null 뒤에 있는 모든 데이터를 한 칸씩 끌어와야한다는 것이다. 아래와 같이 말이다.
+Object[] a = {"a", "b", "d", null};
+
+이렇게 항상 리스트 계열 자료구조는 데이터들이 '연속되어'있어야 한다는 점을 기억하자.
+
+===================================================================
+public interface List<E> {
+ 
+	/**
+	 * 리스트에 요소를 추가합니다.
+	 * 
+	 * @param value 리스트에 추가할 요소
+	 * @return 리스트에서 중복을 허용하지 않을 경우에 리스트에 이미 중복되는 
+	 *         요소가 있을 경우 {@code false}를 반환하고, 중복되는 원소가
+	 *         없을경우 {@code true}를 반환
+	 */
+	boolean add(E value);
+ 
+	/**
+	 * 리스트에 요소를 특정 위치에 추가합니다. 
+	 * 특정 위치 및 이후의 요소들은 한 칸씩 뒤로 밀립니다.
+	 * 
+	 * @param index 리스트에 요소를 추가할 특정 위치 변수
+	 * @param value 리스트에 추가할 요소
+	 */
+	void add(int index, E value);
+ 
+	/**
+	 * 리스트의 index 위치에 있는 요소를 삭제합니다.
+	 * 
+	 * @param index 리스트에서 삭제 할 위치 변수
+	 * @return 삭제된 요소를 반환
+	 */
+	E remove(int index);
+ 
+	/**
+	 * 리스트에서 특정 요소를 삭제합니다. 동일한 요소가 
+	 * 여러 개일 경우 가장 처음 발견한 요소만 삭제됩니다.
+	 * 
+	 * @param value 리스트에서 삭제할 요소
+	 * @return 리스트에 삭제할 요소가 없거나 삭제에 실패할 
+	 *         경우 {@code false}를 반환하고 삭제에 성공할 경우 {@code true}를 반환 
+	 */
+	boolean remove(Object value);
+ 
+	/**
+	 * 리스트에 있는 특정 위치의 요소를 반환합니다.
+	 * 
+	 * @param index 리스트에 접근할 위치 변수 
+	 * @return 리스트의 index 위치에 있는 요소 반환 
+	 */
+	E get(int index);
+ 
+	/**
+	 * 리스트에서 특정 위치에 있는 요소를 새 요소로 대체합니다.
+	 * 
+	 * @param index 리스트에 접근할 위치 변수 
+	 * @param value 새로 대체할 요소 변수 
+	 */
+	void set(int index, E value);
+ 
+	/**
+	 * 리스트에 특정 요소가 리스트에 있는지 여부를 확인합니다.
+	 * 
+	 * @param value 리스트에서 찾을 특정 요소 변수 
+	 * @return 리스트에 특정 요소가 존재할 경우 {@code true}, 존재하지 않을 경우 {@code false}를 반환  
+	 */
+	boolean contains(Object value);
+ 
+	/**
+	 * 리스트에 특정 요소가 몇 번째 위치에 있는지를 반환합니다.
+	 * 
+	 * @param value 리스트에서 위치를 찾을 요소 변수  
+	 * @return 리스트에서 처음으로 요소와 일치하는 위치를 반환.
+	 *         만약 일치하는 요소가 없을경우 -1 을 반환 
+	 */
+	int indexOf(Object value);
+ 
+	/**
+	 * 리스트에 있는 요소의 개수를 반환합니다.
+	 * 
+	 * @return 리스트에 있는 요소 개수를 반환  
+	 */
+	int size();
+ 
+	/**
+	 * 리스트에 요소가 비어있는지를 반환합니다.
+	 * @return 리스트에 요소가 없을경우 {@code true}, 요소가 있을경우 {@code false}를 반환 
+	 */
+	boolean isEmpty();
+ 
+	/**
+	 * 리스트에 있는 요소를 모두 삭제합니다.
+	 */
+	public void clear();
+ 
+}
+
+
+ArrayList 이름으로 생성해준 뒤 앞서 작성했던 List 인터페이스를 implements 해준다. 
+implements 를 하면 class 옆에 경고표시가 뜰 텐데 List 인터페이스에 있는 메소드들을 구현하라는 것이다. 
+어차피 모두 구현해나갈 것이기 때문에 일단은 무시한다.
+
+public class ArrayList<E> implements List<E> {
+	
+	private static final int DEFAULT_CAPACITY = 10; //최소 기본사이즈
+	private static final Object[] EMPTY_ARRAY = {}; //빈 배열
+	
+	private int size;
+	
+	Object[] array; //요소를 담을 배열
+	
+	//생성자1 (초기공간할당x)
+	public ArrayList() {
+		this.array = EMPTY_ARRAY;
+		this.size = 0;
+	}
+	
+	//생성자2 (초기공간할당o)
+	public ArrayList(int capacity) {
+		this.array = new Object[capacity];
+		this.size = 0;
+	}
+}
+
+===================================================================
+#)동적할당을위한 resize 메소드 구현
+배열의 크기는 외부에서 마음대로 접근하면 데이터의 손상을 야기할수있어서 private로 설정
+
+private void resize() {
+	int array_capacity = array.length;
+	
+	//배열의 크기가 0이면
+	if(Arrays.equals(array, EMPTY_ARRAY)) {
+		array = new Object[DEFAULT_CAPACITY];
+		return;
+	}
+	
+	//용량이 꽉 찬 경우
+	if(size == array_capacity) {
+		int new_capacity = array_capacity * 2;
+		
+		//copy
+		array = Arrays.copyOf(array, new_capacity);
+		return;
+	}
+	
+	//용량이 절반 미만으로 요소가 차지하고 있을경우
+	if(size < (array_capacity / 2)) {
+		int new_capacity = array_capacity / 2;
+		
+		//copy
+		array = Arrays.copyOf(array, Math.max(new_capacity, DEFAULT_CAPACITY));
+		return;
+	}
+}
