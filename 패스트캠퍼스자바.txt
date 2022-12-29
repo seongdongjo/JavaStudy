@@ -8264,3 +8264,75 @@ private void resize() {
 		return;
 	}
 }
+
+조건문 1 :  if (Arrays.equals(array, EMPTY_ARRAY)) 
+앞서 생성자에서 사용자가 용적을 별도로 설정하지 않은 경우 EMPTY_ARRAY로 초기화 되어있어 용적이 0인 상태다. 
+이 경우를 고려하여 이제 새로 array의 용적을 할당하기 위해 최소 용적으로 설정해두었던 DEFAULT_CAPACITY의 크기만큼 배열을 생성해주고 메소드를 종료한다.
+또한 주소가 아닌 값을 비교해야 하기 때문에 Arrays.equals() 메소드를 사용하도록 하자.
+
+조건문 2 :  if (size == array_capacity) 
+데이터가 꽉 찰 경우에는 데이터(요소)를 더 받아오기 위해서 용적을 늘려야 한다. 
+즉, 데이터의 개수가 용적과 같을 경우는 꽉 차있는 경우를 말한다. 이 때는 새롭게 용적을 늘릴 필요가 있으므로 새로운 용적을 현재 용적의 2배로 설정하도록 한다. 
+
+또한 기존에 담겨있던 요소들을 새롭게 복사해와야한다. 이 때 편리하게 쓸 수 있는 것이 Arrays.copyOf() 메소드다. 
+Arrays.copyOf() 는 첫 번째 파라미터로 '복사할 배열'을 넣어주고, 두 번째 파라미터는 용적의 크기를 넣어주면 된다.
+만약 복사할 배열보다 용적의 크기가 클 경우 먼저 배열을 복사한 뒤, 나머지 빈 공간은 null로 채워지기 때문에 편리하다.
+
+
+조건문 3 :  if (size < (array_capacity / 2 )) 
+
+데이터가 용적에 절반 미만으로 차지 않을 경우다. 이 경우 데이터는 적은데 빈 공간이 메모리를 차지하고 있어 불필요한 공간을 낭비할 뿐이다. 이럴 때에는 사이즈를 적적하게 줄여주는 것이 좋지 않겠는가?
+
+데이터의 개수가 용적의 절반 미만이라면 용적도 절반으로 줄여주도록 하기 위해 새로운 용적(new_capacity)을 현재 용적의 절반으로 둔 뒤, Arrays.coptyOf() 메소드를 통해 새로운 용적의 배열을 생성해주도록 하자.
+
+
+만약 복사할 배열보다 용적의 크기가 작을경우 새로운 용적까지만 복사하고 반환하기 때문에 예외발생에 대해 안전하다.
+
+-------------------------------------
+#)add메소드 구현
+1. 기본삽입 add(E value),addLast(E value)
+@Override
+public boolean add(E value) {
+	addLast(value);
+	return true;
+}
+ 
+public void addLast(E value) {
+ 
+	// 꽉차있는 상태라면 용적 재할당
+	if (size == array.length) {
+		resize();
+	}
+	array[size] = value;	// 마지막 위치에 요소 추가
+	size++;	// 사이즈 1 증가
+}
+
+
+2. 중간삽입: add(int index, E value)
+삽입하는 위치 뒤부터 한칸씩 밀린다.
+
+@Override
+public void add(int index, E value) {
+	if(index > size || index < 0) { //입력을 벗어날 경우 예외
+		throw new IndexOutOfBoundsException();
+	}
+	if(index == size) { //index가 마지막 위치라면 addLast 메소드로 요소추가
+		addLast(value);
+	}
+	else {
+		if(size == array.length) { //꽉차있다면 크기 재할당
+			resize();
+		}
+		
+		//index 기준 후자에 있는 모든 요소들 한 칸씩 뒤로밀기 (여기서 size는 요소개수이다) 그래서 size가 4이면 총 4개의 데이터가있고 array길이랑은 다르다.
+		//데이터가 몇개 들어있냐, array.length는 그냥 배열자체길이이다.(넣을수있는공간)
+		for(int i = size; i>index; i--) {
+			array[i] = array[i-1];  // int i=size니까 size가 4이면 인덱스는 0부터시작 그래서 끝에 데이터가있는곳의 뒤에(공백)부터 넣는다는 소리
+		}
+		
+		//위에서 한칸씩 뒤로 밀었으면 이제 원하는위치에 요소 대입
+		array[index] = value; 
+		size++;
+	}
+}
+==================================================================================
