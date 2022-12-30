@@ -8335,4 +8335,318 @@ public void add(int index, E value) {
 		size++;
 	}
 }
+
+3. addFirst(E value)
+public void addFirst(E value) {
+	add(0, value);
+}
+
 ==================================================================================
+1. get(int index)메소드
+@SuppressWarnings("unchecked")
+@Override
+public E get(int index) {
+	if(index >= size || index < 0) {	// 범위 벗어나면 예외 발생
+		throw new IndexOutOfBoundsException();
+	}
+	// Object 타입에서 E타입으로 캐스팅 후 반환
+	return (E) array[index];
+}
+ 
+여기서 @SuppressWarnings("unchecked") 에 대해 잠깐 언급하고 가겠다.
+
+@SuppressWarnings("unchecked")을 붙이지 않으면 type safe(타입 안정성)에 대해 경고를 보낸다. 
+반환되는 것을 보면 E 타입으로 캐스팅을 하고 있고 그 대상이 되는 것은 Object[] 배열의 Object 데이터다. 
+즉, Object -> E 타입으로 변환을 하는 것인데 이 과정에서 변환할 수 없는 타입을 가능성이 있다는 경고로 메소드 옆에 경고표시가 뜨는데,
+우리가 add하여 받아들이는 데이터 타입은 유일하게 E 타입만 존재한다. 
+
+그렇기 때문에 형 안정성이 보장된다. 한마디로 ClassCastException이 뜨지 않으니 이 경고들을 무시하겠다는 것이 @SuppressWarnings("unchecked") 이다. 
+물론 절대 남발하면 안되고, 형 변환시 예외 가능성이 없을 확실한 경우에 최소한의 범위에서 써주는 것이 좋다. 그렇지 않으면 중요한 경고 메세지를 놓칠 수도 있기 때문이다.
+
+
+
+2. set(int index, E value) 메소드
+
+set 메소드는 기존에 index에 위치한 데이터를 새로운 데이터(value)으로 '교체'하는 것이다. 
+add메소드는 데이터 '추가'인 반면에 set은 '교체'라는 점을 기억해두도록 하자.
+
+결과적으로 index에 위치한 데이터를 교체하는 것이기 때문에 get이랑 메소드가 유사하다. 
+다만 get은 해당 인덱스의 값을 반환하는 것이였다면 set은 데이터만 교체해주면 된다.
+
+ 
+
+@Override
+public void set(int index, E value) {
+	if (index >= size || index < 0) {	// 범위를 벗어날 경우 예외 발생
+		throw new IndexOutOfBoundsException();
+	} 
+	else {
+		// 해당 위치의 요소를 교체
+		array[index] = value;
+	}
+}
+
+마찬가지로 잘못된 인덱스를 참조하고 있진 않은지 반드시 검사가 필요하다. 그냥 
+index로 참조하는 모든 메소드들은 반드시 검사해야한다고 생각하면 편하다.
+
+
+3. indexOf(Object value) 메소드
+indexOf 메소드는 사용자가 찾고자 하는 요소(value)의 '위치(index)'를 반환하는 메소드다.
+
+그러면 이러한 질문이 들어올 수 있다. "찾고자 하는 요소가 중복된다면 어떻게 반환해야 하나요?" 
+이에 대한 답은 가장 먼저 마주치는 요소의 인덱스를 반환한다는 것이다. (실제로 자바에서 제공하는 indexOf 또한 동일하게 구현된다.)
+
+"그럼 찾고자 하는 요소가 없다면요?" 이러한 경우 -1 을 반환한다.
+
+그리고 중요한 점은 객체끼리 비교할 때는 동등연산자(==)가 아니라 반드시 .equals() 로 비교해야 한다. 
+객체끼리 비교할 때 동등연산자를 쓰면 값을 비교하는 것이 아닌 주소를 비교하는 것이기 때문에 잘못된 결과를 초래한다..
+
+@Override
+public int indexOf(Object value) {
+	int i = 0;
+    
+	// value와 같은 객체(요소 값)일 경우 i(위치) 반환
+	for (i = 0; i < size; i++) {
+		if (array[i].equals(value)) {
+			return i;
+		}
+	}
+	// 일치하는 것이 없을경우 -1을 반환
+	return -1;
+}
+
+
+3 - 1. LastindexOf(Object value) 메소드
+indexOf 메소드는 index가 0부터 시작했다면 반대로 거꾸로 탐색하는 과정도 있는 것이 좀 더 좋다. 
+예로들어 사용자가 찾고자 하는 인덱스가 뒤 쪽이라고 예상 가능할 때 굳이 앞에서부터 찾아 줄 필요가 없기 때문이다. 
+또한 이후에 구현 할 Stack에서도 이용 가능하므로 만들어 두는 것이 좀 더 좋다.
+
+public int lastIndexOf(Object value) {
+	for(int i = size - 1; i >= 0; i--) {
+		if(array[i].equals(value)) {
+			return i;
+		}
+	}
+	return -1;
+}
+ 
+
+4. contains(Object value) 메소드
+
+indexOf 메소드는 사용자가 찾고자 하는 요소(value)의 '위치(index)'를 반환하는 메소드였다면, 
+contains는 사용자가 찾고자 하는 요소(value)가 존재 하는지 안하는지를 반환하는 메소드다.
+
+찾고자 하는 요소가 존재한다면 true를, 존재하지 않는다면 false를 반환한다.
+
+음? 그러면 indexOf와 기능이 비슷하니깐 이를 쓸 수 있을 것 같은데? 라는 생각이 들었다면 매우 정답이다.
+
+어차피 해당 요소가 존재하는지를 '검사'한다는 기능은 같기 때문에 indexOf 메소드를 이용하여 만약 음수가 아닌 수가 반환되었다면 요소가 존재한다는 뜻이고, 
+음수(-1)이 나왔다면 요소가 존재하지 않는다는 뜻이다. 즉, 아래와 같이 contains 메소드를 만들 수 있다.
+
+@Override
+public boolean contains(Object value) {
+ 
+	// 0 이상이면 요소가 존재한다는 뜻
+	if(indexOf(value) >= 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+
+==========================================================================================
+#)remove 메소드 구현
+1. remove(int index) 
+특정위치에 있는 요소를 제거
+
+
+@SuppressWarnings("unchecked")
+@Override
+public E remove(int index) {
+ 
+	if (index >= size || index < 0) {
+		throw new IndexOutOfBoundsException();
+	}
+ 
+	E element = (E) array[index];	// 삭제될 요소를 반환하기 위해 임시로 담아둠
+	array[index] = null;
+    
+	// 삭제한 요소의 뒤에 있는 모든 요소들을 한 칸씩 당겨옴
+	for (int i = index; i < size - 1; i++) {
+		array[i] = array[i + 1];
+		array[i + 1] = null;
+	}
+	size--;
+	resize();
+	return element;
+}
+
+또한 명시적으로 요소를 null로 처리해주어야 가비지컬렉터에 의해 더이상 쓰지 않는 데이터의 메모리를 수거(반환)해주기 때문에 최대한 null 처리를 하는 것이 좋다.
+
+(물론 명시적으로 안해도 크게 문제는 없지만 그럴경우 가비지컬렉터가 쓰지 않는 데이터더라도 나중에 참조될 가능성이 있는 데이터로 볼 가능성이 높아진다. 
+이는 결국 메모리를 많이 잡아먹을 수 있는 가능성이 있다는 것이고 결과적으로 프로그램 성능에도 영향을 미친다는 것이다.)
+
+
+2. remove(Object value) 메소드
+@Override
+public boolean remove(Object value) {
+ 
+	// 삭제하고자 하는 요소의 인덱스 찾기
+	int index = indexOf(value);
+ 
+	// -1이라면 array에 요소가 없다는 의미이므로 false 반환
+	if (index == -1) {
+		return false;
+	}
+ 
+	// index 위치에 있는 요소를 삭제
+	remove(index);
+	return true;
+}
+
+
+
+3. clear메소드
+clear()는 단어에서 짐작 할 수 있듯 모든 요소들을 비워버리는 작업이다. 
+예로들어 리스트에 요소를 담아두었다가 초기화가 필요할 때 쓸 수 있는 유용한 존재다. 
+또한 모든 요소를 비워버린다는 것은 요소가 0개라는 말로 size 또한 0으로 초기화해주고, 
+배열의 용적 또한 현재 용적의 절반으로 줄일 수 있도록 해준다.
+
+왜 초기 값이 아니라 절반이죠? 라고 질문할 수도 있다. 
+물론 초기값으로 초기화 해주어도 되나 생각해보면 현재 배열의 용적은 결국 데이터를 해당 용적에 만족하는 조건만큼 썼다는 의미가 된다.
+
+예로들어 데이터가 1500개였다고 가정해보자. 그럼 용적량은 10부터 2씩 곱해지므로 2560이었을 것이다.
+요소들을 모두 초기화 했더라도 앞으로 들어올 데이터들 또한 데이터가 1500개일 가능성이 높다. 
+즉, 현재 용적량의 기대치에 근접할 가능성이 높기 때문에 일단은 용적량을 일단 절반으로만 줄이는 것이다.
+즉, 쓰던 만큼 쓸 가능성이 높다는 애기
+
+(또한 그만큼 데이터를 쓰지 않더라도 삭제 과정에서 용적량을 줄이기 때문에 크게 문제되진 않는다.)
+
+@Override
+public void clear() {
+	// 모든 공간을 null 처리 해준다. 
+	for (int i = 0; i < size; i++) {
+		array[i] = null;
+	}
+	size = 0;
+	resize();
+}
+==================================================================================
+1. clone() 메소드
+
+만약 사용자가 사용하고 있던 ArrayList를 새로 하나 복제하고 싶을 때 쓰는 메소드다.
+
+단순히 = 연산자로 객체를 복사하게 되면 '주소'를 복사하는 것이기 때문에 복사한 객체에서 데이터를 조작할 경우 원본 객체까지 영향을 미친다. 즉 얕은 복사(shallow copy)가 된다는 것이다.
+
+ArrayList<Integer> original = new ArrayList<>();
+original.add(10);	// original에 10추가 
+ 
+//이렇게 주소를 복사하면 얕은복사가된다.
+ArrayList<Integer> copy = original; 
+copy.add(20);	// copy에 20추가 -> 원본에도 똑같이 들어간다.
+ 
+System.out.println("original list");
+for(int i = 0; i < original.size(); i++) {
+	System.out.println("index " + i + " data = " + original.get(i));
+}
+ 
+System.out.println("copy list");
+for(int i = 0; i < copy.size(); i++) {
+	System.out.println("index " + i + " data = " + copy.get(i));
+}
+ 
+//서로 같다
+System.out.println("original list reference : " + original);
+System.out.println("copy list reference : " + copy);
+====================================================================================
+그래서 깊은복사가 필요하다
+이러한 것을 방지하기 위해서 깊은 복사를 하는데, 이 때 필요한 것이 바로 clone()이다. Object에 있는 메소드이지만 접근제어자가 protected로 되어있어 우리가 만든 것 처럼 사용자 클래스의 경우 Cloneable 인터페이스를 implement 해야한다.
+
+즉, public class ArrayList<E> implements List<E> 에 Cloneable도 추가해주어야 한다.
+
+그리고나서 clone()을 구현하면 되는데, 다음과 같이 재정의를 하면 된다.
+
+@Override
+public Object clone() throws CloneNotSupportedException {
+ 
+	// 새로운 객체 생성
+	ArrayList<?> cloneList = (ArrayList<?>)super.clone();
+ 
+	// 새로운 객체의 배열도 생성해주어야 함 (객체는 얕은복사가 되기 때문)
+	cloneList.array = new Object[size];
+ 
+	// 배열의 값을 복사함
+	System.arraycopy(array, 0, cloneList.array, 0, size);
+ 
+	return cloneList;
+}
+
+조금 어려워 보일 수 있는데, 이해하지 못해도 된다. ArrayList에서 중요한 부분은 아니니...
+
+그래도 설명을 덧붙이자면, super.clone() 자체가 생성자 비슷한 역할이고 shallow copy를 통해 사실상 new ArrayList() 를 호출하는 격이라 제대로 완벽하게 복제하려면 clone한 리스트의 array 또한 새로 생성해서 해당 배열에 copy를 해주어야 한다.
+
+
+위와같이 만들고 나서 clone()한 것 까지 포함해서 테스트를 해보자.
+
+ArrayList<Integer> original = new ArrayList<>();
+original.add(10);	// original에 10추가 
+ 
+ArrayList<Integer> copy = original;
+ArrayList<Integer> clone = (ArrayList<Integer>) original.clone();
+ 
+copy.add(20);	// copy에 20추가
+clone.add(30);	// clone에 30추가
+ 
+System.out.println("original list");
+for(int i = 0; i < original.size(); i++) {
+	System.out.println("index " + i + " data = " + original.get(i));
+}
+ 
+System.out.println("\ncopy list");
+for(int i = 0; i < copy.size(); i++) {
+	System.out.println("index " + i + " data = " + copy.get(i));
+}
+ 
+System.out.println("\nclone list");
+for(int i = 0; i < clone.size(); i++) {
+	System.out.println("index " + i + " data = " + clone.get(i));
+}
+ 
+System.out.println("\noriginal list reference : " + original);
+System.out.println("copy list reference : " + copy);
+System.out.println("clone list reference : " + clone); //애 혼자 다르다
+ 
+
+//결과
+original list
+index 0 data = 10
+index 1 data = 20
+
+copy list
+index 0 data = 10
+index 1 data = 20
+
+clone list
+index 0 data = 10
+index 1 data = 30
+=================================================================================
+#)toArray
+상황에 따라서 List를 Array(배열)로 형변환 시켜야 할때가 있다.
+
+List<String> list = new ArrayList<String>();
+String[] arr = new String[5];
+arr = list.toArray(arr); //list를 배열로변환( [] )
+
+또 다른 방법으로는
+list의 최상위객체 Object를 활용하여 모든 객체를 배열로([]) 담을수있다는 장점이있다.
+단점은 사용할때 형변환을 시켜줘야한다.
+Object[] arr = list.toArray(); 
+
+====================================================================================
+
+
+
+
+
