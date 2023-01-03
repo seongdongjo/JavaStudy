@@ -8720,6 +8720,185 @@ coffeeMachine.makeCoffee(capsule); //타입추정가능하므로 생략가능
 컴파일러가 타입을 추정할 수 있는 경우엔 생략가능 대두분 컴파일러가 타입을 추정할 수 있다.
 
 =================================================================================================
- 
+//제네릭 제한
+extends, super키워드를 통해 제한
+
+//제한하지 않았을 때 예시
+class BoxMaterial {}
+class Paper {}
+class Plastic {}
+
+public class Box<M> { //여기에 어떤 타입이든 괜춘
+	private M material;
+	
+	public static void main(String[] args) {
+		Box<Water> box = new Box<>(); //타입 M에 제한이 없으므로 어떤 타입이든 지정 가능
+	}
+}
 
 
+
+-----------------------------------------
+class BoxMaterial {}
+class Paper extends BoxMaterial {}
+class Plastic extends BoxMaterial {}
+
+public class Box<M extends BoxMaterial> { //BoxMaterial과 자식타입만 가능
+	private M material;
+	
+	public static void main(String[] args) {
+		Box<Water> waterBox = new Box<>(); //불가(상속받은 애만가능)
+		Box<Paper> paperBox = new Box<>();
+		Box<Plastic> plastic = new Box<>();
+		
+	}
+}
+
+=============================================================================
+//와일드카드
+<? extends T>  : T와 그 자손 타입만 가능
+<? super T>  : T와 그 조상타입만 가능
+<?> : 제한없이 모든 타입이 가능 <? extends Object> 와 동일
+
+class Fruit {
+	String name;
+	
+	@Override
+	public String toString() {
+		return name;
+	}
+}
+
+class Apple extends Fruit {
+	public Apple() {
+		this.name = "사과";
+	}
+}
+
+class Banana extends Fruit {
+	public Banana() {
+		this.name = "바나나";
+	}
+}
+
+class FruitCup<T extends Fruit> { // T에는 Fruit을 상속받은 무엇이든 가능
+	List<T> fruits;
+	
+	public FruitCup() {
+		fruits = new ArrayList<>();
+	}
+	public void addFruit(T fruit) {
+		fruits.add(fruit);
+	}
+	public List<T> getFruits() {
+		return fruits;
+	}
+}
+
+public class Juicer {
+	public static Juice makeJuice(FruitCup<? extends Fruit> fruitCup) { // ?에 오는 것들은 fruit를 상속받은것 또는 fruit 자신이고 fruit에 있는 toString을 쓸수있다.
+		return new Juice(fruitCup.getFruits());
+	}
+	
+	public static void main(String[] args) {
+		FruitCup<Fruit> fruitCup = new FruitCup<>(); //부모로 받는다.<fruit>
+		fruitCup.addFruit(new Apple()); //업캐스팅으로 들어간다
+		fruitCup.addFruit(new Banana()); 
+		System.out.println(Juicer.makeJuice(fruitCup).toString());
+		
+		FruitCup<Apple> appleCup = new FruitCup<>(); //자식으로 받지만 부모의 toString은 쓸수있다.
+		appleCup.addFruit(new Apple());
+		appleCup.addFruit(new Apple());
+		appleCup.addFruit(new Apple());
+		System.out.println(Juicer.makeJuice(appleCup).toString());
+	}
+}
+
+//결과
+Juice{fruits=[사과,바나나]}
+Juice{fruits=[사과,사과,사과]}
+
+======================================================================================
+//두개는 동일한 함수이다.
+public static Juice makeJuice(FruitCup<? extends Fruit> fruitCup) {
+		return new Juice(fruitCup.getFruits());
+	}
+
+
+------------
+public static <T extends Fruit> Juice makeJuice(FruitCup<T> fruitCup) { //T로 받고 T라는 아이는 Fruit를  상속받은아이
+	return new Juice(fruitCup.getFruits());
+}
+=========================================================================================
+//제네릭 메소드 대표적인 예시
+1. Collections.sort(List, Comparator) 의 선언부
+
+static <T> void sort(List<T> list, Comparator<? super T> c)
+List<T>와 Comparator<? super T>타입의 두개의 매개변수를 받는 sort()메소드이다.
+첫번째 매개변수는 정렬할 대상이고, 두번째 매개변수는 정렬할 방법이 정의된 Comaprator이다.
+
+
+
+2. Collection.sort(List)의 선언부
+public static <T extends Comparable<? super T>> void sort(List<T> list)
+
+List<T> 한개를 매개변수로 받는 sort()메소드이다.
+타입T를 요소로하는 List를 매개변수로 넘기면되는데, T 또는 그 조상클래스가 Comparable을 구현해야한다. <T extends Comparable<? super T>>
+
+=============================================================================================
+직렬화: 객체에 저장된 데이터를 I/O 스트림에 쓰기(출력)위해 연속적인(serial) 데이터로 변환하는 것
+역직렬화: I/O스트림에서 데이터를 읽어서(입력) 객체를 만드는 것
+
+(1) Object to JSON(직렬화)
+#)pom.xml
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.11.1</version>
+</dependency>
+
+#)java
+List<Member> memberList = new ArrayList<>();
+memberList.add(new Member("Kate", 30, "1234"));
+memberList.add(new Member("Jason", 23, "5678"));
+memberList.add(new Member("Aaron", 35, "9012"));
+
+ObjectMapper mapper = new ObjectMapper();
+
+// object to json
+mapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);
+mapper.writeValue(new File("test.json"), memberList);
+
+#)test.json
+[
+  {
+    "id": 1001,
+    "name": "Kate",
+    "age": 30
+  },
+  {
+    "id": 1002,
+    "name": "Jason",
+    "age": 23
+  },
+  {
+    "id": 1003,
+    "name": "Aaron",
+    "age": 35
+  }
+]
+
+--------------------------
+(2)JSON to Object(역직렬화)
+#)java
+ObjectMapper mapper = new ObjectMapper();
+
+// json to object
+mapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);
+mapper.writeValue(new File("test.json"), memberList);
+System.out.println(mapper.readValue(new File("test.json"), new ArrayList<Member>().getClass()));
+
+//결과
+[{id=1001, name=Kate, age=30}, {id=1002, name=Jason, age=23}, {id=1003, name=Aaron, age=35}]
+
+=========================================================================================
