@@ -8902,3 +8902,22 @@ System.out.println(mapper.readValue(new File("test.json"), new ArrayList<Member>
 [{id=1001, name=Kate, age=30}, {id=1002, name=Jason, age=23}, {id=1003, name=Aaron, age=35}]
 
 =========================================================================================
+//sql튜닝 전
+0.329sec
+select * from 사원 where substring(사원번호,1,4) = 1100 and length(사원번호)=5
+
+//sql튜닝 후
+0.000sec
+select * from 사원 where 사원번호 between 11000 and 11009
+
+===========================================================================================
+#)try~catch를 하기에 앞서 컴파일에러, 런타임에러 차이를 알아야한다.
+1. 컴파일에러
+- 문법을 잘못 작성해 프로그램을 컴파일할 수 없는 에러이다.
+ex) ; 누락, interface사용 시 함수의 구체적인 내용을 적지 않은 등
+
+2. 런타임에러
+- 프로그래머의 설계 미숙으로 프로그램 실행 중 발생하는 에러이다.
+ex) NullPointer, 무한루프, ArithmeticException(0으로 나눴을때)
+
+---------------------------------
