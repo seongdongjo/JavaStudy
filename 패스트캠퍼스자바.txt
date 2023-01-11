@@ -8921,3 +8921,69 @@ ex) ; 누락, interface사용 시 함수의 구체적인 내용을 적지 않은
 ex) NullPointer, 무한루프, ArithmeticException(0으로 나눴을때)
 
 ---------------------------------
+try는 에러가 발생할 여지가 있는 코드를 작성하면 된다.
+
+try {
+	//이 영역의 문장을 실행하다가
+	//에러발생하면, catch로 이동
+} catch(ErrorA e) {
+	//try영역에서 ErrorA라는 에러가 발생하면 여기로 이동
+} catch(Exception e) {
+	//나머지에러는 여기서 다 처리
+	//이게 되는이유는 모든 에러들은 Exception클래스를 상속받았기때문에(업캐스팅으로 받는것이다)
+} finally {
+	//여기는 무조건지나감
+}
+
+-----------------------------------
+public class TryCatchMain {
+	public static void main(String[] args) {
+		try {
+			String str = null; //오류발생하기위해
+			System.out.println(str.length()); //여기서 오류발생(nullpointer)
+		}
+	} catch(NullPointerException e) {
+		System.out.println(e.toString() + "에러발생"); //java.lang.NullPointerException 에러발생
+		System.out.println("에러처리 루틴 실행");
+	}
+	System.out.println("여기까지 실행된다");
+}
+==========================================================================================
+#)throw(직접오류를 발생), throws(에러를 미룬다 -> 에러를 호출하는 쪽으로 넘긴다)
+public class UseThrowMain {
+	public static void main(String args[]) {
+		try {
+			throw new Exception("일부러 에러 발생");
+		}catch(Exception e) {
+			System.out.println(e.getMessage()); //"일부러 에러 발생"
+			System.out.println(e.toString()); //java.lang.Exception: 일부러 에러 발생
+			e.printStackTrace(); //at UseThrowMain.main(UseThrowMain.java:7)
+			return;
+		} finally {
+			System.out.println("여기는 무조건 통과");
+		}
+	}
+}
+==============================================================================================
+#)throws 예시
+makeURL함수에서 에러가 발생했지만, makeURL함수 안에서 try,catch문으로 처리하지 않고 호출하는 상위 쪽으로 넘긴다.
+그래서, 만약에 makeURL내에서 에러가 발생하면 makeURL을 호출하고 있는 main함수 내에서 에러를 처리해줘야한다.
+
+public class ShiftCatch {
+	//이 함수의 기능은 받은 문자 그대로 보내줌
+	public URL makeURL(String urlstr) throws MalformedURLException { //이 함수를 호출하는 쪽에서 에러를 처리해라 
+		return new URL(urlstr);
+	}
+	public static void main(String args[]) {
+		ShiftCatch p = new ShiftCatch();
+		try {
+			//정확한 URL을 입력하지 않아서 에러발생
+			URL url = p.makeURL("httttttp://www.ya.co.kr"); //여기서 호출하니까 에러처리해야함(여기서)
+		} catch(MalformedURLException e) {
+			e.printStackTrace();
+		}finally {
+			
+		}
+	}
+}
+======================================================================
