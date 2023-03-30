@@ -9055,3 +9055,124 @@ spring mvc에서 요청을 가장 먼저 받는 것이 DispatcherServlet이라�
 client - filter - dispatcherServlet - interceptor - controller
 (실제로 인터셉터가 컨트롤러로 요청을 위임하는 것은 아님, 인터셉터를 거쳐서 가는 것일뿐)
 
+========================================================================================
+@EqualsAndHashCode 어노테이션
+-> equals, hashCode 를 자동으로 생성해주는 어노테이션이다.
+equals는 두 객체의 내용이 같은지(동등성)
+hashCode는 두 객체가 같은 객체인지(동일성)
+equals는 String 비교연산자로 유명하고, HashCode는 객체 주소값을 변환한 값이다.
+
+
+Cat cat = new Cat(1,2);
+Cat cat2 = new Cat(1,2);
+Cat cat3 = cat2;
+System.out.println(cat.hashCode()); //2083562754
+System.out.println(cat2.hashCode()); //1239731077
+System.out.println(cat3.hashCode()); //1239731077
+
+------------------------
+동등성: 객체가 주소값이 다르더라도 내용(필드값)이 같다면 같다고 보는 것 equals
+동일성: 객체가 주소값이 다르면 아무리 같은 내용이라도 같지 않다고 본다.  (ex: ==)
+
+원래 equals의 기능은 동일성비교까지 한다.
+근데, 우리는 내용만 비교하면 된다. 그래서 재정의를 해줘야한다.
+
+그러면 hashCode는 왜 오버라이딩을 같이 할까??
+ 
+public class Student {
+	private String name;
+	private int age;
+	
+	public Student(String name, int age) {
+		this.name=name;
+		this.age=age;
+	}
+}
+
+public void equalsTest() {
+	Student s1 = new Student("dsg", 30);
+	Student s2 = new Student("dsg", 30);
+	
+	//기존의 equals는 내용, 주소값까지 같아야 true이다. ( == 와 동일한 셈이다)
+	System.out.println("result: " + s1.equals(s2));  //false
+}
+
+// Object의 기본 원래 equals 메서드 
+public boolean equals(Object obj) {
+	return (this==obj);
+}
+
+------------------------------------------
+우리가 자주쓰는 equals() 메서드는(string)에서 재정의 된것이다. -> 객체 내부의 value를 비교하는 것이다.
+String class는 equals()메소드를 재정의해서 주소값 비교가 아닌 문자열 값만을 비교한다.
+
+근데 VO는 String과 다르게 내부 변수들까지 비교해야하기때문에 equals를 재정의 해야한다.
+
+public class Student {
+	private String name;
+	private int age;
+	
+	public Student(String name, int age) {
+		this.name=name;
+		this.age=age;
+	}
+}
+
+@Override
+    public boolean equals(Object obj) {
+//        return super.equals(obj); 기존 Object클래스 구현 내용
+        if (this == obj) return true; //같은 객체를 참조하여 참조값이 같은경우 true를 바로 리턴해준다. -> 똑같은걸 바라보니까
+        if (obj == null || getClass() != obj.getClass()) return false; //비교하는 객체가 null인지 클래스가 같은지 체크한다.
+        Student student = (Student) obj;
+        return age == student.age &&    //age는 정수형이라서 == 로 비교, name은 string이니까 equals로 비교
+                Objects.equals(name, student.name); //객체 내부의 값들을 비교하여 리턴한다.
+    }
+}
+------------------------------------------
+//하지만, 다른 문제가 남아있다. hashCode가 다르다는 점이다.
+//hashCode란 객체를 식별하는 하나의 고유 정수값이다.
+public class MainTest {
+	public static void main(String[] args) {
+		Student s1 = new Student("dsg", 24);
+		Student s2 = new Student("dsg", 24);
+	
+		System.out.println(s1.equals(s2)) //true
+		System.out.println(s1.hashCode()) //1975012498
+		System.out.println(s2.hashCode()) //1808253012
+	}
+}
+그래서 객체의 값 동등성 비교시 hashCode()를 오버라이딩할 필요가 있다.
+
+@Override
+public int hashCode() {
+	return Objects.hash(name,age);  //같은 hashCode가 나오게된다.
+}
+
+===================================================================================
+public class Student {
+
+    private String name;
+    private int stuNum;
+
+    public Student(String name, int stuNum) {
+        this.name = name;
+        this.stuNum = stuNum;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Student)) return false;
+        Student student = (Student) o;
+        return stuNum == student.stuNum && Objects.equals(name, student.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, stuNum);
+    }
+================================================================================
+
+
+
+
