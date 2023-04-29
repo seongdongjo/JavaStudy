@@ -565,7 +565,7 @@ public class Employee {
 		public static void setSerialNum(int serialNum) { //serialNum을 직접 변경할 때
 			int i = 0;
 			
-		//	employeeName = "Lee";  //오류발생 static이라서
+		//	employeeName = "Lee";  //오류발생 static이라서 -> 함수가 static이니까 employee는 메모리에 없다. 클래스가 만들어지기 전이라서
 			Employee.serialNum = serialNum; //공통으로 쓰는 static값 변경
 		}
 	
