@@ -4661,7 +4661,6 @@ public class Member implements Comparable<Member>{ //인터페이스추가 -> �
 		//return (this.memberId - member.memberId);   //오름차순
 		return (this.memberId - member.memberId) *  (-1);   //내림 차순
 		
-		//left는 더 작은값, right는 더 큰값으로 해서 오름차순으로 출력
 		//if(this.memberId > member.memberId)
 		//	return 1;
 		//else if(this.memberId < member.memberId)
@@ -4741,7 +4740,7 @@ public class MemberTreeSetTest {
 //Comparator로 구현
 package ch13;
 
-public class Member implements Comparator<Member>{ //인터페이스추가 -> 구현해야하는 메서드가 compareTo
+public class Member implements Comparator<Member>{ //인터페이스추가 -> 구현해야하는 메서드가 compare
 
 	private int memberId;        //회원 아이디
 	private String memberName;   //회원 이름
@@ -5176,7 +5175,7 @@ class OutClass {
 			System.out.println("InClass inNum = " + inNum + "(내부 클래스의 인스턴스 변수)");
 		}
 		
-	    //static void sTest(){  //에러 남
+	    //static void sTest(){  //에러 남 -> OutClass가 생성되기 전이므로
 	    	
 	    //}
 		
@@ -5193,7 +5192,7 @@ class OutClass {
 		static int sInNum = 200; //얘는 선언가능 정적클래스라서
 		
 		void inTest(){   //정적 클래스의 일반 메서드
-			//num += 10;    // 외부 클래스의 인스턴스 변수는 사용할 수 없음.
+			//num += 10;    // 외부 클래스의 인스턴스 변수는 사용할 수 없음.(private int num)
 			System.out.println("InStaticClass inNum = " + inNum + "(내부 클래스의 인스턴스 변수 사용)"); 
 			System.out.println("InStaticClass sInNum = " + sInNum + "(내부 클래스의 스태틱 변수 사용)");
 			System.out.println("OutClass sNum = " + sNum + "(외부 클래스의 스태틱 변수 사용)");
@@ -5352,11 +5351,10 @@ public class TestAdd {
 
 	public static void main(String[] args) {
 
-		Add addF = (x, y) -> x + y; //원래는 인터페이스를 받으면 클래스를 만들고 함수를 정의해야하는데. 람다식은 인터페이스만 선언하고 구현바로가능
+		Add addF = (x, y) -> x + y; //원래는 인터페이스를 받으면 클래스를 만들고 함수를 정의해야하는데. 람다식은 인터페이스만 선언하고 구현바로가능(함수가 하나밖에 없기때문에 가능)
 		
 		System.out.println(addF.add(3,5));
 	}
-
 }
 ===================================================================================
 //함수형인터페이스
