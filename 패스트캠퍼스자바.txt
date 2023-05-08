@@ -5408,7 +5408,9 @@ package ch04;
 public class TestStringConcat {
 
 	public static void main(String[] args) {
-
+		
+		
+		//기존방식
 		String s1 = "Hello";
 		String s2 = "World";
 		StringConCatImpl concat1 = new StringConCatImpl();
@@ -5418,7 +5420,7 @@ public class TestStringConcat {
 		//인터페이스로(람다식)
 		//클래스를 만들지않아도 되지만 실제적으로는 익명클래스가 만들어진다.(아래)
 		StringConcat concat2 = (s, v)->System.out.println(s + "," + v ); //System.out.println(i);
-		concat2.makeString(s1, s2);
+		concat2.makeString(s1, s2); //그래서 이렇게 접근도 가능하다.
 		i = 300;
 		
 		//아래처럼 이렇게 익명클래스가 만들어진다.
@@ -5451,13 +5453,14 @@ public class TestLambda {
 	public static void main(String[] args) {
 
 		PrintString lambdaStr = s->System.out.println(s);  //람다식을 변수에 대입
-		lambdaStr.showString("hello lambda_1");
+		lambdaStr.showString("hello lambda_1"); //익명클래스가 만들어지기 때문에 이렇게 접근가능
 		
+		//위의 인터페이스를 매개변수로 전달
 		showMyString(lambdaStr);                          //메서드 매개변수로 전달(static함수)
 		
-		PrintString reStr = returnString();  
-		reStr.showString("hello ");
+		PrintString reStr = returnString(); //아래 함수 내용의 반환값이 인터페이스라 인터페이스로 받음 
 		
+		reStr.showString("hello "); //또, 이렇게 만든 익명클래스로 접근 가능
 	}
 	
 	public static void showMyString(PrintString p) { //인터페이스 자료형을 매개변수로 받는다.
@@ -5492,7 +5495,6 @@ public class IntArrayTest {
 		System.out.println(sumVal);
 		System.out.println(count);
 	}
-
 }
 ======================================================================
 package ch05;
