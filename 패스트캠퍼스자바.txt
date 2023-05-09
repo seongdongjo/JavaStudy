@@ -5924,7 +5924,7 @@ public class WildTest {
     }
 
     // 리스트 출력 메소드
-    public static void printData(List<?> list) {
+    public static void printData(List<?> list) { //매개변수로 제네릭으로 받고
         for (Object v : list) { //Object로 받았음을 볼수가있다.
             System.out.println(v);
         }
@@ -6072,7 +6072,7 @@ public class WildSuper {
 
     }
 
-    // Man 클래스와 그 상위 클래스로 생성된 인스턴스만 매개변수로 전달 가능
+    // Man 클래스와 그 상위 클래스로 생성된 인스턴스만 매개변수로 전달 가능 -> person, man 
     public static void printData(List<? super Man> list) {
         for (Object obj : list) {
             System.out.println(obj);
@@ -6141,21 +6141,6 @@ public class LinkedList {
 	}
 }
 
-또는
-
-public class SLinkedList<E> implements List<E> {
-	private Node<E> head; //노드의 첫부분(리스트의 가장 첫 노드를 가리키는 변수다)
-	private Node<E> tail; //노드의 마지막부분
-	private int size; //(연결된 노드 개수)
-	
-	//생성자(null,0 초기화)
-	public SLinkedList() {
-		this.head = null;
-		this.tail = null;
-		this.size = 0;
-	}
-}
-
 //search 메소드 구현(특정위치의 노드를 반환하는 메서드)
 private Node<E> search(int index) {
 	
@@ -6166,8 +6151,8 @@ private Node<E> search(int index) {
 	
 	Node<E> x = head; //head가 가리키는 노드부터 시작(순차적으로) x에는 data,next가 있다, 즉 headNode부터 시작
 	
-	for(int i = 0; i<index; i++) {
-		x = x.next;  //x.next는 다음 노드자체를 가리킨다.
+	for(int i = 0; i<index; i++) { //입력받은 특정위치까지 반복
+		x = x.next;  //x.next는 다음 노드자체를 가리킨다. 다음 노드를 x에 저장
 	}
 	 return x;
 }
@@ -6180,7 +6165,7 @@ private Node<E> search(int index) {
 public void addFirst(E value) {
 	
 	Node<E> newNode = new Node<E>(value); //새 노드생성
-	newNode.next = head; //링크작업
+	newNode.next = head; //새 노드의 링크는 헤드노드 자체를 가리켜야한다.
 	head = newNode; //헤드를 newNode로 바꾸기
 	size++;
 	
