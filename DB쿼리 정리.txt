@@ -1,0 +1,273 @@
+DELIMITER $$ -- 프로시저 생성 시작을 알림
+DROP PROCEDURE IF EXISTS loop_test $$ -- 프로시저가 만들어져 있다면 삭제하고 다시 만듬
+CREATE PROCEDURE loop_test(IN var INT) -- 파라미터 설정, IN/OUt, 변수이름 var, 타입 INT
+BEGIN
+    DECLARE nCnt INT DEFAULT 0; -- 변수선언
+    DECLARE nTot INT DEFAULT 0; 
+    loop_label:LOOP -- LOOP 선언, 루프이름 주어짐
+       IF (var <= nCnt) THEN -- IF 문 사용
+          LEAVE loop_label; -- loop 탈출 조건 (탈출 조건을 사용하기 위해서는 루프의 이름이 지정되어야 함.) 
+       END IF;  
+       SET nCnt = nCnt + 1;
+       SET nTot = nTot + nCnt; 
+    END LOOP;
+    SELECT CONCAT(CONCAT(CONCAT('1 부터 ', var), ' 까지의 합은 '), nTot) AS total; 
+END $$
+DELIMITER ;
+Call loop_test(10);
+===================================================================================
+DELIMITER $$
+DROP PROCEDURE IF EXISTS TEST_PROC $$ 
+CREATE PROCEDURE TEST_PROC(IN PARAM_NAME VARCHAR(20), IN PARAM_AGE INT)
+
+BEGIN
+	SELECT COUNT(*) FROM CAMP_PERFORMANCE;
+END $$
+DELIMITER ;
+
+CALL TEST_PROC('테스트',21); //인자는 넘겼지만 쓰지는 않음
+==================================================================================
+#) IN 매개변수 -> 쉽게 전달받은 인자로 생각하면된다.
+CREATE PROCEDURE GetTest(IN countryName varchar(255))
+BEGIN
+	SELECT * FROM OFFICES WHERE COUNTRY = COUNTRYNAME;
+END $$
+
+DELIMITER ;
+
+CALL GetTest('USA');
+==================================================================================
+//COUNT는 row개수를 의미한다. 즉 CAMP_Y를 전부 합하는게 아니라 개수를 의미
+SELECT COUNT(CAMP_Y) FROM CAMP_PERFORMANCE
+
+==================================================================================
+DELIMITER $$
+DROP PROCEDURE IF EXISTS TEST_PROC $$
+CREATE PROCEDURE TEST_PROC(IN ORDERSTATUS VARCHAR(25), OUT TOTAL INT)
+BEGIN
+	SELECT COUNT(DATA_NO) INTO TOTAL FROM CAMP_PERFORMANCE WHERE COMPANY_NO = ORDERSTATUS;
+END$$
+
+DELIMITER ;
+CALL TEST_PROC('131-86-14670', @TOTAL);  //결과를 TOTAL로 받겠다.
+SELECT @TOTAL AS TOTAL_IN_PROCESS;
+
+//결과
+TOTAL_IN_PROCESS
+10
+
+=================================================================================
+DELIMITER $$
+DROP PROCEDURE IF EXISTS TEXT_PROC $$
+CREATE PROCEDURE TEXT_PROC(INOUT COUNT INT(4), IN X INT(4))
+BEGIN
+	SET COUNT = COUNT + X;
+END$$
+DELIMITER ;
+
+SET @COUNTER = 10; #변수선언
+CALL TEXT_PROC(@COUNTER, 1);  #11
+CALL TEXT_PROC(@COUNTER, 2);  #13
+SELECT @COUNTER; #13
+================================================================================
+in (~이거나)
+select * from person where hobby in('영화') 
+
+------------------------------------------------
+#)inner join(교집합)
+inner를 생략하고 join만 써도 inner join으로 인식한다.
+
+//Name이 일치하는 데이터를 가져와서 하나의 테이블을 만든다.(전체컬럼에대해)
+select * from Reservation inner join Customer on Reservation.Name = Customer.Name;
+
+-------------------------------------------------
+#)별칭을 써서 간략화(결과는 위와 동일하다)
+select * from Reservation AS r, Customer AS c where r.Name = c.Name;
+--------------------------------------------------
+#)Left Join(부분집합)
+on절의 조건을 만족하지 않는경우에는 첫번째 테이블의 필드값은 그대로 가져오고,
+해당 레코드의 두 번째 필드 값은 모두 NULL로 표시된다.
+//여기서는 Reservation이 첫번째 테이블이다.(LEFT join이기때문에 첫번째테이블 데이터를 왼쪽으로)
+SELECT * FROM Reservation LEFT JOIN Customer ON Reservation.Name = Customer.Name WHERE ReservationDate > '2016-02-01';
+
+4 홍길동 2016 504 null null
+5 김길중 2015 918 2    김길중
+
+---------------------------------------------------
+#)LEFT과 반대로 두번째 테이블을 기준으로 JOIN을 한다
+//여기서 두번째 테이블은 Customer이다
+SELECT * FROM Reservation RIGHT JOIN Customer ON Reservation.Name = Customer.Name;
+
+2 김길중 5 김길중 2015 918
+-----------------------------------------------------
+#)group by
+1. 날짜별 총 합산 금액과 평균금액, 최소,최고 금액을 구하시오
+select timestamp,sum(money),avg(money),min(money),max(money) from expenditure group by timestamp;
+
+//결과
+timestamp    sum(money) avg(money) ..
+2019-10-1~	
+2020-10-1~
+
+
+#)HAVING
+group by에서 where를 한것과 같은 의미이다.
+
+예) 지출내역 테이블에서 지출날짜 중 합계지출이 5천만원 이상인 날짜만 구하시오.
+
+select timestamp,sum(money),avg(money),min(money),max(money) 
+from expenditure
+group by timestamp 
+HAVING sum(money) > 50000000;
+
+=========================================================================
+#)LEFT OUTER JOIN
+
+SELECT  
+      DISTINCT
+      B.CMPCD
+      , A.DATECHAR
+      , B.WORKDAY
+      , B.USERCD
+      , DATE_FORMAT(B.TODATE, '%H:%i') TODATE		
+      , DATE_FORMAT(B.FROMDATE, '%H:%i') FROMDATE
+FROM PM_CALENDAR A
+    LEFT OUTER JOIN PM_COMMUTE B
+    ON A.DATECHAR = B.WORKDAY
+WHERE SUBSTRING(A.DATECHAR,1,6) = '202004' 
+AND B.CMPCD = 'P0001'
+AND B.USERCD = 'admin'
+
+//결과(outer를 썻지만 inner join과 같은 현상이 나와버리네??)
+CMPCD   DATECHAR    WORKDAY    USERCD     TODATE     FROMDATE
+P0001   20200426    20200426    admin      14:54      14:54
+P0001   20200427    20200427    admin      14:53      14:53
+P0001   20200428    20200428    admin      13:10      13:59
+
+//해결책은 쿼리순서에있는데 on이 젤먼저이고 그다음에 where이다.
+//그렇다보니 on에서 전체 쫙 뽑았는데 where를 걸어버리니 해당 값만 나와버리는거지
+
+---------------------------
+#)그럼 아래조건에 주석을 해보자
+SELECT  
+      DISTINCT
+      B.CMPCD
+      , A.DATECHAR
+      , B.WORKDAY
+      , B.USERCD
+      , DATE_FORMAT(B.TODATE, '%H:%i') TODATE		
+      , DATE_FORMAT(B.FROMDATE, '%H:%i') FROMDATE
+FROM PM_CALENDAR A
+      LEFT OUTER JOIN PM_COMMUTE B
+      ON A.DATECHAR = B.WORKDAY
+WHERE SUBSTRING(A.DATECHAR,1,6) = '202004' 
+--		  AND B.CMPCD = 'P0001'  //주석처리
+--		  AND B.USERCD = 'admin'
+
+//결과
+CMPCD   DATECHAR    WORKDAY    USERCD     TODATE     FROMDATE
+P0001   20200426    20200426    admin      14:54      14:54
+P0001   20200427    20200427    admin      14:53      14:53
+P0001   20200428    20200428    admin      13:10      13:59
+P0001   20200428    20200428    12312      13:10      null  //조건을 빼니 다른 유저도 나온다
+P0001   20200428    20200428    12312      13:10      null
+
+----------------------------------
+#)그래서 on절에 추가해주는게 맞다.
+SELECT  
+      DISTINCT
+      B.CMPCD
+      , A.DATECHAR
+      , B.WORKDAY
+      , B.USERCD
+      , DATE_FORMAT(B.TODATE, '%H:%i') TODATE		
+      , DATE_FORMAT(B.FROMDATE, '%H:%i') FROMDATE
+FROM PM_CALENDAR A
+    LEFT OUTER JOIN PM_COMMUTE B
+    ON A.DATECHAR = B.WORKDAY
+    AND B.CMPCD = 'P0001'
+    AND B.USERCD = 'admin'
+WHERE SUBSTRING(A.DATECHAR,1,6) = '202004' 
+
+//결과
+CMPCD   DATECHAR    WORKDAY    USERCD     TODATE     FROMDATE
+P0001   20200426    20200426    admin      14:54      14:54
+P0001   20200427    20200427    admin      14:53      14:53
+P0001   20200428    20200428    admin      13:10      13:59
+null    20200401    null        null       null       null
+null    20200411    null        null       null       null
+...
+
+======================================================================
+//테이블 생성 시에 데이터 넣기
+create table dept1 as select * from department;
+
+//데이터말고 구조만 복사하고 싶다
+create table dept2 as select * from department 1=0;  //항상거짓이라는 조건만 달아줌
+
+//데이터넣기
+insert into test_table1 (data1,data2,data3) values (100,'문자열',13.11);
+
+//데이터 다 바로 넣기
+insert into test_table1 values (100,'문자열',13.11);
+
+// 문자열 100이지만 컬럼 타입이 int이므로 자동변환되서 들어간다. '13.11' 도 마찬가지이다.
+insert into test_table1 values ('100','문자열','13.11');
+
+//모든 데이터 변경
+update test_table1 set data2='새로운문자열', data3=66.66;
+
+//특정로우만 변경
+update test_table2 set data2='새로운문자열', data3=66.66 where data1=100;
+
+//개발자 실수로 잘못된 수정, 삭제 했을 때 안전장치가 트랜잭션이다(원래 상태로 되돌리기 위한)
+//메모리상에만 히스토리에 남고 실제 db에는 반영안된다. 즉, commit 하기 전까지는 반영되지 않는다.
+//개발자가 데이터에 대한 작업을 하기 위해 입력하는 명령문들의 시작부터 커밋까지를 하나의 트랜잭션이라 한다.
+//커밋을 한 이후에는 되돌릴수 없다.(해당 트랜잭션이 끝나기 떄문에) -> 커밋을하면 하드에 반영된다.
+
+---------------------------
+//savepoint를 지정하면 rollback시 지정된 위치로 복원할 수 있다.
+insert into test_table2 (data1,data2,data3) values (100,'문자열',13.11);
+insert into test_table2 (data1,data2,data3) values (200,'문자열',23.11);
+insert into test_table2 (data1,data2,data3) values (300,'문자열',33.11);
+
+update test_table2 set data2='새로운문자열', data3=44.44 where data1=100;
+rollback;  //insert 하기전으로 돌아감(즉, 젤첨으로)
+
+
+-----------------------------
+//savepoint를 지정하면 rollback시 지정된 위치로 복원할 수 있다.
+insert into test_table2 (data1,data2,data3) values (100,'문자열',13.11);
+insert into test_table2 (data1,data2,data3) values (200,'문자열',23.11);
+insert into test_table2 (data1,data2,data3) values (300,'문자열',33.11);
+
+savepoint aa;
+
+update test_table2 set data2='새로운문자열', data3=44.44 where data1=100;
+rollback to aa;  //update는 반영안된 상황
+
+--------------------------------------
+//truncate는 지정된 테이블의 모든 로우를 삭제 -> delete와 다르게 바로 디스크에 반영되서 롤백이 불가능하다.
+truncate test_table2;
+
+-----------------------------------------
+//테이블 이름 변경
+rename table test_table1 to test_table3; //test_table3로 변경
+//컬럼 속성변경
+alter table test_table3 modify data1 int(100); 
+
+//컬럼이름, 속성변경
+alter table test_table3 change data1 data10 int(200);  //이름은 data10, 타입은 int(200)으로변경
+
+//컬럼 이름만 변경
+alter table test_table3 change data10 data5 int(200);
+
+//컬럼 추가
+alter table test_table3 add data4 int(20); //data4컬럼 추가
+
+//컬럼삭제(안에 있는 데이터까지 날라감)
+alter table test_table3 drop data4;
+
+-------------------------------------------
+
+

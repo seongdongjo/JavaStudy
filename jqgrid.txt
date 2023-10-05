@@ -1,0 +1,658 @@
+#)테이블의 row와 cell은 다음과 같이 배열로 접근가능
+<table id="sample_table" border="1">
+ <tr>
+  <td>00</td>
+  <td>01</td>
+  <td>02</td>
+ </tr>
+ <tr>
+  <td>10</td>
+  <td>11</td>
+  <td>12</td>
+ </tr>
+</table>
+-- script --
+function test(){
+   var objTable = document.getElementById("sample_table");
+   for(i=0; i<objTable.rows.length;i++){
+      for(j=0; j<objTable.rows[i].cells.length;j++){
+           alert(objTable.rows[i].cells[j].innerText);
+      }
+   }
+}
+=========================================================
+#)grid cell에 접근하기
+
+1. jqGrid는 table Element이므로 그리드의 cell은 table의 tr에 접근하여 td의 index로 접근할 수 있다.
+예)그리드의 2번째 셀에 마우스 커서가 위치하면 툴팁으로 3번째 셀 정보를 보여주기
+$("#list").find("tr").each(function(){
+ $(this).find("td").eq(1).bind("mouseover", function(){
+  $(this).attr("title",($(this).next()).text());
+ });
+});
+
+========================================================
+#)jqGrid v5.3.2
+<body>
+  <table id="jqGrid"></table>  //이안에 데이터 넣는다
+<div id="jqGridPager"></div> //페이징부분
+
+<script type="text/javascript"> 
+        $(document).ready(function () {
+            $("#jqGrid").jqGrid({
+                url: 'http://trirand.com/blog/phpjqgrid/examples/jsonp/getjsonp.php?callback=?&qwery=longorders',
+                mtype: "GET",
+                datatype: "jsonp",
+                colModel: [
+                    { label: 'OrderID', name: 'OrderID', key: true, width: 75 },
+                    { label: 'Customer ID', name: 'CustomerID', width: 150 },
+                    { label: 'Order Date', name: 'OrderDate', width: 150 },
+                    { label: 'Freight', name: 'Freight', width: 150 },
+                    { label:'Ship Name', name: 'ShipName', width: 150 }
+                ],
+                viewrecords: true,
+                height: true,
+                rowNum: 10,  //한페이지에 10개
+                pager: "#jqGridPager"
+            });
+        });
+</script>
+</body>
+
+
+OrderID Customer ID     Order Date   ...
+1		WILMK           ....
+2
+3
+===============================================================
+#) jqGrid를 설정해줄 때 colNames와 colModel을 꼭 설정해두자.
+추가 옵션에 따라서 colNames는 생략이 가능하다.
+
+var searchResultColNames =  ['게시글관리번호', '번호', '제목', '작성자', '날짜', '조회수'];
+var searchResultColModel =  [
+                  {name:'bbsMgtNo',  index:'bbsMgtNo',  align:'center', hidden:true},
+                  {name:'bbsNum',    index:'bbsNum',    align:'left',   width:'12%'},
+                  {name:'bbsTitle',  index:'bbsTitle',  align:'center', width:'50%'},
+                  {name:'bbsWriter', index:'bbsWriter', align:'center', width:'14%'},
+                  {name:'bbsDate',   index:'bbsDate',   align:'center', width:'12%'},
+                  {name:'bbsHit',    index:'bbsHit',    align:'center', width:'12%'}
+                ];
+
+$(function() {
+  $("#mainGrid").jqGrid({
+    height: 261,
+    width: 1019,
+    colNames: searchResultColNames,  //실질적인 데이터(제목)
+    colModel: searchResultColModel,  //실질적인 데이터(데이타) -> colNames의 개수와 맞아야한다!!
+    rowNum : 10,
+    pager: "pager" 
+  });
+});
+
+=========================================================================
+#)JSON의 두가지 기본구조가 JSONObject와 JSONArray이다.
+1. JSONObject
+
+JSONObject jObj = new JSONObject;   // JSONObject 생성
+jObj.put("name" : "geon");         // JSONObject에 값 넣기
+jObj.put("age" : 30);
+jObj.put("sex" : "male");
+
+String data = jObj.toString();  // JSONObject를 String 에 담기
+System.out.print(data); // {"name":"geon","age":30,"sex":"male"}
+
+2. JSONArray
+//json 두개 생성 후 JsonArray에 넣기
+JsonObject json1 = new JsonObject();
+json1.put("첫번째": 1);
+JsonObject json2 = new JsonObject();
+json1.put("두번째": 2);
+
+//JsonArray 생성
+JsonArray jArray = new JsonArray();
+//JsonArray에 json추가(put)
+jArray.put(json1);
+jArray.put(json2);
+
+//결과 
+jArray = [
+ { "첫번째 : 1},
+ { "두번째 : 2}
+]
+//JsonArray에서 요소 추출하기(배열처럼 인덱스 사용)
+jArray.get(0); // {"첫번째" : 1}
+
+=======================================================================
+$(function(){
+        //가상의 local json data
+        var gridData = [{seq:"1",create_date:"2007-10-01",create_name:"test",title:"note",hitnum:"11"},
+                      {seq:"2",create_date:"2007-10-02",create_name:"test2",title:"note2",hitnum:"22"}];
+         
+        //jqGrid껍데기 생성
+        $("#list").jqGrid({
+            //로컬그리드이용
+            datatype: "local",
+            //그리드 높이
+            height: 250,
+            //컬럼명들
+            colNames:['시퀀스','제목', '등록일', '등록자명','조회수'],
+            //컬럼모델
+            colModel:[
+                {name:'seq'},  //위에 data의 이름에 따라 알아서 맞게 들어간다. 즉, DB의 컬럼과 colModel의 name이랑 같아야한다.
+                {name:'title'},
+                {name:'create_date'},
+                {name:'create_name'},
+                {name:'hitnum'}     
+            ],
+            //그리드타이틀
+            caption: "그리드 목록"
+        });
+         
+        // 스크립트 변수에 담겨있는 json데이터의 길이만큼 
+        for(var i=0;i<=gridData.length;i++){
+                //jqgrid의 addRowData를 이용하여 각각의 row에 gridData변수의 데이터를 add한다
+                $("#list").jqGrid('addRowData',i+1,gridData[i]);
+        }
+})
+----------------------------------------
+그리드 목록
+----------------------------------------
+시퀀스   제목    등록일         등록자명   조회수
+----------------------------------------
+1	  note	 2007-10-01    test    11
+----------------------------------------
+2     note2   ...
+----------------------------------------
+=================================================================================
+ var selRowIds = $("#" + grid_id).jqGrid('getGridParam', 'selarrrow');
+	console.log("selRowIds: " + selRowIds) // 세개의 줄 선택 시 1,2,3 
+    console.log("selRowIds[0] : "+selRowIds[0]); //1
+    console.log("selRowIds[1] : "+selRowIds[1]); //2
+    console.log("selRowIds[2] : "+selRowIds[2]); //3
+    console.log("selRowIds[3] : "+selRowIds[3]); //선택 되지 않은 줄은 undefined
+    console.log("selRowIds[4] : "+selRowIds[4]); // ..
+    console.log("selRowIds[5] : "+selRowIds[5]); // ..
+
+------------------------------------
+#)행 추가 클릭 시
+function addRow(                                     //여기서 중요한 건 새로 추가한 행이 맨앞에 찍힌다.(96)
+var rowIds = $("#" + grid_id).jqGrid('getDataIDs'); //96,1,2,3,4,5,...
+	alert(rowIds)
+    // 임시로 rowId값 정하기(최대값)
+    var maxSeq = parseInt(rowIds[0]); //추가한 96을 최대값으로
+}
+
+
+================================================================================
+#) 엑셀 업로드 
+<!-- Excel Read/Write 를 위한 Dependency 추가 -->
+    <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>3.11</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml</artifactId>
+        <version>3.11</version>
+    </dependency>
+---------------------------
+#) context-common.xml (빈추가)
+ <!-- MULTIPART RESOLVERS -->
+    <!-- regular spring resolver -->
+    <bean id="spring.RegularCommonsMultipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="50000000" />
+        <property name="maxInMemorySize" value="100000000" />
+    </bean>
+----------------------------
+#)업로드하기 위한 페이지 필요
+1. 업로드 하기위해서는 반드시  enctype="multipart/form-data" 추가 해줄것
+2. input type="file" 을 사용하여 파일 업로드를 하게된다
+
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+    pageEncoding="EUC-KR"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+ 
+<form action="/upload.do" enctype="multipart/form-data" method="post">
+<H3>파일업로드  테스트!</H3>
+	<input type="file" name="fileNm" id="fileNm">
+	<input type="submit" value="upload" >
+</form>
+</body>
+</html>
+
+--------------------------------
+@RequestMapping("/upload.do")
+    public ModelAndView mybatistest(HttpServletRequest request) throws IOException{
+        
+        System.out.println("파일업로드테스트");
+        
+        ModelAndView mav = new ModelAndView();
+        
+        MultipartHttpServletRequest multi = (MultipartHttpServletRequest) request;
+        MultipartFile file = multi.getFile("fileNm");
+                
+         String path="";
+         UUID randomeUUID = UUID.randomUUID();
+                  
+         if(file!=null){
+        
+          System.out.println("파라미터명" + file.getName());
+          System.out.println("파일크기" + file.getSize());
+          System.out.println("파일 존재" + file.isEmpty());
+          System.out.println("오리지날 파일 이름" + file.getOriginalFilename());
+        
+          
+          path = "d:/upload/";
+          InputStream inputStream = null;
+          OutputStream outputStream = null;
+          
+          String organizedfilePath="";
+          
+          try {
+              if (file.getSize() > 0) {
+                  inputStream = file.getInputStream();
+                  File realUploadDir = new File(path);
+                  
+                  if (!realUploadDir.exists()) {
+                      realUploadDir.mkdirs();//폴더생성.
+                  }
+                  
+                  
+                  organizedfilePath = path + randomeUUID + "_" + file.getOriginalFilename();
+                  System.out.println(organizedfilePath);//파일이 저장된경로 + 파일 명
+                  
+                  outputStream = new FileOutputStream(organizedfilePath);
+ 
+                  int readByte = 0;
+                  byte[] buffer = new byte[8192];
+ 
+                  while ((readByte = inputStream.read(buffer, 0, 8120)) != -1) {
+                      outputStream.write(buffer, 0, readByte); //파일 생성 ! 
+                      
+                  }
+              }
+              
+          } catch (Exception e) {
+              // TODO: handle exception
+              e.printStackTrace();
+ 
+          } finally {
+ 
+              outputStream.close();
+              inputStream.close();
+          }      
+         }    
+          mav.setViewName("fileUpload");
+        return mav;    
+    }
+
+=======================================================================
+1. pom.xml -> Dependency 추가
+<!-- Excel Read/Write 를 위한 Dependency 추가 -->
+    <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>3.11</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml</artifactId>
+        <version>3.11</version>
+    </dependency>
+
+--------------------------
+<!-- 빈추가 -->
+    <!-- regular spring resolver -->
+    <bean id="spring.RegularCommonsMultipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="50000000" />
+        <property name="maxInMemorySize" value="100000000" />
+    </bean>
+---------------------------
+#) ExcelFileType.java -> Excel 파일을 읽어 확장자를 비교하는 파일
+
+package egovframework.com.cmm.service.impl;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class ExcelFileType {
+	
+	//엑셀파일을 읽어서 Workbook 객체에 리턴한다.
+	//XLS와 XLSX 확장자를 비교한다.
+	
+	public static Workbook getWorkbook(String filePath) {
+
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(filePath); //파일의 경로에 있는(filePath) 파일을 읽어서 Byte로 가져온다. 
+        } catch (FileNotFoundException e) { //경로에 파일이 존재하지 않는다면 에러발생
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
+        Workbook wb = null;
+
+		//파일의 확장자를 체크해서 .XLS라면 HSSWorkbook에
+		//.XLSX라면 XSSFWorkbook에 각각 Workbook에 초기화한다.
+        if(filePath.toUpperCase().endsWith(".XLS")) {
+            try {
+                wb = new HSSFWorkbook(fis);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+        else if(filePath.toUpperCase().endsWith(".XLSX")) {
+            try {
+                wb = new XSSFWorkbook(fis);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+
+        return wb;
+
+    }
+}
+--------------------------------------------
+package egovframework.com.cmm.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ExcelReadOption {
+	
+	//	엑셀파일의 경로
+    private String filePath;
+    
+    //  추출할 컬럼 명  
+    private List<String> outputColumns; //[A,B,C,..]
+    
+    //  추출을 시작할 행 번호
+    private int startRow;
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public List<String> getOutputColumns() {
+
+        List<String> temp = new ArrayList<String>();
+        temp.addAll(outputColumns);
+
+        return temp;
+    }
+
+    public void setOutputColumns(List<String> outputColumns) {
+
+  //    	이걸 A,B,C,D 이런 식으로 추가하던데
+        List<String> temp = new ArrayList<String>();
+        temp.addAll(outputColumns);
+
+        this.outputColumns = temp;
+    }
+
+    public void setOutputColumns(String ... outputColumns) {
+
+        if(this.outputColumns == null) {
+            this.outputColumns = new ArrayList<String>();
+        }
+
+        for(String ouputColumn : outputColumns) {
+            this.outputColumns.add(ouputColumn);
+        }
+    }
+
+    public int getStartRow() {
+        return startRow;
+    }
+    public void setStartRow(int startRow) {
+        this.startRow = startRow;
+    }
+  }
+---------------------------------------
+package egovframework.com.cmm.service.impl;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.util.CellReference;
+
+public class ExcelCellRef {
+
+	/**
+     * Cell에 해당하는 Column Name을 가젼온다(A,B,C..)
+     * 만약 Cell이 Null이라면 int cellIndex의 값으로
+     * Column Name을 가져온다.
+     * @param cell
+     * @param cellIndex
+     * @return
+     */
+    public static String getName(Cell cell, int cellIndex) {
+        int cellNum = 0;
+        if(cell != null) {
+            cellNum = cell.getColumnIndex();
+        }
+        else {
+            cellNum = cellIndex;
+        }
+
+        return CellReference.convertNumToColString(cellNum);
+    }
+	
+    @SuppressWarnings("deprecation")
+	public static String getValue(Cell cell) {
+        String value = "";
+
+        if(cell == null) {
+            value = "";
+        }
+        switch(cell.getCellType()) { //cell값을 읽기전에 cell에 있는 값에 대한 type을 고려하는 로직이 필요하다.
+            case Cell.CELL_TYPE_FORMULA :
+                value = cell.getCellFormula();
+                break;
+            
+            case Cell.CELL_TYPE_NUMERIC :
+                value = (int)cell.getNumericCellValue() + "";
+                break;
+                
+            case Cell.CELL_TYPE_STRING :
+                value = cell.getStringCellValue();
+                break;
+            
+            case Cell.CELL_TYPE_BOOLEAN :
+                value = cell.getBooleanCellValue() + "";
+                break;
+           
+            case Cell.CELL_TYPE_BLANK :
+                value = "";
+                break;
+            
+            case Cell.CELL_TYPE_ERROR :
+                value = cell.getErrorCellValue() + "";
+                break;
+            default:
+                value = cell.getStringCellValue();
+        }
+
+        return value;
+    }
+}
+---------------------------------
+package egovframework.com.cmm.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
+public class ExcelRead {
+	
+	public static List<Map<String, String>> read(ExcelReadOption excelReadOption) {
+
+	    // 엑셀 파일 자체
+	    // 엑셀파일을 읽어 들인다.
+	    // FileType.getWorkbook() <-- 파일의 확장자에 따라서 적절하게 가져온다.
+	    Workbook wb = ExcelFileType.getWorkbook(excelReadOption.getFilePath());
+
+	    //	엑셀 파일에서 첫번째 시트를 가지고 온다.
+	    Sheet sheet = wb.getSheetAt(0);
+
+	    System.out.println("Sheet 이름: " + wb.getSheetName(0));
+	    System.out.println("데이터가 있는 Sheet의 수 :" + wb.getNumberOfSheets());
+
+	    // sheet에서 유효한(데이터가 있는) 행의 개수를 가져온다.
+	    int numOfRows = sheet.getPhysicalNumberOfRows();
+	    int numOfCells = 0;
+
+	    Row row = null;
+	    Cell cell = null;
+
+	    String cellName = "";
+	    /**
+	     * 각 row마다의 값을 저장할 맵 객체 저장되는 형식은 다음과 같다. put("A", "이름"); put("B",
+	     * "게임명");
+	     */
+	    Map<String, String> map = null;
+	    /*
+	     * 각 Row를 리스트에 담는다. 하나의 Row를 하나의 Map으로 표현되며 List에는 모든 Row가 포함될 것이다.
+	     */
+	    List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+
+	    
+	    /**
+	     * 각 Row만큼 반복을 한다.
+	     */
+	    for (int rowIndex = excelReadOption.getStartRow() - 1; rowIndex < numOfRows; rowIndex++) {
+	      /*
+	       * 워크북에서 가져온 시트에서 rowIndex에 해당하는 Row를 가져온다. 하나의 Row는 여러개의 Cell을 가진다.
+	       */
+	      row = sheet.getRow(rowIndex);
+
+	      if (row != null) {
+	        /*
+	         * 가져온 Row의 Cell의 개수를 구한다.
+	         */
+	        numOfCells = row.getPhysicalNumberOfCells();
+	        /*
+	         * 데이터를 담을 맵 객체 초기화
+	         */
+	        map = new HashMap<String, String>();
+	        /*
+	         * cell의 수 만큼 반복한다.
+	         */
+	        for (int cellIndex = 0; cellIndex < numOfCells; cellIndex++) {
+	          /*
+	           * Row에서 CellIndex에 해당하는 Cell을 가져온다.
+	           */
+	          cell = row.getCell(cellIndex);
+	          /*
+	           * 현재 Cell의 이름을 가져온다 이름의 예 : A,B,C,D,......
+	           */
+	          cellName = ExcelCellRef.getName(cell, cellIndex);
+	          /*
+	           * 추출 대상 컬럼인지 확인한다 추출 대상 컬럼이 아니라면, for로 다시 올라간다
+	           */
+	          if (!excelReadOption.getOutputColumns().contains(cellName)) {
+	            continue;
+	          }
+	          /*
+	           * map객체의 Cell의 이름을 키(Key)로 데이터를 담는다.
+	           */
+	          map.put(cellName, ExcelCellRef.getValue(cell));
+	          if(cellName.equals("L")) {
+	        	  break;
+	          }
+	        }
+	        /*
+	         * 만들어진 Map객체를 List로 넣는다.
+	         */
+	        result.add(map);
+	      }
+	    }
+	    System.out.println("result=================================="+result);
+	    return result;
+	  }
+}
+---------------------------------------------
+
+=====================================================================================
+#) html에서는 파일 업로드를 위한 폼 전송방식에는 두가지 방식이 있다.
+1. application/x-www-form-urlencoded
+2. multipart/form-data
+
+1번은 말그대로 url에 form을 인코딩해서 넘기는 방식 (www.or.kr?name=josjo&address=gyungnam)
+하지만, 이 방식은 주소가 너무 길어지기 때문에 multipart/form-data 를 사용 -> enctype="multipart/form-data" 를 추가해준다.
+
+2번 방식으로 폼을 넘긴다면 HTTP가 입력폼을 전달받게된다. (아래처럼)
+사진1
+------WebKitFormBoundaryxcfRwtsJTTnVQ8NJ
+Content-Disposition: form-data; name="file"; filename="öÍ(Ô'©G.png"
+Content-Type: image/png
+======================================================================================
+#) type은 file로 해야 MultipartFile이 인식할 수 있으며 각각의 파일을 구분지어야 하므로 name은 file,file2로 달라야한다!!!
+   input 옵션의 multiple을 사용하지 않았으므로 각각 파일 선택은 1개씩만 가능하다.
+
+<form th:action method="post" enctype="multipart/form-data">
+	<input type="text" name="itemName">
+	<input type="file" name="file2">
+</form>
+<input type="submit">
+
+@PostMapping("/upload")
+public String saveFile(@RequestParam String itemName, @RequestParam(name="file2") MultipartFile file) throw IOException {
+	if(!file.isEmpty()) {
+		String fullPath = fileDir + file.getOriginalFilename();
+		file.transferTo(new File(fullPath));
+	}
+}
+
+사용자가 폼으로 파일을 전송하면 POST로 처리하는데 주로 @RequestBody를 넣어서 처리하는데 파일을 처리하는데는 다르다.
+기본적으로 @Requestbody는 JSON형태의 데이터를 파싱을한다. 
+반면, Content-Type이 multipart/form-data인 경우에는 @RequestBody가 아닌 다른방법을 사용해야한다.
+방법은 @RequestParam 또는  @RequestPart 를 사용
+
+===========================================================================================
+#)현재는 1개의 파일만 선택할 수 있지만 다중으로 할때는? -> multiple 옵션
+
+<form th:action method="post" enctype="multipart/form-data">
+	<input type="text" name="itemName">
+	<input type="file" name="itemImgList[]" multiple>
+</form>
+
+@Data
+public class ProduectDomain {
+	private String itemName;
+	private List<MultipartFile> itemImgList;
+}
+
+@PostMapping("/upload")
+public String saveFile(@ModelAtribute ProductDomain productDomain) throw Exception {
+	if(productDomain == null) {
+		throw new Exception("전달받은 폼 데이터가 없음");
+	}
+	for(MultipartFile file : productDomain.getItemImgList()) {
+		log.info("file name={}", file.getOriginalFilename());  //file name = productImg1.jpg
+															   //file name = productImg2.jpg
+	}
+}
+==========================================================================================
+
+
