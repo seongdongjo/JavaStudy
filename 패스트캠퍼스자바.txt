@@ -70,7 +70,7 @@ public class Sample {
     }
 }
 ==========================================================================
-for(String key : map.keySet()) {
+for(String key : map.keySet()) { //keySet이 list형식으로 반환되기때문에 for문에 가능하다.
 	System.out.println("Value: " + map.get(key));
 }
 
@@ -156,9 +156,9 @@ public class MainStudent {
 		
 		studentLee.showStudentInfo();
 		
-		System.out.println(studentKim); //ch04.Student@36aa7bc2 -> 객체의 위치를 가리키는(Heap에 있는 인스턴스를 가리킨다) 주소값이다. (물리적 메모리주소가 아니라 JVM이 준 가상 주소)
+		System.out.println(studentKim); //(스택변수) ch04.Student@36aa7bc2 -> 객체의 위치를 가리키는(Heap에 있는 인스턴스를 가리킨다) 주소값이다. (물리적 메모리주소가 아니라 JVM이 준 가상 주소)
 		//그래서 studentKim. (점.)을 찍음으로써 접근
-		System.out.println(studentLee);
+		System.out.println(studentLee); //스택변수
 		
 		//인스턴스 : new 키워드를 사용하여 클래스를 메모리에 생성한 상태(힙)
 		//참조변수: 메모리에 생성된 인스턴스를 가리키는 변수(스택)
@@ -184,7 +184,7 @@ public class Student { //멤버변수는 알아서 초기화된다. null, 0
 	}
 	
 	public String showStudentInfo() {
-		int i; //i는 초기화되지 않는다.(지역변수라서)
+		int i; //i는 초기화되지 않는다.(지역변수라서)!!!!!!!!!!
 		return studentName + "학생의 학번은" + studentNumber + "이고, " + grade + "학년 입니다.";
 	}
 }
@@ -312,7 +312,7 @@ public class BirthDayMain {
 		date.setYear(2019);
 		
 		//private를 쓰는이유는 
-		//date.month = 100 이렇게 범위를 벗어난값을 바로 대입가능하기 때문이다.
+		//date.month = 100 이렇게 범위를 벗어난값을 바로 대입가능하기 때문이다!!!!!!!!!!!
 		//그래서 setter를 통해 제약을 걸었다.
 		
 		//date.setMonth(13);  month가 1~12사이가 아닌것은 처리 xx, BirthDay클래스에서 처리했다, 유효하지 않은 날짜라고 뜬다.
@@ -395,7 +395,7 @@ public class Person {
 		System.out.println(name + ", " + age);
 	}
 	public Person getPerson() { 
-		return this; //객체자신을 반환
+		return this; //객체자신을 반환!!!!!!!!!!!!
 	}
 	
 	public static void main(String[] args) {
@@ -427,8 +427,8 @@ public class Student {
 	}
 	
 	public void takeSubway(Subway subway) {
-		subway.take(1200);
-		this.money -= 1200;
+		subway.take(1200); //지하철을 탔으니 1200원 지출
+		this.money -= 1200; //내 지갑에서 1200원 지출
 	}
 	
 	public void showInfo() {
@@ -558,7 +558,7 @@ public class Employee {
 			employeeId = serialNum;
 		}
 		
-		public static int getSerialNum() {
+		public static int getSerialNum() { //static이라서 Employee.getSerialNum() 이렇게 호출가능하다.
 			return serialNum;
 		}
 	
@@ -603,7 +603,7 @@ public class EmployeeTest {
 		System.out.println(employeeLee.getEmployeeName() + "," + employeeLee.getEmployeeId());
 		System.out.println(employeeKim.getEmployeeName() + "," + employeeKim.getEmployeeId());
 		
-		System.out.println(Employee.getSerialNum()); //SerialNum은 private라서 getter로 가져옴
+		System.out.println(Employee.getSerialNum()); //SerialNum은 private라서 getter로 가져옴 //public static int getSerialNum()
 	}
 }
 ---------------------
@@ -635,7 +635,7 @@ public class Company {
 	
 	//클래스로 바로 접근할수있게끔 static까지 
 	public static Company getInstance() {
-		if(instance == null) {
+		if(instance == null) { //instance도 static이라서 비교가능
 			instance = new Company();
 		}
 		return instance;
@@ -720,7 +720,7 @@ public class CarFactoryTest {
 =================================================================
 package taxi;
 
-public class Student {
+public class Student { 
 	String studentName;
 	int grade;
 	int money;
@@ -730,7 +730,7 @@ public class Student {
 		this.money = money;
 	}
 	
-	public void takeTaxi(Taxi taxi) {
+	public void takeTaxi(Taxi taxi) {  //studentKim.takeTaxi(taxi) 택시 타면 1000원 빠진다. 택시는 천원이득
 		taxi.take(10000);  //taxi객체 money증가
 		this.money -= 10000;
 	}
@@ -773,7 +773,7 @@ for(int i = 0, num=1; i<arr.length; i++) {
 }
 
 //처음부터 끝까지 돌릴때
-for(int num : arr) {
+for(int num : arr) { //arr이 배열이라 가능하다
 	total += num;
 }
 --------------
@@ -785,19 +785,19 @@ dArr[1] = 1.1;
 dArr[2] = 1.1;
 
 double mtotal = 1;
-for(int i = 0; i<dArr.lengthl i++) {
+for(int i = 0; i<dArr.length; i++) { //3이후로 값이 없으니 에러가 난다.
 	mtotal *= dArr[i];
 }
 --------------
 //해결법: 요소의 개수에 대한 변수(count)를 유지 -> count를 1씩증가(for문돌리기위해 길이)
 double[] dArr = new double[5];
 int count = 0;
-dArr[0] = 1.1; count++;
+dArr[0] = 1.1; count++;  //길이가 아니라 넣을때 마다 따로 count를 증가시킨다 for문을 위해서
 dArr[1] = 1.1; count++;
 dArr[2] = 1.1; count++;
 
 double mtotal = 1;
-for(int i = 0; i<count; i++) {
+for(int i = 0; i<count; i++) { //반복을 count까지 
 	mtotal *= dArr[i];
 }
 ----------------
@@ -861,7 +861,7 @@ public class BookTest {
 		library[3] = new Book("태백산맥4", "조정래");
 		library[4] = new Book("태백산맥5", "조정래");
 		
-		for(Book book : library) {
+		for(Book book : library) { //배열이기 때문에 for문 가능
 			System.out.println(book); //ch21.Book@36aa7bc2  처럼 각기다른 5개 나옴
 			book.showInfo();
 		}
@@ -875,7 +875,7 @@ package ch21;
 
 public class ObjectCopyTest {
 	public static void main(String[] args) {
-		Book[] library = new Book[5]; //null로 초기화, new한다고 Book개게가 만들어지는게 아니다.
+		Book[] library = new Book[5]; //null로 초기화, new한다고 Book객체가 만들어지는게 아니다.
 		Book[] copyLibrary = new Book[5];
 		
 		library[0] = new Book("태백산맥1", "조정래"); //객체를 만들어서 넣어야한다. 
@@ -885,7 +885,8 @@ public class ObjectCopyTest {
 		library[4] = new Book("태백산맥5", "조정래");
 		
 		System.arraycopy(library, 0, copyLibrary, 0, 5); //library 0번쨰부터 복사해서 copyLibrary의 0에서5까지 넣어라(주소가 같은 상태이다)
-	
+														 //즉, 가리키는 주소만 복사한것이다.
+		
 		//기존 book
 		for(Book book : library) {
 			System.out.println(book);  //주소가같다.
@@ -1034,13 +1035,13 @@ public class Student {
 		this.studentID = studentID;
 		this.studentName = studentName;
 		
-		subjectList = new ArrayList<Subject>();
+		subjectList = new ArrayList<Subject>(); //초기화할 때 배열생성
 	}
 	
 	public void addSubject(String name, int score){
 		Subject subject = new Subject();
 		
-		subject.setName(name); //입력받은 이름 
+		subject.setName(name); //입력받은 과목
 		subject.setScorePoint(score); //입력받은 점수
 		
 		subjectList.add(subject); //리스트에 add
@@ -1050,7 +1051,7 @@ public class Student {
 	{
 		int total = 0;
 		
-		for(Subject s : subjectList){
+		for(Subject s : subjectList){ //ArrayList<Subject> 이런 배열도 foreach문을 돌릴 수가 있다.
 			
 			total += s.getScorePoint();
 			System.out.println("학생 " + studentName + "의 " + s.getName() + " 과목 성적은 " + 
@@ -1088,10 +1089,11 @@ public class Customer {
 	protected int customerID;
 	protected String customerName;
 	protected String customerGrade;
-	int bonusPoint;
-	double bonusRatio;
+	//보너스는 바로 접근 가능
+	int bonusPoint;  //바로 접근 가능 (.으로)
+	double bonusRatio; //바로 접근 가능
 	
-	public Customer() {
+	public Customer() { //초기화될 때 아래변수 세팅
 		customerGrade = "SILVER";
 		bonusRatio = 0.01;
 	}
@@ -1143,7 +1145,7 @@ public class VIPCustomer extends Customer{
 	double salesRatio; //VIP에만 있는 변수
 	
 	public VIPCustomer() { //생성자
-		//super();
+		//super(); customerGrade, bonusRatio가 부모에서 초기화가된다.
 		customerGrade = "VIP";//덮어쓰기    //오류 발생 -> extends를 해야한다(protected라서), private은 extends해도 안됨!!
 		bonusRatio = 0.05; //덮어쓰기 마찬가지 
 		salesRatio = 0.1;
@@ -1185,12 +1187,12 @@ public class Customer {
 	int bonusPoint;
 	double bonusRatio;
 	
-	public Customer() {
+	public Customer() { //기본 고객은 silver
 		customerGrade = "SILVER";
 		bonusRatio = 0.01;
 	}
 	
-	public Customer(int customerID, String customerName) {
+	public Customer(int customerID, String customerName) { //기본 고객은 silver
 		this.customerID = customerID;
 		this.customerName = customerName;
 		
@@ -1238,7 +1240,7 @@ public class Customer {
 package ch3;
 
 public class VIPCustomer extends Customer{
-	private int agentID;
+	private int agentID; //VIP에만 있는 변수
 	double salesRatio; //VIP에만 있는 변수
 	
 	public VIPCustomer() { //덮어쓰기
@@ -1295,6 +1297,30 @@ public class CustomerTest {
 	//Customer customerLee = new VIPCustomer(); 
 	//customerLee.  으로 쓸수있는걸보면 Customer만 쓸수있다.(오버라이딩된거, 부모의 멤버변수만 쓸수있다)
 }
+==========================================================================================
+#)가상메서드
+			//가상메소드란
+			//상속에서 상위클래스와 하위 클래스에 같은 이름의 메서드((재정의함수)가 존재할 때 호출되는 메소드는 인스턴스에 따라 결정된다.
+			//선언한 클래스형이 아닌 생성된 인스턴스의 메서드를 호출하는것
+			//그떄, 인스턴스의 메서드가 호출되는 기술을 가상메서드라고한다.
+		
+			//같은 객체의 인스턴스를 여러개 생성한다고 해서 메소드도 여러개 생성되지 않는다.
+			//즉, new Customer 를 여러번한다고 해서 a라는 메서드가 여러개 생성되지 않는다.(하나를 공유(메모리주소로))
+			//예외적으로 사용하는 지역변수는 stack에 생성되서 잡힘
+			
+		public class TestA {
+			int num;
+			void aaa() {
+				System.out.println("aaa() 출력");
+			}
+			public static void main(String[] args) {
+				TestA a1 = new TestA(); 
+				a1.aaa();
+				TestA a2 = new TestA(); //같은메서드를 쓰지만 객체를 생성한다고해서 함수가 계속생기는게 아니다. 공유하는것뿐
+				a2.aaa();
+			}
+		}
+		
 ==========================================================================================
 package ch4;
 
@@ -1376,8 +1402,8 @@ public class VIPCustomer extends Customer{
 	public VIPCustomer(int customerID, String customerName) {
 		super(customerID, customerName);
 		
-		customerGrade = "VIP";
-		bonusRatio = 0.05;
+		customerGrade = "VIP"; //부모
+		bonusRatio = 0.05;     //부모
 		salesRatio = 0.1;
 		
 		//System.out.println("VIPCustomer(int, String) 생성자 호출");
@@ -1414,15 +1440,7 @@ public class CustomerTest {
 			//이때 메서드에서 사용하는 변수들은 스택메모리에 위치한다
 			//따라서 다른 인스턴스라도 같은 메서드의 코드는 같으므로 같은 메서드가 호출됨
 			//인스턴스가 생성되면 변수는 힙메모리에 따로 생성되지만, 메서드 명령어 set은 처음 한번만 로드됨
-		
-			//가상메소드란
-			//상속에서 상위클래스와 하위 클래스에 같은 이름의 메서드((재정의함수)가 존재할 때 호출되는 메소드는 인스턴스에 따라 결정된다.
-			//선언한 클래스형이 아닌 생성된 인스턴스의 메서드를 호출하는것
-			//그떄, 인스턴스의 메서드가 호출되는 기술을 가상메서드라고한다.
-		
-			//같은 객체의 인스턴스를 여러개 생성한다고 해서 메소드도 여러개 생성되지 않는다.
-			//즉, new Customer 를 여러번한다고 해서 a라는 메서드가 여러개 생성되지 않는다.(하나를 공유(메모리주소로))
-			//예외적으로 사용하는 지역변수는 stack에 생성되서 잡힘
+	
 		
 			//VIP의 멤버변수 private int agentID;  double salesRatio;
 			Customer customerLee = new Customer(10010, "이순신");
@@ -1519,7 +1537,7 @@ public class AnimalTest {
 		animalList.add(eAnimal);
 		
 		for(Animal animal : animalList) {
-			animal.move();
+			animal.move(); //이런게 다형성이다. 같은 move라는 메서드이지만 출력결과는 다르다.
 		}
 	}	
 	//main밖에서 함수정의해야한다.
@@ -1541,7 +1559,7 @@ public class Customer {
 	
 	public Customer()
 	{
-		initCustomer();
+		initCustomer(); //아래에 있음 (customerGrade ="SILVER", bonusRatio=0.01)
 	}
 
 	public Customer(int customerID, String customerName){
@@ -1624,7 +1642,7 @@ public class VIPCustomer extends Customer{
 		customerGrade = "VIP";
 		bonusRatio = 0.05;
 		saleRatio = 0.1;
-		this.agentID = agentID;
+		this.agentID = agentID; //인자로 받은 agentID
 	}
 	@Override
 	public int calcPrice(int price){
@@ -1700,7 +1718,7 @@ import java.util.ArrayList;
 	}
 
 	class Human extends Animal{
-		public void move() {
+		public void move() { 
 			System.out.println("사람이 두발로 걷습니다.");
 		}
 		
@@ -1750,14 +1768,7 @@ public class AnimalTest {
 		
 		AnimalTest test = new AnimalTest();
 		test.testDownCasting(animalList);
-		
-		
-		
-	/*	for(Animal animal : animalList) {
-			animal.move();
-		}
-		*/	
-	}
+
 	
 	//다시 원래 자기타입으로 되돌리고 싶으면 다운캐스팅 쓰고 그게아니면 그냥 다형성을 쓰는게 좋다 (moveAnimal 함수처럼)
 	public void testDownCasting(ArrayList<Animal> list) {
@@ -1783,14 +1794,6 @@ public class AnimalTest {
 			
 			}
 		}
-	
-	
-	
-	/*
-	 * public void moveAnimal(Animal animal) { animal.move();
-	 * 
-	 * }
-	 */
 	}
 ======================================================================================================
 #)추상클래스
@@ -1800,7 +1803,8 @@ public class AnimalTest {
 abstract예약어사용
 
 int add(int x, int y);   -> 추상메서드(함수내용은 정의하지않음), 메서드선언만했다.
-위와같은 추상메서드를 포함한것이 추상클래스이다.
+위와같은 추상메서드를 포함한것이 추상클래스이다!!!!!!!!!
+위와같은 추상메서드를 포함한것이 추상클래스이다!!!!!!!!!
 
 =========================================================================================================
 package ch9;
@@ -1811,8 +1815,8 @@ public abstract class  Computer { //추상클래스는 상속을위한 클래스
 	//메서드선언만했다.(추상메서드)
 	//상속받을 애들을 구체적으로 어떻게 구현할지 모르기때문에 display,typing은 자식이 알아서해라
 	//컴퓨터는 공통으로쓸 turnOn, turnOff만 구현하고 display(), typing()은 구현하지않았다. 하위클래스로 책임전가
-	abstract void display();
-	abstract void typing();
+	abstract void display(); //추상메서드
+	abstract void typing();  //추상메서드
 	
 	//일반메서드
 	public void turnOn() {
@@ -1829,12 +1833,12 @@ package ch9;
 public class DeskTop extends Computer{
 
 	@Override
-	void display() {
+	void display() { //추상메서드 구현
 		System.out.println("DeskTop display");
 	}
 
 	@Override
-	void typing() {
+	void typing() { //추상메서드 구현
 		System.out.println("DeskTop typing");
 	}
 
@@ -1876,6 +1880,91 @@ public class ComputerTest {
 	}
 }
 ==================================================================================
+#)추상클래스와 인터페이스 차이
+1. 추상클래스는 일반 클래스와 별 다를 것이 없습니다. 
+단지, 추상 메서드를 선언하여 상속을 통해서 자손 클래스에서 완성하도록 유도하는 클래스입니다. 
+그래서 미완성 설계도라고도 표현합니다. 상속을 위한 클래스이기 때문에 따로 객체를 생성할 수 없습니다.
+
+class 앞에 "abstract" 예약어를 사용하여 
+상속을 통해서 구현해야한다는 것을 알려주고 선언부만 작성하는 추상메서드를 선언할 수 있습니다.
+
+예) abstract class 클래스이름 {
+		public abstract void 메서드이름();
+	}
+	
+	class 자식 extends 클래스이름 {
+		@override
+		public void 메서드이름() {
+			//구현
+		}
+	}
+2. 인터페이스
+추상클래스가 미완성 설계도라면 인터페이스는 기본 설계도라고 할 수 있습니다. 
+인터페이스도 추상클래스처럼 다른 클래스를 작성하는데 도움을 주는 목적으로 작성하고 클래스와 다르게 다중상속(구현)이 가능합니다.
+
+인터페이스의 모든 메서드는 'public abstract'로 선언해야 하며, 이를 생략할 수 있습니다. 
+또한 모든 멤버 변수는 'public static final'으로 선언해야 하며, 마찬가지로 이를 생략할 수 있습니다.
+
+(생략할 수 있는 이유는 컴파일 시 자동으로 생성해주기 때문입니다.)
+
+예) interface 인터페이스이름 {
+		public abstract void 메서드이름();
+}
+
+공통점은 추상메서드를 사용할 수 있다는 것이다.
+
+차이점은
+추상클래스: 자식클래스 is kind of 부모클래스
+인터페이스: 자식클래스 is able to 부모인터페이스
+
+
+			생물체(추상클래스)
+           /    \
+		포유류	조류(추상클래스)
+		/  \	/  \
+	  사람  박쥐  독수리 펭귄(자식클래스)
+	        |    |
+			------
+			   |
+			날수있는 (인터페이스)  : 조류에다가 날수있는 추상메서드를 선언할수없다. 펭귄같은 예외상황도있으니 강제로 쓸수있게 할수가없다. 이때 인터페이스를 쓴다.
+							   따라서, 추상클래스는 진짜 완전 공통된 기능만 쓴다고 생각하면된다. 예를들어 사람과박쥐(포유류)가 가지는 공통기능 -> 이렇게 기능을 확장해나가는 것이다.
+==================================================================================
+#)다중상속이 안되는 이유
+class MyVehicle extends car,plane {
+	@Override
+	public void goTo() {
+		super.drive();  //부모 클래스 모두 drive메서드가 있다면 어떤걸 쓸지 모르는 다중상속의 모호성이 생기는것이다.
+	}
+}
+
+#)인터페이스는 가능하다
+class car implements vehicle,engine {
+	@Override
+	public void drive() {
+		~
+	}
+}
+
+#)인터페이스는 가능하다.
+상속 받는 클래스에서 재정의(오버라이딩)을 해서 사용하기 때문에 위에서 언급한 다중 상속의 모호성 문제가 발생하지 않습니다.
+interface Runnable {
+	void action();
+}
+
+interface Flyable {
+	void action();
+}
+
+class Bird implements Runnable, Flyable {
+	@Override
+	void action() {
+		// todo
+	}
+}
+
+//근데, java8부터는 인터페이스가 디폴트메소드를 제공하게 되면서 추상클래스와 인터페이스의 차이가 줄었다.
+//즉, 추상클래스가 할수있는일은 인터페이스도 할 수 있게되었다라는 의미이다.
+==================================================================================
 jdk(라이브러리) -> 안에도 라이브러리있음. -> 내가 필요한 경우 가져다쓰지만 내가 구성을한다.
 
 안드로이드(프레임워크) -> 프레임워크를 도입한다는 애기는 이미 흐름이 정의되있다. 내가 어떤클래스를 넣으면 어떻게연동되고, 내가 값을 넣으면 어떻게 답이오고 영향을 주는지 등등
@@ -1890,7 +1979,7 @@ jdk(라이브러리) -> 안에도 라이브러리있음. -> 내가 필요한 경
 ==================================================================================
 package ch10;
 
-public abstract class Car {
+public abstract class Car { //추상클래스(추상메서드가 포함되어있기 때문에)
 	//선언만했다.
 	public abstract void drive(); //AI, 직접운전은 drive메서드는 자식이 구현해라
 	public abstract void stop(); //마찬가지
@@ -2030,7 +2119,7 @@ public interface Calc {
 	double PI = 3.14; //static으로 바뀜
 	int ERROR = -99999999;
 	
-	int add(int num1, int num2); //인터페이스는 abstract와 달리 상속이아니라 구현이라는 것이다.(Calculator에서 구현해야됨)
+	int add(int num1, int num2); //인터페이스는 abstract와 달리 상속이아니라 구현이라는 것이다!!!!!!!(Calculator에서 구현해야됨)
 	int substract(int num1, int num2);
 	int times(int num1, int num2);
 	int divide(int num1, int num2);
@@ -2056,7 +2145,7 @@ public abstract class Calculator implements Calc{ //abstract를 붙여야됨. im
 -------------------
 package ch11;
 
-public class CompleteCalc extends Calculator{
+public class CompleteCalc extends Calculator{ //위에서 구현못한 클래스를 상속받아서 마저 구현함
 	
 	@Override
 	public int times(int num1, int num2) {
@@ -2127,6 +2216,7 @@ public interface Calc {
 	double PI = 3.14;
 	int ERROR = -99999999;
 	
+	//구현해야될 함수들 
 	int add(int num1, int num2);
 	int substract(int num1, int num2);
 	int times(int num1, int num2);
@@ -2313,7 +2403,7 @@ public class CustomerTest {
 }
 ====================================================================
 //인터페이스 상속
-인터페이스 사이에도 상속을 사용할 수 있다.
+인터페이스 사이에도 상속을 사용할 수 있다.(extends)
 extends 키워드를 사용
 인터페이스는 다중상속이 가능하고 구현 코드의 상속이 아니므로 타입상속이라고 한다.
 
@@ -2366,11 +2456,11 @@ public class MyClassTest {
 
 		MyClass mClass = new MyClass(); //인터페이스는 클래스를 만들수없으니
 		
-		X xClass = mClass; //x로 타입이 되면 x만 쓸수있다.
+		X xClass = mClass; //X(인터페이스) X로 타입이 되면 x만 쓸수있다.
 		xClass.x();
 		
 		
-		Y yClass = mClass;
+		Y yClass = mClass; //Y도 인터페이스
 		yClass.y();
 		
 		MyClass iClass = mClass;
@@ -2378,10 +2468,9 @@ public class MyClassTest {
 		iClass.y();
 		iClass.myMethod();
 	}
-
 }
 ========================================================
-	   shelf  queue
+	   shelf  queue(기능)
 (extends)\     /(implements)
 		BookShelf
 
@@ -2466,7 +2555,7 @@ public class BookShelfTest {
 //3. 
 package ch16.scheduler;
 
-public interface Scheduler {
+public interface Scheduler {  //기능
 	public void getNextCall();
 	public void sendCallToAgent();
 }
@@ -2536,7 +2625,8 @@ public class SchedulerTest {
 		System.out.println("P : 우선순위가 높은 고객우선 숙련도 높은 상담원");
 		
 		int ch = System.in.read();
-		Scheduler scheduler = null; //인터페이스
+		Scheduler scheduler = null; //인터페이스의 타입으로 한이유는 하나의 클래스로 정해버리면 R,L,P인지 입력값에 따라 클래스가 달라져야하는데 힘들다.
+									//그래서 공통으로 Scheduler라는 인터페이스를 쓰고 있으니 타입을 Scheduler라고 한 것이다.
 		
 		if ( ch == 'R' || ch =='r') {
 			scheduler = new RoundRobin(); //인터페이스에만 있는 메서드만쓸수있다. RoundRobin에 재정의 된것
@@ -2560,7 +2650,7 @@ public class SchedulerTest {
 ===============================================================
 package ch16.gamelevel;
 
-public abstract class PlayerLevel {
+public abstract class PlayerLevel { //추상클래스
 	
 	public abstract void run();
 	public abstract void jump();
@@ -2569,9 +2659,9 @@ public abstract class PlayerLevel {
 	
 	
 	final public void go(int count) { //템플릿메서드패턴
-		run();
+		run(); //위에 있는 함수를 쓰겠다.
 		for(int i = 0; i<count; i++) {
-			jump();
+			jump(); 
 		}
 		turn();
 	}
@@ -2750,7 +2840,7 @@ class Book{
 	private String title;
 	private String author;
 	
-	public Book(String title, String author) {
+	public Book(String title, String author) { //2개를 인자로 받는다.
 		this.title = title;
 		this.author = author;
 	}
@@ -2773,24 +2863,25 @@ public class BookTest {
 //오브젝트 클래스
 equals()메서드
 
-StudentLee(메모리를 가리키는 참조변수)-----> 힙(인스턴스)   
+StudentLee(메모리를 가리키는 참조변수=스택)-----> 힙(인스턴스)   
 StudentLee2                  ----->    "
 이 두 참조변수가 똑같은 힙메모리를 가리키면 두개가 같다.(물리적)
 
 equals의 역할은 두 인스턴스의 주소값을 비교하여 true/false를 반환
-하지만, 재정의해서 두인스턴스가 논리적으로 같은지 비교 가능
+하지만, 재정의해서 두인스턴스가 논리적으로 같은지 비교 가능(키값이 같거나 등)
 
 clone()메서드
 객체의 원본을 복제하는데 사용(멤버변수 등이 똑같은)
 생성자랑은 다르다.
 clone()메서드를 사용하면 객체의 정보(멤버변수 값 등)가 동일한 또 다른 인스턴스가 생성되는 것이므로, 은닉, 객체 보호의 관점에서 위배 될 수 있다.
 private 까지 다 복제하니까
-그래서 복제해도된다라는 것을 구분하기 위해 public class Student implements Cloneable 를 붙여준다.
+그래서 복제해도된다라는 것을 구분하기 위해 
+> public class Student implements Cloneable 를 붙여준다.(위에서 적었듯이 객체를 복사하는 것이다)
 
 -----------------------------------------------------
 package ch02;
 
-public class Student implements Cloneable{
+public class Student implements Cloneable{ // "이 객체는 복사해도 되니 하세요~~" == implements Cloneable
 
 	private int studentId;
 	private String studentName;
@@ -2843,7 +2934,7 @@ public class EqualTest {
 		
 		System.out.println(Lee.hashCode()); //917~  서로 메모리주소가 다르기때문에
 		System.out.println(Shun.hashCode()); //199~ 다른값이 나온다.
-		//하지만 우리가 hashCode()를 재정의 했기때문에 같은값이나온다(Studentid)
+		//하지만 우리가 hashCode()를 재정의 했기때문에 같은값이나온다(Studentid) 100으로 나온다.
 		
 		//그렇다고 기존에 가지고있던 hashCode()는 없어지지 않는다.
 		//System.out.println(System.identityHashCode(Lee));
@@ -2854,7 +2945,7 @@ public class EqualTest {
 		Integer i1 = new Integer(100); //String str1 = new String("abc");
 		Integer i2 = new Integer(100); //String str2 = new String("abc");
 		
-		System.out.println(i1.equals(i2)); //true
+		System.out.println(i1.equals(i2)); //true 100과 100이 같으니까
 		System.out.println(i1.hashCode()); //100
 		System.out.println(i2.hashCode()); //100
 		
@@ -2865,7 +2956,7 @@ public class EqualTest {
 		Student Lee3 = (Student)Lee.clone(); //클론의 return타입은 object이기때문에 다운캐스팅
 		System.out.println(Lee3); //100,kim 으로 나온다. 즉, 복제하면 다가져온다.
 		
-		System.out.println(System.identityHashCode(Lee)); //복제를 해도 주소값은다르다.
+		System.out.println(System.identityHashCode(Lee)); //복제를 해도 주소값은다르다!!!!!!!!!!!!!!!!!!!!
 		System.out.println(System.identityHashCode(Lee3)); //값은 다르다.
 		
 		
@@ -2874,7 +2965,7 @@ public class EqualTest {
 }
 =================================================================================
 //String 클래스
-방법1. String str1 = new String("abc"); 이거는 힙에 생성
+방법1. String str1 = new String("abc"); //이거는 힙에 생성!!!!!!
 방법2. String str2 = "abc"; //상수풀에 잡힌다.  위랑 다르다. 
 
 즉 힙메모리는 생성될 때마다 다른 주소값을 가지지만, 상수풀의 문자열은 모두 같은 주소값을 가진다.
@@ -2891,7 +2982,7 @@ public class StringTest {
 		String str3 = "abc"; //abc를 가리키는 참조변수 2개(상수풀을 가리킴)
 		String str4 = "abc";
 		
-		System.out.println(str3 == str4); //true
+		System.out.println(str3 == str4); //true!!!!!!!!!!
 	}
 }
 
@@ -2912,7 +3003,6 @@ public class StringTest2 {
 		
 		System.out.println(java);
 		System.out.println(System.identityHashCode(java)); //다른주소를 가리킨다.
-		
 	}
 }
 //출력결과

@@ -1,0 +1,1007 @@
+//오더관리현황 조회
+SELECT
+			A.ORDER_NO
+			,A.OR_DATE
+			,CASE A.OR_DIVISION WHEN 'I' THEN '수입' WHEN 'O' THEN '수출' ELSE '' END AS OR_DIVISION
+			,A.SHIP_COMP
+			,A.IO_DATE
+			,(SELECT CUST_NAME FROM TRCUTA WHERE CUST_CODE = A.CUST_CODE) AS CUST_NAME
+			,A.BLBOOK_NO
+			,A.OWNER_NAME
+			,(select c_kname FROM TRBACD WHERE c_head='JY' AND c_detail=A.AREA_JY) AS AREA_JY
+			,(select c_kname FROM TRBACD WHERE c_head='JY' AND c_detail=A.PICKUP_JY) AS PICKUP_JY
+			,(select c_kname FROM TRBACD WHERE c_head='JY' AND c_detail=A.RETURN_JY) AS RETURN_JY
+			,A.Y_CNT20
+			,A.Y_CNT40
+			,A.Y_CNT45
+			,A.Y_BULK
+			,A.C_CNT20
+			,A.C_CNT40
+			,A.C_CNT45
+			,A.C_BULK
+			,SUM(CASE WHEN B.CNTR_SZ='20' THEN 1 ELSE 0 END) AS B_CNT20 //여기부터는 B테이블이기 때문에 left outer에 의해 null이여도 출력된다.
+			,SUM(CASE WHEN B.CNTR_SZ='40' THEN 1 ELSE 0 END) AS B_CNT40
+			,SUM(CASE WHEN B.CNTR_SZ='45' THEN 1 ELSE 0 END) AS B_CNT45
+			,SUM(CASE WHEN B.CNTR_TP='BK' THEN 1 ELSE 0 END) AS B_BULK
+		FROM TRORDR A
+		LEFT OUTER JOIN TRBACA B    //JOIN을 썻다
+		on(A.order_no = B.order_no AND B.BA_DIVI = 'C' AND B.BA_CODE='O') //BA_DIVI:C(배차), I(입체금), ba_code:(O수입,I수출)
+		WHERE A.OR_DATE BETWEEN REPLACE('2024-01-01','-','') AND REPLACE('2024-01-31','-','') 
+			  AND A.JIJUM = B.JIJUM 
+			  AND A.JIJUM = '1'
+			  AND A.OR_DIVISION = 'O'
+		GROUP BY ORDER_NO
+=================================================================================
+//수출오더관리 (조회)
+SELECT 
+			IFNULL(OR_DATE,'') AS orDate 
+	  	   ,ORDER_NO AS orderNo 
+	  	   ,SHIP_COMP AS shCode 
+	  	   ,(select c_kname FROM TRBACD WHERE c_head='SH' AND c_detail=SHIP_COMP) AS shName 
+	  	   ,VOYAGE AS voyage 
+	  	   ,SHIP_NAME AS shipName 
+	  	   ,IFNULL(IO_DATE,'') AS ioDate 
+	  	   ,CONCAT(SUBSTRING(CLOSING_TIME,1,2),':',SUBSTRING(CLOSING_TIME,3,4)) AS closingTime 
+	  	   ,BLBOOK_NO AS blbookNo 
+	  	   ,LINE_ORDERNO AS lineOrderno 
+	  	   ,GOODS AS goods 
+	  	   ,FORWORD AS forword 
+	  	   ,DPORT AS po1Code 
+	  	   ,DPORT_NAME AS po1Name 
+	  	   ,TPORT AS po2Code 
+	  	   ,TPORT_NAME AS po2Name 
+	  	   ,DANGEROUS AS drCode 
+	  	   ,DANGEROUS AS drName 
+	  	   ,TEMPERATURE AS temperature 
+	  	   ,PACK_COUNT AS packCount 
+	  	   ,WEIGHT AS weight 
+	  	   ,MEASURE AS measure 
+	  	   ,FPIS_ORD_AMT AS fpisOrdAmt 
+	  	   ,OWNER_CODE AS ownerCode 
+	  	   ,OWNER_NAME AS ownerName 
+	  	   ,CUST_CODE AS custCode 
+	  	   ,CUST_NAME AS custName 
+	  	   ,(select c_detail FROM TRBACD WHERE c_head='JY' AND c_detail=PICKUP_JY) AS jy1Code 
+	 	   ,(select c_detail FROM TRBACD WHERE c_head='JY' AND c_detail=RETURN_JY) AS jy2Code 
+	  	   ,(select c_detail FROM TRBACD WHERE c_head='JY' AND c_detail=AREA_JY) AS jy3Code 
+	  	   ,DIVISION AS division 
+	  	   ,IFNULL(TRANS_FR_DATE,'') AS transFrDate 
+	  	   ,IFNULL(TRANS_TO_DATE,'') AS transToDate 
+	  	   ,TRANS_DNAME AS transDname 
+	  	   ,TRANS_TEL AS transTel 
+	  	   ,FPIS_TRANS_GB AS fpisTransGb 
+	  	   ,FPIS_ETC_GB AS fpisEtcGb 
+	  	   ,ORDR_CLAIM_PERSON AS ordrClaimPerson 
+	  	   ,Y_CNT20 AS yCnt20 
+	  	   ,Y_CNT40 AS yCnt40 
+	  	   ,Y_CNT45 AS yCnt45 
+	  	   ,Y_BULK AS yBulk 
+	  	   ,C_CNT20 AS cCnt20 
+	  	   ,C_CNT40 AS cCnt40 
+	  	   ,C_CNT45 AS cCnt45 
+	  	   ,C_BULK AS cBulk 
+	  	   ,REMARK AS remark 
+	  	   ,INSERT_ID AS insertId
+		FROM
+	   		TRORDR
+		WHERE
+			JIJUM = '1'
+			AND OR_DIVISION='O'
+				AND OR_DATE >= REPLACE('2023-12-04', '-', '')
+				AND OR_DATE <= REPLACE('2024-01-04', '-', '')
+=================================================================================
+//수출 - 오더클릭 시 컨테이너 조회
+SELECT
+			A.OR_DATE
+  		   ,B.ORDER_NO
+ 	 	   ,B.TRANS_DATE
+  		   ,B.CNTR_NO
+  		   ,B.CNTR_SZ
+  		   ,B.CNTR_TP
+  		   ,B.CNTR_FE
+  		   ,B.CNTR_SEAL
+  		   ,(select c_kname FROM TRBACD WHERE C_HEAD='JY' AND c_detail=B.PICKUP_JY) AS PICKUP_JY
+  		   ,(select c_kname FROM TRBACD WHERE C_HEAD='JY' AND c_detail=B.RETURN_JY) AS RETURN_JY
+  		   ,(select c_kname FROM TRBACD WHERE C_HEAD='JY' AND c_detail=B.AREA_JY) AS AREA_JY
+  		   ,B.CLAIM_AMT
+  		   ,B.COMBIN
+  		   ,CASE WHEN B.OR_STATE = 'M' THEN '미처리'
+  		   		 WHEN B.OR_STATE = 'O' THEN '반출'
+  		   		 WHEN B.OR_STATE = 'F' THEN 'FULL직송'
+  		   		 WHEN B.OR_STATE = 'E' THEN 'EMPTY직송'
+  		   		 WHEN B.OR_STATE = 'I' THEN '반입'
+  		   		 WHEN B.OR_STATE = 'C' THEN '취소'
+  		   		 WHEN B.OR_STATE = 'S' THEN '셔틀'
+  		   		 ELSE ''
+  		   	END AS OR_STATE
+  		   ,B.REMARK
+  		   ,B.INSERT_ID
+		FROM TRORDR A, TRORDT B
+		WHERE B.ORDER_NO = A.ORDER_NO  
+		AND   A.OR_DIVISION = 'O' 
+		AND   B.ORDER_NO = #{orderNo}
+		AND   B.JIJUM = #{loginJijum}
+============================================================================
+//수입오더관리(삽입)
+INSERT INTO TRORDR
+				( 
+				   JIJUM
+				  ,OR_DATE
+				  ,OR_MRN
+				  ,OR_MSN
+				  ,OR_HSN
+				  ,ORDER_NO
+				  ,SHIP_COMP
+				  ,SHIP_COMP_NAME
+				  ,VOYAGE
+				  ,SHIP_NAME
+				  ,IO_DATE
+				  ,CLOSING_TIME
+				  ,BLBOOK_NO
+				  ,DO_NO
+				  ,LPORT
+				  ,LPORT_NAME
+				  ,PACK_COUNT
+ 				  ,WEIGHT
+				  ,MEASURE
+				  ,FPIS_ORD_AMT
+				  ,GOODS
+				  ,PASS_DIVI
+				  ,PASS_DATE
+				  ,DANGEROUS
+				  ,DANGEROUSNAME
+				  ,TEMPERATURE
+				  ,OWNER_CODE
+				  ,OWNER_NAME
+				  ,CUST_CODE
+				  ,CUST_NAME
+				  ,DIVISION
+				  ,LINE_ORDERNO
+				  ,PICKUP_JY
+				  ,RETURN_JY
+				  ,AREA_JY
+				  ,TRANS_FR_DATE
+				  ,TRANS_TO_DATE
+				  ,TRANS_DNAME
+				  ,TRANS_TEL
+				  ,FPIS_TRANS_GB
+				  ,FPIS_ETC_GB
+				  ,BACA_LINK
+				  ,Y_CNT20
+				  ,Y_CNT40
+				  ,Y_CNT45
+				  ,Y_BULK
+				  ,REMARK
+				  ,OR_DIVISION
+				  ,INSERT_DATE
+				  ,INSERT_ID
+				  ,INSERT_IP
+				)
+			VALUES (
+			 	  #{loginJijum}
+				  ,#{orDate}
+				  ,SUBSTRING_INDEX(#{transMngNo},'-',1)
+				  ,SUBSTRING_INDEX(SUBSTRING_INDEX(#{transMngNo},'-',-2),'-',1)
+				  ,SUBSTRING_INDEX(#{transMngNo},'-',-1)
+				  ,(SELECT CASE WHEN MAX(ORDER_NO) IS NULL THEN CONCAT(#{loginJijum},CONCAT(#{orDate},'I0001'))
+				   ELSE CONCAT(SUBSTRING(MAX(ORDER_NO),1,10),SUBSTRING(CONCAT(SUBSTRING(MAX(ORDER_NO),1,9),SUBSTRING(MAX(ORDER_NO),11,14))+1,10,13)) END
+				   FROM TRORDR A WHERE OR_DATE = #{orDate} AND JIJUM = #{loginJijum} AND OR_DIVISION = 'I')
+				  ,REPLACE(REPLACE(#{shCode}, '&#40;', '('), '&#41;', ')')
+				  ,REPLACE(REPLACE(#{shName}, '&#40;', '('), '&#41;', ')')
+				  ,#{voyage}
+				  ,#{shipName}
+				  ,IFNULL (#{ioDate}, '')
+				  ,REPLACE(#{closingTime},':','')
+				  ,#{blbookNo}
+				  ,#{doNo}
+				  ,REPLACE(REPLACE(#{poCode}, '&#40;', '('), '&#41;', ')')
+				  ,REPLACE(REPLACE(#{poName}, '&#40;', '('), '&#41;', ')')
+				  ,#{packCount}
+				  ,#{weight}
+				  ,#{measure}
+				  ,#{fpisOrdAmt}
+				  ,#{goods}
+				  ,#{passDivi}
+				  ,IFNULL (#{passDate}, '')
+				  ,REPLACE(REPLACE(#{drCode}, '&#40;', '('), '&#41;', ')')
+				  ,REPLACE(REPLACE(#{drName}, '&#40;', '('), '&#41;', ')')
+				  ,#{temperature}
+				  ,REPLACE(REPLACE(#{ownerCode}, '&#40;', '('), '&#41;', ')')
+				  ,REPLACE(REPLACE(#{ownerName}, '&#40;', '('), '&#41;', ')')
+				  ,REPLACE(REPLACE(#{custCode}, '&#40;', '('), '&#41;', ')')
+				  ,REPLACE(REPLACE(#{custName}, '&#40;', '('), '&#41;', ')')
+				  ,#{division}
+				  ,#{lineOrderno}
+				  ,REPLACE(REPLACE(#{jy1Code}, '&#40;', '('), '&#41;', ')')
+				  ,REPLACE(REPLACE(#{jy2Code}, '&#40;', '('), '&#41;', ')')
+				  ,REPLACE(REPLACE(#{jy3Code}, '&#40;', '('), '&#41;', ')')
+				  ,#{transFrDate}
+				  ,#{transToDate}
+				  ,#{transDname}
+				  ,#{transTel}
+				  ,#{fpisTransGb}
+				  ,#{fpisEtcGb}
+				  ,'N'
+				  ,#{yCnt20}
+				  ,#{yCnt40}
+				  ,#{yCnt45}
+				  ,#{yBulk}
+				  ,#{remark}
+				  ,'I'
+				  ,SYSDATE()
+				  ,#{loginId}
+				  ,#{loginIp}
+				  )
+===================================================================================
+//오더관리 수입에서만 동작 -> 헤더(오더)에 한줄 클릭 후 아래그리드(컨테이너)에 입력 및 수정 시
+동작내용 : 컨테이너 입력 및 수정 시에 거래처코드(헤더의), 상차지(디테일), 하차지(디테일)와 거래처청구요율(TRCGEA)의 거래처코드, 상차지,하차지가 같으면서
+		계약기간(TRCGEA)이 오늘날짜기준으로 범위에 포함이 되면 청구금액을 TRCGEA의 컨테이너사이즈,적/공 컬럼을 참조해
+		아래 그리드의 청구금액에 넣는다, 계약기간이 지나면 alert를 띄워준다.
+		
+1. 일단 아래 디테일인 컨테이너 그리드 맨앞에는 오더번호가 있다. 이 오더번호는 헤더에 클릭하였던 오더번호가 그대로 내려온다.(행추가시에)
+2. 거래처코드를 구해야하는데 1번에서 이미 오더번호가 아래 그리드에 있기 때문에 이걸로 거래처코드를 구하면된다.
+아래 그리드(컨테이너)TRORDT에는 거래처코드 컬럼이 없기때문에 아래그리드에 있는 오더번호로 TRORDR에서 검색을 해서 거래처코드를 가져와야한다.
+ 
+ /**
+     * 오더관리 > 수입 일괄저장(detail) - VO가 달라서 따로 만듬
+     * @param Map<String,Object> vo
+     * @return 출력페이지정보 "selectImportOrderMng"
+     * @exception Exception
+     */
+    @NoLogging				 
+	@RequestMapping(value = "/transcls/order/importOrderMng/importOrderMultiUpdateDetail.do")
+	public@ResponseBody HashMap<String, Object> importOrderMultiUpdateDetail(@ModelAttribute("tRImportTrOrdtVO") TRImportTrordtVO tRImportTrOrdtVO, @RequestParam Map<String,Object> vo, ModelMap model) throws Exception {
+    	LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
+    	HashMap<String, Object> resMap = new HashMap<String, Object>();
+		try {	
+			
+			tRImportTrOrdtVO.setLoginJijum(user.getJijum()); 
+											//tRImportTrOrdtVO를 넘기는이유는 메시지를 띄우기위해 거래처,상,하차지코드를 받기위해서이다.
+			int count = importOrderMngService.importCountClaim(vo,tRImportTrOrdtVO);
+			List<?> gridList = null;
+			
+			Function fn = new Function();
+			JSONArray jsonArr = null;
+			//거래처는 있지만 계약기간이 유효하지않은 경우 
+			if(count == 0) {
+				resMap.put("message", "거래처: ["+tRImportTrOrdtVO.getCustCode()+"]\n상차지: ["+tRImportTrOrdtVO.getJydetail1Code()+"]\n하차지["
+									   +tRImportTrOrdtVO.getJydetail2Code()+"]\n에 대한 청구요율의 계약기간이 유효하지 않습니다.");
+				resMap.put("check", "notsave");
+			}
+			else {
+				importOrderMngService.importOrderMultiExceDetail(vo,tRImportTrOrdtVO); //그리드 일괄저장 (d:[삭제],i:[추가],u:[수정])
+				gridList = importOrderMngService.selectTrordt(tRImportTrOrdtVO);
+				jsonArr = fn.listToJson(gridList);
+				resMap.put("gridList", jsonArr);
+				resMap.put("check", "save");
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return resMap;
+	}
+	
+	
+	//이 메소드는 계약기간이 유효한지 체크를 위함
+	public int importCountClaim(Map<String, Object> vo,TRImportTrordtVO tRImportTrOrdtVO) throws Exception {
+		
+		LoginVO user = (LoginVO)EgovUserDetailsHelper.getAuthenticatedUser(); // 현재 로그인한 계정정보 가져오기
+		
+		Map<String,Object> paramMap = new HashMap<String,Object>();
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		ObjectMapper objectMapper2 = new ObjectMapper();
+		Function fn = new Function();
+		
+		String strParam = (String) vo.get("param"); //화면상에 form -> name 값 사용
+		paramMap = fn.jsonToMap(strParam);
+		int count = 1;//0이 나오는순간 return 계약기간문제로 alert
+		   			 //count를 공유하는 이유는 하나라도 걸리면 alert띄우고 저장이 안되야한다.
+		
+		//수정 데이터
+		list = (List<Map<String, Object>>) paramMap.get("u");
+		TRImportTrordtVO gridU = new TRImportTrordtVO();
+		
+		String custCode = null;
+		double clamAmt = 0.0;
+		if(list.size() > 0) { 
+			for(int i=0; i < list.size(); i++) {
+				gridU = objectMapper2.convertValue(fn.mapToVo(list,i), TRImportTrordtVO.class);
+				//한줄마다의 상,하차지에 맞는 청구요율에서 거래처코드 가져오기(한줄마다의 gridU에는 오더번호,상,하차지가있다)
+				custCode = importOrderMngDAO.importSelectOrderCust(gridU);
+				gridU.setCustCode(custCode);
+				if(custCode == null || custCode == "") {
+					//청구요율에 해당하는 거래처코드 자체가 없다면
+					//문제점: tRImportTrOrdtVO에 계속 custCode, 저장되는현상
+				}else { //거래처청구요율에 상,하차지,(오더의)거래처코드가 있다면
+					//계약기간비교해서 거래처코드를 가져온다(아래count비교를 위해)
+					custCode = importOrderMngDAO.importCheckOrderCust(gridU);
+					//계약기간이 지나면 count = 0;
+					if(custCode == null || custCode == "") {
+						tRImportTrOrdtVO.setCustCode(gridU.getCustCode()); //거래처코드 미리 저장해놓고(메시지출력위해)
+						tRImportTrOrdtVO.setJydetail1Code(gridU.getJydetail1Code()); 
+						tRImportTrOrdtVO.setJydetail2Code(gridU.getJydetail2Code()); 
+						count = 0;
+						return count;
+					}else {
+						
+					}
+				}
+			}
+		}
+		//입력 데이터
+				list = (List<Map<String, Object>>) paramMap.get("i");
+				TRImportTrordtVO gridI = new TRImportTrordtVO();
+				if(list.size() > 0) { 
+					for(int i=0; i < list.size(); i++) {
+						gridI = objectMapper2.convertValue(fn.mapToVo(list,i), TRImportTrordtVO.class);
+						custCode = importOrderMngDAO.importSelectOrderCust(gridU);
+						gridU.setCustCode(custCode);
+						if(custCode == null || custCode == "") {
+						//청구요율에 해당하는 거래처코드 자체가 없다면
+						}else { //거래처청구요율에 상,하차지,(오더의)거래처코드가 같다면
+							custCode = importOrderMngDAO.importCheckOrderCust(gridU);
+							//계약기간이 지나면 count = 0;
+							if(custCode == null || custCode == "") {
+								tRImportTrOrdtVO.setCustCode(gridU.getCustCode()); //거래처코드 미리 저장해놓고(메시지출력위해)
+								tRImportTrOrdtVO.setJydetail1Code(gridU.getJydetail1Code()); 
+								tRImportTrOrdtVO.setJydetail2Code(gridU.getJydetail2Code()); 
+								count = 0;
+								return count;
+							}else {
+
+							}
+						}
+					}
+				}
+				return count;
+	}
+	-----------------------------------------------
+	/**
+     * 오더관리 수입 일괄저장 - 디테일
+     * @param Map<String,Object> vo
+     * @return 출력페이지정보 "selectimportOrderMng"
+     * @exception Exception
+     */
+	@SuppressWarnings({ "unchecked", "unused" })
+	@Override
+	public void importOrderMultiExceDetail(Map<String, Object> vo,TRImportTrordtVO tRImportTrOrdtVO) throws Exception {
+		
+		LoginVO user = (LoginVO)EgovUserDetailsHelper.getAuthenticatedUser(); // 현재 로그인한 계정정보 가져오기
+		
+		Map<String,Object> paramMap = new HashMap<String,Object>();
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		ObjectMapper objectMapper2 = new ObjectMapper();
+		
+		Function fn = new Function();
+		
+		String strParam = (String) vo.get("param"); //화면상에 form -> name 값 사용
+		paramMap = fn.jsonToMap(strParam);
+
+		
+		//삭제 데이터
+		list = (List<Map<String, Object>>) paramMap.get("d");
+		TRImportTrordtVO gridD = new TRImportTrordtVO();
+		
+		for(int i=0; i < list.size(); i++) {
+			gridD = objectMapper2.convertValue(fn.mapToVo(list,i), TRImportTrordtVO.class);
+			gridD.setLoginJijum(user.getJijum()); // VO에 로그인 지점 값 넣기
+			gridD.setLoginId(user.getId()); // VO에 로그인 ID 값 넣기
+			gridD.setLoginIp(user.getIp()); // VO에 로그인 IP 값 넣기
+			String orderNo = gridD.getOrderNo();
+			tRImportTrOrdtVO.setOrderNo(orderNo);
+			importOrderMngDAO.importOrderDeleteGridDetail(gridD);
+		}
+		
+		//수정 데이터
+		list = (List<Map<String, Object>>) paramMap.get("u");
+		TRImportTrordtVO gridU = new TRImportTrordtVO();
+		String custCode = null;
+		double clamAmt = 0.0;
+			for(int i=0; i < list.size(); i++) {
+				gridU = objectMapper2.convertValue(fn.mapToVo(list,i), TRImportTrordtVO.class);
+				gridU.setLoginJijum(user.getJijum()); // VO에 로그인 지점 값 넣기
+				gridU.setLoginId(user.getId()); // VO에 로그인 ID 값 넣기
+				gridU.setLoginIp(user.getIp()); // VO에 로그인 IP 값 넣기
+				if(gridU.getClaimAmt() == 0.0) { //청구금액을 입력안했을 때만
+					//청구요율의 청구금액 가져오기(bulk, 빈값제외)
+					if("BULK".equals(gridU.getCntrSz()) || "".equals(gridU.getCntrSz())) {
+						
+					}
+					else {
+						//여기까지 왔다는말은 계약기간에 상관없이 상,하차지에 해당하는 거래처코드가 있거나 아예없거나
+						//이번에는 계약기간까지 포함하여 청구요율의 거래처코드를 들고온다.
+						custCode = importOrderMngDAO.importSelectOrderCust(gridU);
+						//거래처코드가 청구요율에 없을 때  
+						if(custCode == null || custCode == "") {
+							
+						}else {
+							gridU.setCustCode(custCode);
+							clamAmt = importOrderMngDAO.importSelectClaimAmt(gridU);
+							gridU.setClaimAmt(clamAmt);
+						}
+					}
+				}
+				//컨테이너 그리드 변경 이후 표출위해
+				String orderNo = gridU.getOrderNo();
+				tRImportTrOrdtVO.setOrderNo(orderNo);
+				importOrderMngDAO.importOrderUpdateGridDetail(gridU);
+			}
+		
+		//입력 데이터
+		list = (List<Map<String, Object>>) paramMap.get("i");
+		TRImportTrordtVO gridI = new TRImportTrordtVO();
+			for(int i=0; i < list.size(); i++) {
+				gridI = objectMapper2.convertValue(fn.mapToVo(list,i), TRImportTrordtVO.class);
+				gridI.setLoginJijum(user.getJijum()); // VO에 로그인 지점 값 넣기
+				gridI.setLoginId(user.getId()); // VO에 로그인 ID 값 넣기
+				gridI.setLoginIp(user.getIp()); // VO에 로그인 IP 값 넣기
+				if(gridI.getClaimAmt() == 0.0) { //청구금액을 입력안했을 때만
+					//청구요율의 청구금액 가져오기(bulk, 빈값제외)
+					if("BULK".equals(gridI.getCntrSz()) || "".equals(gridI.getCntrSz())) {
+						
+					}
+					else {
+						//여기까지 왔다는말은 계약기간에 상관없이 상,하차지에 해당하는 거래처코드가 있거나 아예없거나
+						//이번에는 계약기간까지 포함하여 청구요율의 거래처코드를 들고온다.
+						custCode = importOrderMngDAO.importSelectOrderCust(gridU);
+						//거래처코드가 청구요율에 없을 때  
+						if(custCode == null || custCode == "") {
+							
+						}else {
+							gridU.setCustCode(custCode);
+							clamAmt = importOrderMngDAO.importSelectClaimAmt(gridU);
+							gridU.setClaimAmt(clamAmt);
+						}
+					}
+				}
+				//컨테이너 그리드 변경 이후 표출위해
+				String orderNo = gridI.getOrderNo();
+				tRImportTrOrdtVO.setOrderNo(orderNo);
+				importOrderMngDAO.importOrderInsertGridDetail(gridI);
+			}
+	}
+
+===================================================================================
+//거래처코드
+<!-- 그리드 조회 -->
+    <select id="selectCustomerGridList" parameterType="TRCustomerMngVO" resultType="egovMap">
+		SELECT 
+			  CUST_CODE, <!--거래처코드 -->
+	          CUST_GUBUN, <!-- 거래처구분 -->
+	          CUST_SAUPNO, <!-- 사업자등록번호 -->
+	          J_SAUP_NO, <!-- 종사업장코드 -->
+	          CUST_BIZ_NO, <!-- 법인등록번호 -->
+	          CUST_NAME, <!-- 거래처상호 -->
+	          CUST_PRESI_NM, <!-- 대표자명 -->
+	          CUST_BUSI, <!-- 업태 -->
+	          CUST_ITEM, <!-- 종목 -->
+	          CUST_ADDRESS, <!-- 사업장소재지 -->
+	          CUST_POST, <!-- DM우편번호 -->
+	          CUST_ADDRDM, <!-- DM주소 -->
+	          CUST_TEL, <!-- 전화번호 -->
+	          CUST_FAX, <!-- FAX 번호 -->
+	          CUST_MANAGER, <!-- 거래처 담당자 -->
+	          CUST_PHONE, <!-- 휴대폰 번호 -->
+	          CUST_STATE, <!-- 거래처 상태 -->
+	          CUST_CONFDT, <!-- 불량신용 등록일 -->
+	          CUST_OLD_SAUPNO, <!-- 이전 사업자번호 -->
+	          CUST_GAYGUB, <!-- 계약거래처 구분 -->
+	          CONTRACT_DT, <!-- 계약일자 -->
+	          CONT_OUT_DT, <!-- 종료일자 -->
+	          CUST_TAX_GB, <!-- 부가세구분 -->
+	          CUST_REMARK, <!-- 비고 -->
+	          LOGISBILL_MNG, <!-- 담당자(logis) -->
+	          LOGISBILL_TEL, <!-- 전화번호(logis) -->
+	          LOGISBILL_EMAIL <!-- 이메일(logis) -->
+	    FROM
+          	  TRCUTA
+        WHERE
+              JIJUM = #{loginJijum}
+              <if test="schCustName != null and !schCustName.equals('')">
+				<![CDATA[
+				AND CUST_NAME LIKE CONCAT('%',#{schCustName},'%')
+				]]>
+			</if>
+			<if test="schCustSaupno != null and !schCustSaupno.equals('')">
+				<![CDATA[
+				AND CUST_SAUPNO LIKE CONCAT('%',#{schCustSaupno},'%')
+				]]>
+			</if>
+			<if test="schCustPresiNm != null and !schCustPresiNm.equals('')">
+				<![CDATA[
+				AND CUST_PRESI_NM LIKE CONCAT('%',#{schCustPresiNm},'%')
+				]]>
+			</if>
+			<if test="schCustManager != null and !schCustManager.equals('')">
+				<![CDATA[
+				AND CUST_MANAGER LIKE CONCAT('%',#{schCustManager},'%')
+				]]>
+			</if>
+			<if test="schCustAddress != null and !schCustAddress.equals('')">
+				<![CDATA[
+				AND CUST_ADDRESS LIKE CONCAT('%',#{schCustAddress},'%')
+				]]>
+			</if>
+			<if test="schCustGubun != null and !schCustGubun.equals('')">
+				<![CDATA[
+				AND CUST_GUBUN LIKE CONCAT('%',#{schCustGubun},'%')
+				]]>
+			</if>
+    </select>
+=========================================================================
+//거래처코드 저장
+<insert id="customerMngInsertGrid" parameterType="TRCustomerMngVO">
+    <![CDATA[ 			
+		  INSERT INTO TRCUTA
+				( 
+				   JIJUM
+				  ,CUST_CODE
+				  ,CUST_GUBUN 
+				  ,CUST_SAUPNO
+				  ,J_SAUP_NO
+				  ,CUST_BIZ_NO
+				  ,CUST_NAME
+				  ,CUST_PRESI_NM
+				  ,CUST_BUSI
+				  ,CUST_ITEM
+				  ,CUST_ADDRESS
+				  ,CUST_POST
+				  ,CUST_ADDRDM
+				  ,CUST_TEL
+				  ,CUST_FAX
+				  ,CUST_MANAGER
+				  ,CUST_STATE
+				  ,CUST_PHONE
+				  ,CUST_CONFDT
+				  ,CUST_OLD_SAUPNO
+				  ,CUST_GAYGUB
+				  ,CONTRACT_DT
+				  ,CONT_OUT_DT
+				  ,CUST_TAX_GB
+				  ,CUST_REMARK
+				  ,LOGISBILL_MNG
+				  ,LOGISBILL_TEL
+				  ,LOGISBILL_EMAIL
+				  ,INSERT_DATE
+				  ,INSERT_ID
+				  ,INSERT_IP
+				)
+			VALUES (
+			 	  #{loginJijum}
+			 	  ,(SELECT CONCAT(#{custGubun},LPAD(IFNULL(MAX(SUBSTRING((A.CUST_CODE),2,5)),0)+1,'4','0')) 
+				    FROM TRCUTA A WHERE SUBSTRING(A.CUST_CODE,1,1)=#{custGubun})
+				  ,#{custGubun}
+				  ,#{custSaupno}
+				  ,#{jSaupNo}
+				  ,#{custBizNo}
+				  ,REPLACE(REPLACE(#{custName}, '&#40;', '('), '&#41;', ')')
+				  ,#{custPresiNm}
+				  ,#{custBusi}
+				  ,#{custItem}
+				  ,REPLACE(REPLACE(#{custAddress}, '&#40;', '('), '&#41;', ')')
+				  ,#{custPost}
+				  ,REPLACE(REPLACE(#{custAddrdm}, '&#40;', '('), '&#41;', ')')
+				  ,#{custTel}
+				  ,#{custFax}
+				  ,#{custManager}
+				  ,#{custState}
+				  ,#{custPhone}
+				  ,REPLACE(#{custConfdt},'-','')
+				  ,#{custOldSaupno}
+				  ,#{custGaygub}
+				  ,REPLACE(#{contractDt},'-','')
+				  ,REPLACE(#{contOutDt},'-','')
+				  ,#{custTaxGb}
+				  ,REPLACE(REPLACE(#{custRemark}, '&#40;', '('), '&#41;', ')')
+				  ,#{logisbillMng}
+				  ,#{logisbillTel}
+				  ,#{logisbillEmail}
+				  ,SYSDATE()
+				  ,#{loginId}
+				  ,#{loginIp}
+				  )
+			]]>
+	</insert>
+=========================================================================
+// 거래처코드 L/B 저장
+<!-- L/B 저장 -->
+    <insert id="customerMngLbInsertGrid" parameterType="TRCustomerMngVO">
+    <![CDATA[ 			
+		  INSERT INTO TRLBMG
+				( 
+				   CUST_CODE
+				  ,SEQ 
+				  ,LOGISBILL_MNG
+				  ,LOGISBILL_TEL
+				  ,LOGISBILL_EMAIL
+				  ,INSERT_DATE
+				  ,UPDATE_DATE
+				  ,INSERT_ID
+				  ,UPDATE_ID
+				  ,INSERT_IP
+				  ,UPDATE_IP
+				)
+			VALUES (
+			 	   #{custCode}         //SEQ의 MAX를 구한다음 NULL이면 0, 아니면 +1 그후 LPAD 3자리만들기 빈공간 0으로채워서
+				  ,(SELECT LPAD(IFNULL(MAX(SEQ),0)+1,'3','0') FROM TRLBMG A WHERE CUST_CODE = #{custCode})
+				  ,#{popLogisbillMng}
+				  ,#{popLogisbillTel}
+				  ,#{popLogisbillEmail}
+				  ,SYSDATE()
+				  ,SYSDATE()
+				  ,#{loginId}
+				  ,#{loginId}
+				  ,#{loginIp}
+				  ,#{loginIp}
+				  )
+			]]>
+	</insert>
+=======================================================================
+//TRLBMG 테이블에는 CUST_CODE, SEQ가 key이다.
+CUST_CODE	SEQ
+S0000 		001
+S0000 		002
+S0001 		003
+<!-- L/B 삭제 -->
+    <delete id="customerMngLbDeleteGrid"  parameterType="TRCustomerMngVO">
+		DELETE FROM TRLBMG
+	     WHERE CUST_CODE = #{custCode} AND SEQ = #{seq}
+	</delete>
+=======================================================================
+//전표등록관리 첫 페이지 그리드 조회(쓰이지는 않음)
+//전표데이터 형식은 아래와 같다.
+SLIP_NO가 20230607003 이라면 이안에 소분류로 SLIP_SEQ로 나뉜다. 
+SLIP_SEQ  001
+          002
+		  003
+		  
+<!-- 첫 페이지 그리드 조회 -->
+    <select id="selectSlipMng" parameterType="TRSlipMngVO" resultType="egovMap">
+		SELECT
+		   //현재 createQcell에는 없지만 행추가시 setCellDataEx('connTime')하기 위해서는 이렇게 쿼리에서 가져와야한다.
+		  '00000000000000' AS CONN_TIME <!-- 행추가시 시간을 담기위한 -->
+		  ,'N' AS CONN_YN //미처리 전표처리 팝업을 띄워서 연계했는지 안했는지 구분하기위해(행추가시에만 미처리전표처리가능하기때문에)
+						  //전표등록처리하면 연계처리못한다.그래서 조회할때 다 N으로 박아도된다. 행추가시에는 짜피 N이 들어가니까
+						  //연계처리다하면 Y로 바뀐다.
+		  ,A.SLIP_NO
+		  ,A.SLIP_SEQ
+		  ,A.SLIP_DATE
+		  ,A.SLIP_DIV
+		  ,A.CHADAE_DIV
+		  ,A.ACCO_CODE 
+		  ,A.CUST_CODE as custCode1 //전표에서의 거래처코드팝업이라서 뒤에 1을 붙였다.
+		  ,A.DEBTOR_AMT
+		  ,A.CREDIT_AMT
+		  ,A.REMARK
+		  ,A.SLIP_FINISH_YN
+		  ,A.SLIP_PRINT_YN
+		  ,B.ACCO_NAME //Left outer할때 출력
+		  ,B.ACCO_ATTRIBUTE //Left outer할때 출력
+		  ,C.CUST_NAME as custName1 //Left outer할때 출력
+		  ,'R' AS DATA_DIV
+		FROM
+		  TRSLIP A
+		  LEFT OUTER JOIN TRACCO B ON (A.ACCO_CODE = B.ACCO_CODE)
+		  LEFT OUTER JOIN TRCUTA C ON (A.CUST_CODE = C.CUST_CODE)
+		WHERE
+		  SLIP_DATE = (SELECT DATE_FORMAT(NOW(),'%Y%m%d'))
+		ORDER BY A.SLIP_NO, A.SLIP_SEQ
+    </select>
+======================================================================================
+//전표 검색조회
+<!-- 그리드 검색 조회 -->
+    <select id="searchSlipMng" parameterType="TRSlipMngVO" resultType="egovMap">
+		SELECT
+		  '' AS CONN_TIME <!-- 행추가시 시간을 담기위한 -->	
+		  ,'N' AS CONN_YN <!-- 연계처리는 N으로 다 표시(어차피 등록된 전표는 연계처리 수정못함)-->
+		  ,A.SLIP_NO
+		  ,A.SLIP_SEQ
+		  ,A.SLIP_DATE
+		  ,A.SLIP_DIV
+		  ,A.CHADAE_DIV
+		  ,A.ACCO_CODE 
+		  ,A.CUST_CODE as custCode1
+		  ,A.DEBTOR_AMT
+		  ,A.CREDIT_AMT
+		  ,A.REMARK
+		  ,A.SLIP_FINISH_YN
+		  ,A.SLIP_PRINT_YN
+		  ,B.ACCO_NAME 
+		  ,B.ACCO_ATTRIBUTE
+		  ,C.CUST_NAME as custName1
+		  ,'R' AS DATA_DIV
+		FROM
+		  TRSLIP A
+		  LEFT OUTER JOIN TRACCO B ON (A.ACCO_CODE = B.ACCO_CODE)
+		  LEFT OUTER JOIN TRCUTA C ON (A.CUST_CODE = C.CUST_CODE)
+		WHERE
+		  SLIP_DATE BETWEEN REPLACE(#{schSlipDateFr},'-','') AND REPLACE(#{schSlipDateTo},'-','')
+		ORDER BY A.SLIP_NO, A.SLIP_SEQ
+    </select>
+=================================================================
+ <!--전표등록 시 일전표마감 count조회(하나라도 있으면 마감처리알림) -->
+    <select id="countRegisteredSlipMng" parameterType="String" resultType="String">
+		SELECT COUNT(*) AS CNT FROM TRDDBA WHERE ACC_YMD = #{param} //여기서 param은 전표등록하려는 전표일자이다.
+    </select>
+==================================================================
+<!--전표등록을 위한 전표번호추출-->
+    <select id="selectNewSlipNo" parameterType="String" resultType="String">
+						 //+1을 하고 3자리 0채우기  //max가 null이면 0 //최대	   //001
+		SELECT CONCAT(#{slipDate},LPAD(IFNULL(MAX(SUBSTRING(SLIP_NO,9,3)),0)+1,3,'0')) FROM TRSLIP WHERE SUBSTRING(SLIP_NO,1,8) = #{slipDate}
+    </select>
+==================================================================
+<!--전표등록 전에 connYn이 Y,N인지에 따라서 달라진다(이 값은 해당로우가 연계처리를 했냐안했냐이다) -->
+<!--미처리연계전표 연계하여 입력시 임시테이블(TRSLTP)에 들어가는데 그걸 가져온다.-->
+<!-- 임시테이블조회 (팝업생성시간,로그인id) -->
+//임시테이블에는 SLIP_NO, SLIP_SEQ, ACCO_CODE, CUST_CODE, ACCO_TIME, USER_ID, SLIP_AMT, SLIP_CONN_SEQ, SLIP_YN
+    <select id="selectTrsltp" parameterType="TRSlipMngVO" resultType="egovMap">
+		SELECT *
+		FROM
+		  TRSLTP
+		WHERE
+		  ACCO_TIME = #{connTime} AND USER_ID = #{loginId}
+    </select>
+----------------------------------
+//위에서 조회한 건수만큼 TRSLIP에 다가 update를 하는데 
+ <update id="updateLinkTrslip" parameterType="map">
+				UPDATE TRSLIP
+					   SET                    //TRSLTP에서 
+					   	   SLIP_YN = CASE WHEN #{slipYn} = 'Y' THEN 'Y' ELSE 'N' END
+					   	  ,CONN_SLIP_NO = CASE WHEN #{slipConnSeq} = '1' THEN #{slipNo} ELSE ''END
+					   	  ,CONN_SLIP_SEQ = CASE WHEN #{slipConnSeq} = '1' THEN #{slipSeq} ELSE '' END
+					   	  ,CONN_SLIP_AMT = CASE WHEN #{slipConnSeq} = '1' THEN #{slipAmt} ELSE 0 END
+					   	  ,CONN_SLIP_NO1 = CASE WHEN #{slipConnSeq} = '2' THEN #{slipNo} ELSE '' END
+					   	  ,CONN_SLIP_SEQ1 = CASE WHEN #{slipConnSeq} = '2' THEN #{slipSeq} ELSE '' END
+					   	  ,CONN_SLIP_AMT1 = CASE WHEN #{slipConnSeq} = '2' THEN #{slipAmt} ELSE 0 END
+					   	  ,CONN_SLIP_NO2 = CASE WHEN #{slipConnSeq} = '3' THEN #{slipNo} ELSE '' END
+					   	  ,CONN_SLIP_SEQ2 = CASE WHEN #{slipConnSeq} = '3' THEN #{slipSeq} ELSE '' END
+					   	  ,CONN_SLIP_AMT2 = CASE WHEN #{slipConnSeq} = '3' THEN #{slipAmt} ELSE 0 END
+					 WHERE
+						SLIP_NO = #{newSlipNo} AND SLIP_SEQ = #{newSlipSeq}
+</update>
+
+==================================================================
+<!-- 전표등록 -->
+    <insert id="insertRegisteredSlipMng" parameterType="TRSlipMngVO">			
+		  INSERT INTO TRSLIP
+				( 
+				   SLIP_NO <!--전표번호 -->
+				  ,SLIP_SEQ <!--전표순번-->
+				  ,SLIP_DATE <!--전표일자-->
+				  ,SLIP_DIV <!--전표구분(입금,출금,대체) -->
+				  ,CHADAE_DIV <!--차대구분(차변,대변)-->
+				  ,ACCO_CODE <!--계정과목코드-->
+				  ,CUST_CODE <!--거래처코드-->
+				  ,DEBTOR_AMT <!--차변금액-->
+				  ,CREDIT_AMT <!--대변금액-->
+				  ,REMARK <!--적요-->
+				  ,SLIP_YN <!--전표처리구분-->
+				  ,SLIP_FINISH_YN <!--전표마감구분-->
+				  ,SLIP_PRINT_YN <!--전표출력여부-->
+				  ,CONN_SLIP_NO<!--연계전표번호-->
+				  ,CONN_SLIP_SEQ <!--연계순번-->
+				  ,INSERT_DATE
+				  ,INSERT_ID
+				  ,INSERT_IP
+				  ,UPDATE_DATE
+				  ,UPDATE_ID
+				  ,UPDATE_IP
+				)
+			VALUES (
+			 	   #{newSlipNo} <!-- 20231128002 001 -->
+				   //20231128001이라는 newSlipNo가 있다면 여기서 뒷자리 최대값을 찾는다. 001은 있으니 002로 찾고 저장
+			 	  ,(SELECT LPAD(IFNULL(MAX(A.SLIP_SEQ),0)+1,3,'0') FROM TRSLIP A WHERE A.SLIP_NO = #{newSlipNo})
+			 	  ,#{slipDate}
+			 	  ,#{slipDiv}
+			 	  ,#{chadaeDiv}
+			 	  ,#{accoCode}
+			 	  ,<choose>
+			 	  	<when test='custCode1 != null and custCode1 != "" and custCode1 == "undefined"'>
+			 	  		''
+			 	  	</when>
+			 		<otherwise>
+			 			#{custCode1}
+			 		</otherwise>
+			 	  </choose>
+			 	  ,#{debtorAmt}
+			 	  ,#{creditAmt}
+			 	  ,#{remark}
+			 	  ,'N'
+			 	  ,'N'
+			 	  ,'N'
+			 	  ,''
+			 	  ,''
+			 	  ,SYSDATE()
+			 	  ,#{loginId}
+			 	  ,#{loginIp}
+			 	  ,SYSDATE()
+			 	  ,#{loginId}
+			 	  ,#{loginIp}
+				  )
+	</insert>
+==================================================================
+//미처리전표조회
+연계가 안된걸 가져와야한다. SLIP_YN = 'N' 인걸 가져와야한다.
+그리드에서 미처리전표조회 팝업버튼을 누르는 순간에 그리드에 넣었던 차대구분(필수), 계정과목(필수), 거래처코드가 input hidden에 들어가고
+그 값을 가져가서 미처리전표 조회 팝업을 띄운다.  #{chadaeDiv}, #{accoCode}, #{custCode}, (날짜는 default로 2년)#{junSlipDateFr}, #{junSlipDateTo}
+
+<!--전표미발행 팝업조회(검색할때도 동일한 쿼리로 동작한다)-->
+<!--팝업조회 할 때 그리드에 숨긴항목으로 SLIP_AMT, BALANCE_AMT, CONN_SLIP_DIV가 있다.-->
+<!--Select 하는 순간에 다 그리드에 column을 지정안해도 넣기때문에 -->
+    <select id="selectJunpyoPopupMng" parameterType="TRSlipMngVO" resultType="egovMap">
+		SELECT 
+		 A.SLIP_NO
+ 		,A.SLIP_SEQ
+ 		,A.SLIP_DATE
+ 		,A.REMARK
+ 		,A.CONN_SLIP_AMT
+ 		,A.CONN_SLIP_AMT1
+ 		,A.CONN_SLIP_AMT2
+ 		,A.CONN_SLIP_NO
+ 		,A.CONN_SLIP_NO1
+ 		,A.CONN_SLIP_NO2
+ 		,A.ACCO_CODE
+ 		,A.CUST_CODE
+ 		,B.ACCO_NAME
+ 		,C.CUST_NAME		//차변(1)일 경우 차변금액, 대변(2)일때 대변금액을 SLIP_AMT로 지정한다. 이걸 나중에 TRSLTP에 넣을것이다(미처리전표팝업 시 그리드에 숨겨놓음)
+		,CASE WHEN #{chadaeDiv} = '1' THEN A.DEBTOR_AMT ELSE A.CREDIT_AMT END AS SLIP_AMT
+							//차변(1)일 경우 차변금액, 대변(2)일때 대변금액 빼기 각연계금액합 = 잔액 (미처리전표팝업 시 그리드에 숨겨놓음)
+		,CASE WHEN #{chadaeDiv} = '1' THEN A.DEBTOR_AMT ELSE A.CREDIT_AMT END - (A.CONN_SLIP_AMT + A.CONN_SLIP_AMT1 + A.CONN_SLIP_AMT2) AS BALANCE_AMT	
+							//(미처리전표팝업 시 그리드에 숨겨놓음)
+		,CASE WHEN A.CONN_SLIP_NO = '' THEN '1' ELSE (CASE WHEN A.CONN_SLIP_NO1 = '' THEN '2' ELSE '3' END) END AS CONN_SLIP_DIV
+	FROM TRSLIP A
+		LEFT OUTER JOIN TRACCO B ON (A.ACCO_CODE = B.ACCO_CODE)
+		LEFT OUTER JOIN TRCUTA C ON (A.CUST_CODE = C.CUST_CODE)
+	WHERE A.SLIP_DATE BETWEEN REPLACE(#{junSlipDateFr},'-','') AND REPLACE(#{junSlipDateTo},'-','')
+		AND A.CHADAE_DIV = #{chadaeDiv}
+		AND A.ACCO_CODE = #{accoCode}
+		//거래처코드는 그리드에서 가져오는것이고
+		<if test='custCode != null and custCode != "" and custCode != "undefined"'>AND A.CUST_CODE = #{custCode}</if>
+		//거래처구분은 미처리전표팝업에 검색항목으로 있다.
+		<if test='custGubun != null and custGubun != ""'>AND A.CUST_CODE LIKE CONCAT('%',#{custGubun},'%')</if>
+		AND A.SLIP_YN = 'N'
+		AND (A.CONN_SLIP_NO = '' OR A.CONN_SLIP_NO1='' OR A.CONN_SLIP_NO2 = '')
+	ORDER BY A.SLIP_NO DESC, A.SLIP_SEQ ASC
+	</select>
+-------------------------------
+//미처리 전표 팝업에서 연계하지않은 전표목록들이 나온다.
+//팝업의 입력항목에 라디오버튼으로 전체, 분할 이렇게 나오는데
+//전체 선택 시 : 팝업에서 연계하려는 전표들을 체크박스로 선택하고(여러개 선택가능) 확인버튼 누르면 
+//           차변,대변에 따라서(전표등록관리에서 차대구분) 금액이 알아서 그리드에 들어간다. 단, 입력했던 차변,대변금액은 덮어써진다(차대구분에 따라서).
+
+//분할 선택 시 : 한건만 선택가능하며, 얼만큼 분할할지 처리금액을 입려항목에 적는데
+//            분할하려는 금액보다 같거나 크면 안된다. 확인 버튼 누르면
+//            차변,대변에 따라서(전표등록관리에서 차대구분) 금액이 알아서 그리드에 들어간다. 단, 입력했던 차변,대변금액은 덮어써진다(차대구분에 따라서).
+
+//확인 버튼을 누르면 TRSLTP(임시테이블)에 들어가는데 임시테이블에 같은유저에 같은 acco_time이 있다면 지우고 체크한 전표데이터가 들어간다.
+예) 미처리전표팝업에서 분할로 처리금액을 999로 입력하였다.
+SLIP_NO 	SLIP_SEQ ACCO_CODE CUST_CODE ACCO_TIME 			USER_ID SLIP_AMT SLIP_CONN_SEQ SLIP_YN
+20231225001 001		 103        S0002     20240111151719    cls       999     1             N (분할일경우)
+
+//임시테이블에 연계처리하려는 전표가 등록되기 전에 지워야한다.
+//이것의 목표는 내가 연계처리할려고 했던 값만 지우기 위해서이다.그래서 로그인, acco_time을 Where조건에 걸었다. 
+//즉, 전표등록관리 화면에서 한줄당 acco_time이 만들어진다(행추가). 이말은 한줄당 미처리전표를 acco_time과 연결해서
+//내가 예를들어 전표등록화면에서 acco_time=2023111111에 대해 미처리전표를 연계했지만 잘못 연계해서 
+//다시 저 한줄에 대해서 연계하고싶을때 덮어씌워지는 개념으로 보면된다. 그래서 다른 유저가 한거는 건들면 안되니까 accoTime, userid를 체크하는것이다.  
+ <!-- 임시테이블 삭제(전표등록 시) -->
+    <delete id="deleteTrsltp"  parameterType="TRSltpMngVO">
+		DELETE FROM TRSLTP
+	     WHERE ACCO_TIME = #{accoTime} AND USER_ID = #{loginId}
+	</delete>
+
+//지운 후 임시테이블에 넣기전에 다른 유저가 그 사이에 연계처리 하고 있는지 확인 
+//혹은 내가 연계했는데(acco_time=20241111~) 까먹고 또 연계하려고(acco_time=20242222~) 할 때(acco_time이 다를때)
+<!-- 임시테이블 건수 조회 -->
+<!-- 해당 count를 스크립트로 넘겨서 0이 아니면 alert -->
+     <select id="checkTrsltpSlipMng" parameterType="TRSlipMngVO" resultType="String">
+		SELECT COUNT(*) AS CNT FROM TRSLTP WHERE SLIP_NO=#{slipNo} AND SLIP_SEQ=#{slipSeq}
+     </select>
+
+<!--임시테이블 삽입(위 로직에 걸리지 않는다면) -->
+<insert id="insertTrsltp" parameterType="TRSltpMngVO">			
+		  INSERT INTO TRSLTP
+				( 
+				   SLIP_NO <!--전표번호 -->
+				  ,SLIP_SEQ <!--전표순번-->
+				  ,ACCO_CODE
+				  ,CUST_CODE
+				  ,ACCO_TIME
+				  ,USER_ID
+				  ,SLIP_AMT
+				  ,SLIP_CONN_SEQ
+				  ,SLIP_YN
+				)
+			VALUES (
+			 	  #{slipNo}
+			 	  ,#{slipSeq}
+			 	  ,#{accoCode}
+			 	  ,#{custCode}
+			 	  ,#{accoTime} //전표등록관리 화면(미처리전표팝업xx)에서 연계처리하려는 connTime(행추가시 들어간)을 가져옴
+			 	  ,#{loginId}
+			 	  ,#{slipAmt} //분할,처리에 따라서 금액이들어간다. 
+							  //분할이면 어차피 분할은 한건만 되기때문에 임시테이블에 내가 분할한 금액이 들어간다.
+							  //전체이면 미처리전표 체크한 갯수만큼 반복하면서 금액 그대로 들어간다.
+			 	  ,#{connSlipDiv} //우리가 select할때 미처리조회팝업에 conn_slip_div가 있다(숨은). 그거를 TRSLTP의 SLIP_CONN_SEQ에 그대로 넣는다.
+			 	  ,#{slipYn}  //분할이냐, 전체이냐에 따라서 전체이면 Y, 분할이면 N으로 저장
+				  )
+	</insert>
+-----------------------------
+//아직 팝업을 닫지 않았다. 전표등록화면에서 선택했던 row를 가져와서
+//분할이고, 처리금액이 0원일 떄 전표등록화면에서 선택했던 row의 connYn에 N대입
+//전체이고, 체크한값의 금액 합이 0원일 때 전표등록화면에서 선택했던 row의 connYn에 N대입
+//그 외는 Y대입(분할일때는 처리금액이 더 크거나 그런거는 위에서 alert로 이미 거르기때문에 상관x) 
+
+//차변이면서 전체일 때 스크립트에서 구한 금액 합계를 전표등록화면에서 선택했던 row의 차변금액에 넣는다.
+//차변이면서 분할일 때 입력한 처리금액을 넣어준다.
+//대변도 위와 마찬가지이다.
+
+//이후에는 팝업을 닫는다.
+==================================================================
+//전표삭제
+<!--삭제 전에 삭제하려는 전표번호보다 큰값이 있는지 찾는다.(큰게있다면 그거부터 지워야된다)-->
+    <select id="checkMaxSlipSeq" parameterType="String" resultType="String">
+		SELECT COUNT(*) AS CNT FROM TRSLIP WHERE SLIP_NO = #{slipNo} AND SLIP_SEQ = #{slipSeq} + 1 
+    </select>
+
+--------------------
+<!--삭제하려는 전표번호에 대한 연계처리가 있는지 -->
+//slipNo에 대해서 연계 CONN_SLIP_NO, CONN_SLIP_NO1, CONN_SLIP_NO2 최대값을 찾는다. 
+    <select id="checkConnSlipNo" parameterType="String" resultType="String">
+		SELECT CONCAT(MAX(CONN_SLIP_NO),MAX(CONN_SLIP_NO1),MAX(CONN_SLIP_NO2)) AS CONN_SLIPNO FROM TRSLIP WHERE SLIP_NO=#{slipNo}
+    </select>
+
+---------------------
+<!--위에 조건들 체크 후 전표삭제-->
+    <delete id="slipMngDeleteGrid"  parameterType="TRSlipMngVO">
+		DELETE FROM TRSLIP
+	     WHERE SLIP_NO = #{slipNo} AND SLIP_SEQ = #{slipSeq}
+	</delete>
+-----------------------
+<!-- 위에서 삭제 후에 연계처리된 전표내역 update 수정 -->
+//삭제하려는 전표번호순번에 해당하는 연계정보들 다 빈값으로 
+	<update id="slipMngUpdateSlip" parameterType="TRSlipMngVO"> 
+		UPDATE TRSLIP
+		   SET
+		   	   SLIP_YN = 'N'
+		   	  ,CONN_SLIP_NO = ''
+		   	  ,CONN_SLIP_SEQ = ''
+		   	  ,CONN_SLIP_AMT = 0
+		 WHERE CONN_SLIP_NO=#{slipNo} AND CONN_SLIP_SEQ = #{slipSeq}
+	</update>
+	<update id="slipMngUpdateSlip1" parameterType="TRSlipMngVO"> 
+		UPDATE TRSLIP
+		   SET
+		   	   SLIP_YN = 'N'
+		   	  ,CONN_SLIP_NO1 = ''
+		   	  ,CONN_SLIP_SEQ1 = ''
+		   	  ,CONN_SLIP_AMT1 = 0
+		 WHERE CONN_SLIP_NO1=#{slipNo} AND CONN_SLIP_SEQ1 = #{slipSeq}
+	</update>
+	<update id="slipMngUpdateSlip2" parameterType="TRSlipMngVO"> 
+		UPDATE TRSLIP
+		   SET
+		   	   SLIP_YN = 'N'
+		   	  ,CONN_SLIP_NO2 = ''
+		   	  ,CONN_SLIP_SEQ2 = ''
+		   	  ,CONN_SLIP_AMT2 = 0
+		 WHERE CONN_SLIP_NO2=#{slipNo} AND CONN_SLIP_SEQ2 = #{slipSeq}
+	</update>
+----------------------------
+<!--위에 작업 이후에 차대구분과 계정과목에 따라서 별도 처리가 필요하다 -->
+//impl에서 차대구분이 1(차변)이면서 ACCO_CODE가 107(외상매출금)인 경우
+<update id="slipMngUpdateTax1" parameterType="TRSlipMngVO"> 
+		UPDATE TRCTAX
+		   SET
+		   	   TAX_FINISH_YN = 'N'
+		   	  ,SLIP_NO = ''
+		 WHERE SLIP_NO=#{slipNo}
+	</update>
+//impl에서 차대구분이 1(차변)이면서 ACCO_CODE가 301(외상매입금)인 경우
+	<update id="slipMngUpdateTax2" parameterType="TRSlipMngVO"> 
+		UPDATE TRCTAX
+		   SET
+		   	   TAX_FINISH_YN = 'N'
+		   	  ,SLIP_NO = ''
+		 WHERE SLIP_NO=#{slipNo}
+	</update>
+======================================================================

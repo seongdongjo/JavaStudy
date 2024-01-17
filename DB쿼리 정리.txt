@@ -269,5 +269,83 @@ alter table test_table3 add data4 int(20); //data4컬럼 추가
 alter table test_table3 drop data4;
 
 -------------------------------------------
+//left outer join
+SELECT a.empno
+     , a.ename
+     , a.job
+     , a.deptno
+     , b.dname
+  FROM emp a
+  LEFT OUTER JOIN dept b   //outer를 생략해도 되지만 넣는걸 추천
+    ON a.deptno = b.deptno //on은 여기서 조인할 값을 의미한다.
+ WHERE a.job IN ('PRESIDENT', 'MANAGER')
+
+//emp가 기준이고 dept에서 DNAME안에 값이 없으면 그냥 null로 표시된다
+//즉, 이상황은 emp, dept에 다 DEPTNO라는 컬럼이 있어야한다.
+EMPNO ENAME  JOB  		DEPTNO  DNAME
+7782   dd    PRESIDENT    dd      dd
+7788   dd    MANAGER      dd   
+==========================================================
+//조인칼럼이 여러개인 경우
+기준테이블(emp)
+EMPNO  ENAME   JOB   DEPTNO   LOCNO
+7839   KING    ~        10      13
+7840   BLAKE   ~        90      13  
+
+조인할테이블(dept)
+DEPTNO  LOCNO  DNAME
+10       13     ~
+11       13     ~    //이거는 조인못함 deptno가 달라서 locno는 같지만
 
 
+SELECT a.empno
+     , a.ename
+     , a.job
+     , a.deptno
+     , b.dname
+     , a.locno
+  FROM emp a
+  LEFT OUTER JOIN dept b
+    ON a.deptno = b.deptno //a,b테이블모두 deptno, locno를 가지고있다.
+   AND a.locno  = b.locno
+ WHERE a.job IN ('PRESIDENT', 'MANAGER')
+
+
+
+//결과
+EMPNO  ENAME  JOB   DEPTNO  DNAME  LOCNO
+7839    KING   ~      10      ~      13
+7840    BLAKE  ~      90      ~      13   //일치하는게 없어서 DNAME(조인할려했던)은  빈값
+
+============================================================
+//조인테이블이 여러개인경우 위에는 2개까지만 했는데
+SELECT a.empno
+     , a.ename
+     , a.job
+     , a.deptno
+     , b.dname
+     , a.locno
+     , c.lname
+  FROM emp a
+  LEFT OUTER JOIN dept b    //조인테이블 1(dept)
+    ON a.deptno = b.deptno
+  LEFT OUTER JOIN loc c     //조인테이블2(loc)
+    ON a.locno = c.locno
+ WHERE a.job IN ('PRESIDENT', 'MANAGER')
+ 
+===========================================================
+//innerjoin은 있는 값만 나온다.
+SELECT a.empno
+     , a.ename
+     , a.job
+     , a.deptno
+     , b.dname
+  FROM emp a
+ INNER JOIN dept b  //inner를 생략해도된다.
+    ON a.deptno = b.deptno
+ WHERE job IN ('PRESIDENT', 'MANAGER')
+
+
+EMPNO  ENAME  JOB  DEPTNO  DNAME
+
+================================================================

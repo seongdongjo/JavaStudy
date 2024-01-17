@@ -4,6 +4,7 @@ ex) compucc -> c가 3번
 class Main{	
 	public int solution(String str, char t){
 		int answer=0;
+		//대소문자 구분이 없으므로 그냥 대문자로 통일했다.
 		str=str.toUpperCase();
 		t=Character.toUpperCase(t);
 		//System.out.println(str+" "+t);
@@ -34,7 +35,7 @@ import java.util.*;
 class Main {	
 	public String solution(String str){
 		String answer="";
-		for(char x : str.toCharArray()){ //문자열을 문자 하나씩 배열로
+		for(char x : str.toCharArray()){ //문자열을 문자 하나씩
 			if(Character.isLowerCase(x)) answer+=Character.toUpperCase(x); //소문자일때 대문자로 변환
 			else answer+=Character.toLowerCase(x);
 
@@ -57,8 +58,9 @@ class Main {
 	public String solution(String str){
 		String answer="";
 		for(char x : str.toCharArray()){
-			//소문자이면
+			//소문자면 대문자로
 			if(x>=97 && x<=122) answer+=(char)(x-32); //char없으면 숫자로계산됨 
+			//대문자면 소문자로
 			else answer+=(char)(x+32);
 		}
 		return answer;
@@ -83,7 +85,7 @@ class Main {
 			int len=x.length();
 			if(len>m){ //누가 제일 길까
 				m=len; //제일 긴 길이 저장
-				answer=x;
+				answer=x; //긴 문장 저장
 			}
 		}
 		return answer;
@@ -114,6 +116,8 @@ class Main {
 			}
 			str=str.substring(pos+1);
 		}
+		//위에까지 돌리면 마지막 공백 앞 문장까지 읽는다.
+		//그래서 마지막 문자열은 못읽어서 아래처럼 비교한다.
 		if(str.length()>m) answer=str; //마지막은 공백처리가 안되기때문에 마지막은 그냥 바로 비교
 		return answer;
 	}
@@ -183,18 +187,17 @@ class Main {
 ==========================================================
 #)문자 뒤집기
 import java.util.*;
-class Main {	
+class Main {
 	public ArrayList<String> solution(int n, String[] str){
 		ArrayList<String> answer=new ArrayList<>(); 
 		for(String x : str){ //stringBuilder도 지원하는 메서드가 많다.
 			//String은 값자체는 못바꾸기때문에 객체를 계속만들어야한다. 근데
 			//StringBuilder는 해당 값에서 바꿀수있다.
 			String tmp=new StringBuilder(x).reverse().toString(); //for문 돌릴때마다 new할필요없이 값을 바꾸니까 new안해도됨
-			answer.add(tmp);
+			answer.add(tmp); //문자열을 배열에 추가
 		}
 		return answer; //arrayList로 반환
 	}
-
 	public static void main(String[] args){
 		Main T = new Main();
 		Scanner kb = new Scanner(System.in);
@@ -222,16 +225,16 @@ class Main {
 //0  1  2  3  4
 //s  t  u  d  y
 import java.util.*;
-class Main {	
+class Main {
 	public ArrayList<String> solution(int n, String[] str){
 		ArrayList<String> answer=new ArrayList<>(); 
 		for(String x : str){ //str에는 time, dog, good
 			char[] s=x.toCharArray(); //time을 문자로 하나씩 배열에 저장
 			int lt=0, rt=x.length()-1;
 			while(lt<rt){
-				char tmp=s[lt];
-				s[lt]=s[rt];
-				s[rt]=tmp;
+				char tmp=s[lt]; //맨왼쪽
+				s[lt]=s[rt]; //맨오른쪽에 있는값을 맨왼쪽으로 스멀스멀
+				s[rt]=tmp; //맨왼쪽에 있는값을 오른쪽으로 스멀스멀
 				lt++;
 				rt--;
 			}
@@ -258,7 +261,7 @@ class Main {
 #)특정문자뒤집기(알파벳만)
 #)특수문자는 그대로
 #)a#b!ge*t@s -> s#t!eg*b@a
-
+#)a@@!ge**t@ -> t@@!eg**a@
 import java.util.*;
 class Main {	
 	public String solution(String str){
@@ -276,7 +279,7 @@ class Main {
 				rt--;
 			}
 		}
-		answer=String.valueOf(s); //char을 String으로 전환
+		answer=String.valueOf(s); //char[]을 String으로 전환
 		return answer;
 	}
 
@@ -298,10 +301,9 @@ public class Find {
 	public int solution(String str, char t) {
 		//어짜피 대,소문자 구분안하니까 받은 문자열을 다 대문자로 바꿔버리자
 		int answer=0;
-		str = str.toUpperCase();
-		t =Character.toUpperCase(t); //받은 문자도 대문자로 바꾸기
+		str = str.toUpperCase(); //입력받은 문자열 대문자로 
+		t =Character.toUpperCase(t); //입력받은 문자도 대문자로 바꾸기
 		System.out.println(str + " " + t); //대문자로 출력된걸 확인
-		
 		//이제 몇개인지 찾아보자
 		for(int i = 0; i<str.length(); i++) {
 			if(str.charAt(i)==t) answer ++; //문자열을 charAt을 통해 하나씩 문자추출
@@ -354,49 +356,14 @@ public class Find {
 	}
 
 }
-
------------------------------------------------------------------------
-package codingTest;
-import java.util.*;
-//문장(영어)을 받아서 첫줄에 가장 긴 단어를 출력. 긴단어가 여러개면 문장 속에서 가장 앞쪽에 위치한 단어를 출력
-
-
-public class Length {
-	public String solution(String str) {
-		String answer="";
-		int m=Integer.MIN_VALUE; //m에 가장작은 값넣기
-		String[] s =str.split(" "); //공백을 기준으로 잘라서 배열에 저장 ("It","is","simple")
-		for(String x : s) {
-			//System.out.println(x);
-			int len=x.length();
-			if(len>m) {  //여기서 len >=m 으로 같다하면 안된다. 계속검색하다가 뒤쪽이랑 크기가 같으면 뒤쪽을 반환해서
-				m=len;
-				answer=x;  //가장긴 단어를 answer에 넣기
-			}
-		}
-		return answer;
-	}
-	
-	public static void main(String[] args) {
-		Length T = new Length();
-		Scanner kb = new Scanner(System.in);
-		System.out.print("문장 입력: ");
-		String str = kb.nextLine(); //문장이니까 한줄입력
-		System.out.println(T.solution(str));
-	}
-
-}
 ---------------------------------------------------------------
-#)또 다른 풀이
 package codingTest;
 import java.util.*;
 //문장(영어)을 받아서 첫줄에 가장 긴 단어를 출력. 긴단어가 여러개면 문장 속에서 가장 앞쪽에 위치한 단어를 출력
-
-
 public class Length {
 	public String solution(String str) {
 		String answer="";
-		int m=Integer.MIN_VALUE,pos; //m에 가장작은 값넣기
+		int m=Integer.MIN_VALUE,pos; //m에 가장작은 값넣기              01234
 		while((pos=str.indexOf(' '))!=-1) { //띄어쓰기인덱스위치를 반환 즉 It is이면 2를 반환
 			String tmp = str.substring(0,pos);
 			int len=tmp.length();
@@ -452,84 +419,6 @@ public class Filpword {
 	}
 }
 --------------------------------------------------------------
-#)직접뒤집기
-package codingTest;
-
-import java.util.ArrayList;
-import java.util.Scanner;
-
-public class Filpword {
-	public ArrayList<String> solution(int n, String[] str) {
-		ArrayList<String> answer = new ArrayList<>();
-		for(String x : str) {
-			char[] s = x.toCharArray(); //문자배열로 바꾼다.
-			int lt =0, rt=x.length()-1;
-			while(lt<rt) {
-				char tmp=s[lt];
-				s[lt]=s[rt];
-				s[rt]=tmp;
-				lt++;
-				rt--;
-			}
-			//valueOf는 객체없이 가능
-			String tmp = String.valueOf(s); //s라는 문자열을 String화 시켜준다.
-			answer.add(tmp);
-		}
-		return answer;
-	}
-	
-	public static void main(String[] args) {
-		Filpword T = new Filpword();
-		Scanner kb = new Scanner(System.in);
-		System.out.print("입력할 단어 갯수: ");
-		int n = kb.nextInt();
-		String[] str = new String[n];
-		for(int i=0; i<n; i++) {
-			str[i] = kb.next(); //영단어 입력
-		}
-		for(String x : T.solution(n, str)) {
-			System.out.println(x);
-		}
-	}
-}
----------------------------------------------------------------------------
-import java.util.Scanner;
-
-//직접뒤집기, 특수문자면 뒤집지 말기
-//lt, rt 중에 하나가 특수문자인지 확인해야된다. 그러면 특수문자면 무시하고 lt증가,
-//rt가 특수문자면 rt가 감소
-
-public class Filp {
-	public String solution(String str) {
-		String answer;
-		char[] s = str.toCharArray(); //문자배열만들기
-		int lt=0, rt=str.length()-1;
-		
-		while(lt<rt) {
-			if(!Character.isAlphabetic(s[lt])) lt++; //s[lt]가 알파벳이 아니면 
-			else if(!Character.isAlphabetic(s[rt])) rt--;
-			else { //s[lt],s[rt]가 알파벳이면
-				char tmp=s[lt];
-				s[lt] = s[rt];
-				s[rt] = tmp;
-				lt++;
-				rt--;
-			}
-		}
-		answer = String.copyValueOf(s);
-		return answer;
-	}
-	
-	
-	public static void main(String[] args) {
-		Filp T = new Filp();
-		Scanner kb = new Scanner(System.in);
-		String str = kb.next();
-		System.out.println(T.solution(str));
-	}
-
-}
---------------------------------------------------------------
 #)중복문자 제거
 package codingTest;
 
@@ -538,7 +427,7 @@ import java.util.Scanner;
 public class Collapse {
 	public String solution(String str) {
 		String answer="";
-		for(int i = 0; i<str.length(); i++) {
+		for(int i = 0; i<str.length(); i++) { 
 			//indexOf는 0부터 계속시작(처음발견된 문자는 i와 str.indexOf(str.charAt(i) 두개의 값이 같다.
 			//앞에 중복된 문자가 있으면  indexOf는 0으로 출력된다.
 			//중복이 아니면 해당 인덱스위치 반환
@@ -573,8 +462,8 @@ public class Circular {
 		String answer="YES";
 		str=str.toUpperCase();
 		int len = str.length();
-		for(int i=0; i<len/2; i++) {
-			if(str.charAt(i)!=str.charAt(len-i-1)) return "NO";  
+		for(int i=0; i<len/2; i++) { //절반으로 자른다. liner (li까지 반복)
+			if(str.charAt(i)!=str.charAt(len-i-1)) return "NO"; //맨끝과 처음비교 스멀스멀  
 		}
 		return answer;
 	}
@@ -584,7 +473,6 @@ public class Circular {
 		String str = kb.next();
 		System.out.println(T.solution(str));
 	}
-
 }
 -----------------------------------------------------------------
 #)또다른풀이
@@ -637,7 +525,7 @@ public class Main {
 }
 ----------------------------------------------------------
 //뒤집고 자연수로
-#)알파벳과 숫자가 섞에 있는 문자열이 주어지면 숫자만 추출하여 그 순서대로 자연수를 만든다.
+#)알파벳과 숫자가 섞여 있는 문자열이 주어지면 숫자만 추출하여 그 순서대로 자연수를 만든다.
 #)tae01aex23 -> 0123 -> 123으로 출력되야한다.(앞에 0은 제외)
 단, 문자열의 길이는 100을 넘지않게
 
@@ -650,7 +538,7 @@ public class Grasp {
 		int answer = 0;
 		for(char x : s.toCharArray()) {
 			//이 범위에 있으면 문자숫자(0~9) , 맨앞에 0이오면 48을 빼고 0을 곱함으로써 0은 무시
-			//누적하기
+			//누적하기(참고로 48은 char로 표현하면 0이다)
 			if(x>=48 && x<=57) answer=answer*10+(x-48);
 		}
 		return answer;
@@ -665,7 +553,6 @@ public class Grasp {
 }
 -----------------------------------------------------------------------
 public class Test {
-
 	public static void main(String args[]) {
 		System.out.println(Character.isDigit('c'));
 		System.out.println(Character.isDigit('5'));
@@ -686,7 +573,7 @@ public class Grasp {
 		for(char x : s.toCharArray()) {
 			//x가 숫자면
 			if(Character.isDigit(x)) answer+=x;
-		}
+		}   //문자를 정수형으로 
 		return Integer.parseInt(answer); //앞에 숫자가 와도 무시
 	}
 	
@@ -748,7 +635,7 @@ public class Quiz01 {
         static String getIdNumberData(String num1, String num2) {
                 // 문자열 관련 함수를 활용해서 처리하기
                 int nowYear = Integer.parseInt(new SimpleDateFormat("yy").format(new Date()));
-                String year = num1.substring(0, 2); //970103으로받음       // for(int i = 0; i < 2; i++)
+                String year = num1.substring(0, 2); //970103으로받음
                 String month = num1.substring(2, 4);
                 String day = num1.substring(4);
                 String gender = Integer.parseInt(num2.substring(0, 1)) % 2 == 0 ? "여성" : "남성";
@@ -771,20 +658,20 @@ import java.util.Scanner;
 
 public class Distance {
 	public int[] solution(String s, char t) {
-		int[] answer = new int[s.length()]; //거리를 answer에 저장
+		int[] answer = new int[s.length()]; //입력받은 길이를 크기로하여 배열선언
 		int p = 1000;
-		for(int i=0; i<s.length(); i++) {
+		for(int i=0; i<s.length(); i++) { //젤 왼쪽부터
 			if(s.charAt(i)==t) {
 				p=0;
 				answer[i]=p;
 			}
-			else {
-				p++;
+			else {	   // 1012012
+				p++;  //  teaaeaa
 				answer[i]=p;
 			}
 		}
-	p=1000;
-	for(int i=s.length()-1; i>=0; i--) {
+	p=1000;								   //1011012  : 최종결과, 즉 4번째가 2에서 1로 바뀌었다. 가장 작은값으로 바꾸니까	
+	for(int i=s.length()-1; i>=0; i--) {  // teaaeaa
 		if(s.charAt(i)==t) p=0;
 		else {
 			p++;
@@ -848,7 +735,7 @@ public class Main {
 			int num = Integer.parseInt(tmp,2); //넘어온 tmp 2진수를 10진수화시킨다.(67, 79, 79, 76)
 			answer+=(char)num;
 			System.out.println(tmp+" "+num);
-			s=s.substring(7);
+			s=s.substring(7); //짜른 이후부터 다시
 		}
 		return answer;
 	}
@@ -938,7 +825,7 @@ public class StringMethod {
 		}
 		
 		String str3 = "사과, 복숭아, 수박, 딸기, 포도, 오렌지";
-		String[] split3 = str3.split(", ");
+		String[] split3 = str3.split(", "); //공백까지 자를 수 있다.
 		for(String fruit : split3) {
 			System.out.println(fruit);
 		}
@@ -1060,7 +947,7 @@ public class Main {
 		ArrayList<Integer> answer = new ArrayList<>(); //최종결과 출력할 answer
 		answer.add(arr[0]); //첫번째값은 출력하기 위해
 		for(int i = 1; i<n; i++) { //길이 5입력시 0 1 2 3 4 다 검사한다. i가 4(끝)까지
-			if(arr[i]>arr[i-1]) answer.add(arr[i]);
+			if(arr[i]>arr[i-1]) answer.add(arr[i]);  //앞수가 더 크다면 
 		}
 		
 		return answer;
@@ -1077,7 +964,6 @@ public class Main {
 		for(int x : T.solution(n, arr)) {
 			System.out.println(x+ " ");
 		}
-		
 		kb.close();
 	}
 }
@@ -1091,24 +977,22 @@ import java.util.Scanner;
 
 public class Main {
 	public int solution(int n, int[] arr) {
-		int answer=1, max = arr[0];
+		int answer=1, max = arr[0]; //처음에는 무조건 보이니까 answer = 1
 		for(int i=1; i<n; i++) {
 			if(arr[i]>max) {
 				answer++;
 				max=arr[i];
 			}
 		}
-		
 		return answer;
 	}
-	
 	public static void main(String[] args) {
 		Main T = new Main();
 		Scanner kb = new Scanner(System.in);
-		int n=kb.nextInt();
-		int[] arr = new int[n];
+		int n=kb.nextInt();  //학생의 수
+		int[] arr = new int[n]; //학생의 수만큼 배열 크기 지정
 		for(int i = 0; i<n; i++) {
-			arr[i]=kb.nextInt();
+			arr[i]=kb.nextInt(); //학생 키 입력
 		}
 		System.out.print(T.solution(n,arr));
 		kb.close();
@@ -1193,7 +1077,7 @@ class Main {
 	public void solution(int n) {
 		int a = 1, b = 1, c;
 		System.out.print(a + " " + b + " ");
-		for(int i = 2; i<n; i++) {
+		for(int i = 2; i<n; i++) {  //  1 1 2 3 5 8 ..
 			c = a+b;
 			System.out.print(c+ " ");
 			a=b;
@@ -1216,10 +1100,11 @@ import java.util.*;
 class Main {
 	public int solution(int n) {
 		int answer = 0;
-		int[] ch = new int[n+1];
+		int[] ch = new int[n+1]; //int형이기 때문에 처음에 다 0으로 세팅되어있다.
 		for(int i=2; i<=n; i++) {
-			if(ch[i]==0) {
-				answer++;
+			if(ch[i]==0) { //2부터 시작하는데 첨에는 0이니까(0은 소수라는 뜻이다)
+				answer++; //소수 개수 count 
+				//i의 배수로 증가해서 0을 1로 change
 				//인덱스의 배수들을 1로 채우기 (j=j+i) -> 배수
 				for(int j=i; j<=n; j=j+i) 
 					ch[j]=1; 					   //첨에 i가 2일 때 ch[2] = 1; (n<=5라고할때)
@@ -1232,7 +1117,7 @@ class Main {
 public static void main(String[] args) {
 		Main T = new Main();
 		Scanner kb = new Scanner(System.in);
-		int  n = kb.nextInt();
+		int  n = kb.nextInt(); //자연수 하나 입력(7이라면 1,2,3,4,5,6,7)
 		System.out.println(T.solution(n));
 	}
 }
@@ -1254,8 +1139,8 @@ import java.util.Scanner;
 public class Main {
 	public boolean isPrime(int num) { //소수인지 판별
 		if(num == 1) return false; //1은 소수가 아니니까
-		for(int i = 2; i<num; i++) {
-			if(num%i == 0) { //2부터 자기숫자 전까지
+		for(int i = 2; i<num; i++) { //num이 2이면 i<num에 성립하지 않기때문에 return true로 가서 소수로 판별된다.
+			if(num%i == 0) { //자기숫자 전까지
 				return false;
 			}
 		}
@@ -1388,7 +1273,7 @@ public class SumTwoIndex {
 			for(int j=i+1; j<numbers.length; j++) {
 				if(i!=numbers.length-1) { // i가 끝인덱스가아니라면
 					int res = numbers[i] + numbers[j];
-					if(!list.contains(res)) list.add(res);
+					if(!list.contains(res)) list.add(res); //합한값이 배열에 있으면 안 넣는다.
 				}
 			}
 		}
@@ -1414,9 +1299,236 @@ int num10_8 = Integer.parseInt(num8, 8); // 77
 int num10_16 = Integer.parseInt(num16, 16); // 77
 
 =================================================================================
+문제
+준규가 가지고 있는 동전은 총 N종류이고, 각각의 동전을 매우 많이 가지고 있다.
+
+동전을 적절히 사용해서 그 가치의 합을 K로 만들려고 한다. 이때 필요한 동전 개수의 최솟값을 구하는 프로그램을 작성하시오.
+
+입력
+첫째 줄에 N과 K가 주어진다. (1 ≤ N ≤ 10, 1 ≤ K ≤ 100,000,000)
+
+둘째 줄부터 N개의 줄에 동전의 가치 Ai가 오름차순으로 주어진다. (1 ≤ Ai ≤ 1,000,000, A1 = 1, i ≥ 2인 경우에 Ai는 Ai-1의 배수)
+
+출력
+첫째 줄에 K원을 만드는데 필요한 동전 개수의 최솟값을 출력한다.
+
+예제 입력 1  결과 6  즉, 1000원 4개 200원 2개필요하니까 총 6개
+10 4200
+//여기도 입력받음
+1
+5
+10
+50
+100
+500
+1000
+5000
+10000
+50000
+
+import java.util.Scanner;
+
+public class Main {
+	public static void main(String[] args) {
+	
+		Scanner scan = new Scanner(System.in);
+		int n = scan.nextInt(); //동전 n종류
+		int a = scan.nextInt(); //만들고싶은 총 금액
+		int arr[] = new int[n];
+		int ans = 0;
+		
+		for(int i=0; i<n; i++) {
+			arr[i] = scan.nextInt(); //동전의 가치 입력받기
+		}
+		
+		while(a!=0) { //돈이 0이 될때까지
+			int chk = 0;
+			for(int i= arr.length-1;i>=0;i--) { //가장 뒤가 제일 가치가 높으니까 거꾸로 돌린다
+				if(arr[i]<=a) { // 지금 금액(a)보다 작으면
+					chk=i; //지금 이 돈의 가치가 들어가겠구나! => 값을 넣어준다
+					break; 
+				}
+			}	
+				1. 동전개수 구하기
+				ans += a / arr[chk]; // 그 돈의 가치로 나눈 몫을 ans 에 더하기(동전개수)
+				2. 나머지금액 구하기
+				a = a % arr[chk]; // 그돈의 가치로 최대한 넣은 뒤 남은 금액 넣기
+                // 다시 while문이 돈다
+		}
+		System.out.println(ans);
+	}
+}
+==========================================================================
+이 아파트에 거주를 하려면 조건이 있는데, 
+“a 층의 b 호에 살려면 자신의 아래(a-1)층에서만 1호부터 b 호까지 사람들의 수의 합만큼 사람들을 데려와 살아야한다” 는 계약 조항을 꼭 지키고 들어와야 한다.
+아파트에 비어있는 집은 없고 모든 거주민들이 이 계약 조건을 지키고 왔다고 가정 했을 때, 
+주어지는 양의 정수 k와 n에 대해 k층에 n호에는 몇 명이 살고 있나를 출력하라. 
+단, 아파트에는 0층부터 있고 각층에는 1호부터 있으며, 0층에만 i호에는 i명이 산다.(0층에 i호에 i명이라는건 0호에0명(의미x,0층만들어감), 1호에1명, 2호에 2명...)
+
+//입력(T는 몇번테스트하고싶은지)
+첫 번째줄에 Test case의 수 T가 주어진다. 그리고 각각의 케이스마다 입력으로 첫번째줄에 정수k,
+								 두번째줄에 정수n이 주어진다.(1<=k<=14,1<=n<=14)
+
+//(1<=k<=14,1<=n<=14) 범위는 이렇게인데 [15][15]로 하는 이유는 문제에 0층이 존재하기때문에
+그래서 int[][] APT = new int[15][15] 이렇게 테스트 케이스 수만큼 반복적으로 배열을 생성해주기보다는 입력의 최댓값만큼의
+								   배열의 사이즈를 한 번 생성하고 사용하면 더 효율적이다.
 
 
 
+for(int i=0; i<15; i++) {
+	//1호 전체 1로 초기화
+	APT[i][0] = 1;
+	//호에 0(0층만),1,2,3,4,5 ..
+	APT[0][i] = i;
+}
+//여기까지가 아래결과
+...
+2층  x  1
+1층  x  1
+0층  0  1   2  3 ...
+	0호 1호 2호 3호 ...
+	
 
+//우리는 14층 14호까지 더해야하는데 규칙을보면 *부위에 대각선으로 더하면 합이 나오는 규칙을 알수있다. 
+2층  x  1    4  10
+1층  x  1*   3  6
+0층  0  1   2*  3 ...
+	0호 1호 2호 3호 ... 14호
 
+즉, i층의 직전호(j-1)와 i-1층의 j호 의 합을 채우면 된다.
 
+코드로 본다면
+int[][] APT = new int[15][15];
+ 
+for(int i = 0; i < 15; i++) {
+	APT[i][1] = 1;	// i층 1호
+	APT[0][i] = i;	// 0층 i호
+}
+ 
+ 
+for(int i = 1; i < 15; i ++) {	// 1층부터 14층까지
+	for(int j = 2; j < 15; j++) {	// 2호부터 14호까지(1호는 1로 채워져있음)
+		APT[i][j] = APT[i][j - 1] + APT[i - 1][j];
+	}
+}
+
+------------------------------
+//완성코드를 보자(k,n을 입력 받을 때마다 APT[n][k]를 출력해주면된다)
+import java.util.Scanner;
+public class Main {
+	public static void main(String[] args) {
+		
+		Scanner in = new Scanner(System.in);
+		
+		// 아파트 생성 
+		int[][] APT = new int[15][15];
+ 
+		for(int i = 0; i < 15; i++) {
+			APT[i][1] = 1;	// i층 1호
+			APT[0][i] = i;	// 0층 i호
+		}
+ 
+ 
+		for(int i = 1; i < 15; i ++) {	// 1층부터 14층까지
+ 
+			for(int j = 2; j < 15; j++) {	// 2호부터 14호까지
+				APT[i][j] = APT[i][j - 1] + APT[i - 1][j];
+			}
+		}
+		
+		// 테스트 부분 (몇번 테스트 할건지)
+		int T = in.nextInt();
+		
+		for(int i = 0; i < T; i++) {
+			int k = in.nextInt(); //층
+			int n = in.nextInt(); //호
+			System.out.println(APT[k][n]); //몇층에 몇호에는 몇명인가
+		}
+	}
+}
+
+-------------------------------
+public class Test1 {
+ 
+	public static int[][] APT = new int[15][15];
+ 
+	public static void main(String[] args) throws IOException {
+ 
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		
+		make_APT();	// 아파트 만들기 
+		
+		int T = Integer.parseInt(br.readLine());
+ 
+		for (int i = 0; i < T; i++) {
+			int k = Integer.parseInt(br.readLine());
+			int n = Integer.parseInt(br.readLine());
+			sb.append(APT[k][n]).append('\n');
+		}
+		System.out.println(sb);
+	}
+ 
+	
+	public static void make_APT() {
+		// 아파트 생성
+ 
+		for (int i = 0; i < 15; i++) {
+			APT[i][1] = 1; // i층 1호
+			APT[0][i] = i; // 0층 i호
+		}
+ 
+		for (int i = 1; i < 15; i++) { // 1층부터 14층까지
+ 
+			for (int j = 2; j < 15; j++) { // 2호부터 14호까지
+				APT[i][j] = APT[i][j - 1] + APT[i - 1][j];
+			}
+		}
+	}
+ 
+}
+//입력
+5 //5번테스트하겠다
+1 //(층)
+2 //(호) 여기까지 1번
+3 
+4 //여기까지 2번
+5 
+1 //여기까지 3번
+2
+3 //여기까지 4번
+4
+5 //여기까지 5번
+//결과
+3
+35
+1
+10
+126
+========================================================================================
+BufferedReader와 BufferdWriter는 버퍼를 사용하여 읽기와 쓰기를 하는 함수이다.
+
+버퍼를 사용하지 않는 입력은, 키보드의 입력이 키를 누르는 즉시 바로 프로그램에 전달된다.
+반면 버퍼를 사용하는 입력은, 키보드의 입력이 있을 때마다 한 문자씩 버퍼로 전송한다. 
+버퍼가 가득 차거나 혹은 개행 문자가 나타나면 버퍼의 내용을 한 번에 프로그램에 전달한다.
+
+한번 버퍼를 거쳐 출력되는 것보다, 키보드의 입력을 받는 즉시 출력하는 것이 더 빠른 것이 아닌가 생각할수 있다.
+하드디스크는 속도가 느리다. 그리고 외부 장치(키보드, 모니터 등)와 데이터 입출력도 생각보다 시간이 오래 걸린다.
+그렇기 때문에 키보드의 입력이 있을 때마다 바로 이동시키는 것 보다는, 중간에 버퍼를 두어 한번에 묶어 보내는 것이 더 효율적이고 빠른 방법이다.
+
+쓰레기통을 비우는 일이라고 생각하면 이해가 쉽다. 
+쓰레기가 생길 때마다 하나하나 밖에 내다버리는 것보다, 집의 쓰레기통에 하나하나 모았다가, 
+꽉 차면 한번에 밖에 버리는게 훨씬 효율적인 것과 비슷한 개념이라고 생각하면 된다,
+
+---------------------
+#)Scanner
+BufferdReader 를 보기 전에 먼저 Scanner를 살펴보자.
+대부분 Java를 처음 배울때, Scanner를 통한 입출력을 먼저 배우게 될 것이다.
+Scanner는 띄어쓰기와 개행문자를 경계로 하여 입력 값을 인식한다. 그렇기 때문에 따로 가공할 필요가 없어 편리하다.
+가공할 필요가 없다는 뜻은, 가령 int형 변수를 입력 받고자 하면, int x = scanner.nextInt() 를 사용해 바로 원하는 타입의 입력을 받을 수 있다. 
+하지만 다음에 살펴볼 BufferedReader은 입력 받은 데이터가 String으로 고정되기 때문에 입력받은 데이터를 원하는 타입으로 가공하는 작업이 필요하다.
+
+Scanner는 지원해주는 메소드가 많고, 사용하기 쉽기 때문에 많이 사용하지만, 버퍼 사이즈가 1024 char이기 때문에
+많은 입력을 필요로 할 경우에는 성능상 좋지 못한 결과를 불러온다.
+
+-----------------------
