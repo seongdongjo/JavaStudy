@@ -650,7 +650,7 @@ S0001 		003
 =======================================================================
 //전표등록관리 첫 페이지 그리드 조회(쓰이지는 않음)
 //전표데이터 형식은 아래와 같다.
-SLIP_NO가 20230607003 이라면 이안에 소분류로 SLIP_SEQ로 나뉜다. 
+SLIP_NO가 20230607003 이라면 이안에 소분류!!!로 SLIP_SEQ로 나뉜다. 
 SLIP_SEQ  001
           002
 		  003
@@ -661,7 +661,7 @@ SLIP_SEQ  001
 		   //현재 createQcell에는 없지만 행추가시 setCellDataEx('connTime')하기 위해서는 이렇게 쿼리에서 가져와야한다.
 		  '00000000000000' AS CONN_TIME <!-- 행추가시 시간을 담기위한 -->
 		  ,'N' AS CONN_YN //미처리 전표처리 팝업을 띄워서 연계했는지 안했는지 구분하기위해(행추가시에만 미처리전표처리가능하기때문에)
-						  //전표등록처리하면 연계처리못한다.그래서 조회할때 다 N으로 박아도된다. 행추가시에는 짜피 N이 들어가니까
+						  //전표등록처리되있으면 연계처리못한다.그래서 조회할때 다 N으로 박아도된다. 행추가시에는 짜피 N이 들어가니까
 						  //연계처리다하면 Y로 바뀐다.
 		  ,A.SLIP_NO
 		  ,A.SLIP_SEQ
@@ -739,11 +739,11 @@ SLIP_SEQ  001
 		FROM
 		  TRSLTP
 		WHERE
-		  ACCO_TIME = #{connTime} AND USER_ID = #{loginId}
+		  ACCO_TIME = #{connTime} AND USER_ID = #{loginId} //전표등록그리드의 하나의 row가 임시테이블의 하나(분할시)또는여러개(전체)의 row를 물고있다 
     </select>
 ----------------------------------
-//위에서 조회한 건수만큼 TRSLIP에 다가 update를 하는데 
- <update id="updateLinkTrslip" parameterType="map">
+//위에서 조회한(TRSLTP) 건수만큼 TRSLIP에 다가 update를 하는데 
+ <update id="updateLinkTrslip" parameterType="map"> //파라미터는 위에서 구한 TRSLTP
 				UPDATE TRSLIP
 					   SET                    //TRSLTP에서 
 					   	   SLIP_YN = CASE WHEN #{slipYn} = 'Y' THEN 'Y' ELSE 'N' END
@@ -822,8 +822,10 @@ SLIP_SEQ  001
 ==================================================================
 //미처리전표조회
 연계가 안된걸 가져와야한다. SLIP_YN = 'N' 인걸 가져와야한다.
-그리드에서 미처리전표조회 팝업버튼을 누르는 순간에 그리드에 넣었던 차대구분(필수), 계정과목(필수), 거래처코드가 input hidden에 들어가고
-그 값을 가져가서 미처리전표 조회 팝업을 띄운다.  #{chadaeDiv}, #{accoCode}, #{custCode}, (날짜는 default로 2년)#{junSlipDateFr}, #{junSlipDateTo}
+그리드에서 미처리전표조회 팝업버튼을 누르는 순간에 그리드(전표등록)에 넣었던 차대구분(필수), 계정과목(필수), 거래처코드, accoTime이 input hidden에 들어가고
+그 값을 가져가서 미처리전표 조회 팝업을 띄운다.  #{chadaeDiv}, #{accoCode}, #{custCode}, #{accoTime} (날짜는 default로 2년)#{junSlipDateFr}, #{junSlipDateTo}
+왜냐하면 미처리전표팝업에서 확인을 누르면 전표등록관리 그리드에서 열었던 한줄과 매칭시키기 위해서다.
+미처리전표 팝업의 검색항목에 input hidden으로 숨겨놨다. chadaeDiv, accoCode, custCode, accoTime
 
 <!--전표미발행 팝업조회(검색할때도 동일한 쿼리로 동작한다)-->
 <!--팝업조회 할 때 그리드에 숨긴항목으로 SLIP_AMT, BALANCE_AMT, CONN_SLIP_DIV가 있다.-->
@@ -946,6 +948,7 @@ SLIP_NO 	SLIP_SEQ ACCO_CODE CUST_CODE ACCO_TIME 			USER_ID SLIP_AMT SLIP_CONN_SE
 --------------------
 <!--삭제하려는 전표번호에 대한 연계처리가 있는지 -->
 //slipNo에 대해서 연계 CONN_SLIP_NO, CONN_SLIP_NO1, CONN_SLIP_NO2 최대값을 찾는다. 
+//jsp에서 ajax로 확인한다. 삭제하려는 전표번호에 대한 연계처리가 있는지  if(checkConnSlipNo(qcell.getCellDataEx(chks[i],"slipNo")) != "")
     <select id="checkConnSlipNo" parameterType="String" resultType="String">
 		SELECT CONCAT(MAX(CONN_SLIP_NO),MAX(CONN_SLIP_NO1),MAX(CONN_SLIP_NO2)) AS CONN_SLIPNO FROM TRSLIP WHERE SLIP_NO=#{slipNo}
     </select>
@@ -988,7 +991,7 @@ SLIP_NO 	SLIP_SEQ ACCO_CODE CUST_CODE ACCO_TIME 			USER_ID SLIP_AMT SLIP_CONN_SE
 	</update>
 ----------------------------
 <!--위에 작업 이후에 차대구분과 계정과목에 따라서 별도 처리가 필요하다 -->
-//impl에서 차대구분이 1(차변)이면서 ACCO_CODE가 107(외상매출금)인 경우
+//impl에서 삭제 시 같이 처리하고있다 분기를(if) 통해. 차대구분이 1(차변)이면서 ACCO_CODE가 107(외상매출금)인 경우
 <update id="slipMngUpdateTax1" parameterType="TRSlipMngVO"> 
 		UPDATE TRCTAX
 		   SET
@@ -1005,3 +1008,893 @@ SLIP_NO 	SLIP_SEQ ACCO_CODE CUST_CODE ACCO_TIME 			USER_ID SLIP_AMT SLIP_CONN_SE
 		 WHERE SLIP_NO=#{slipNo}
 	</update>
 ======================================================================
+//전표등록관리 > 매출계산서 전표발생, 매입계산서 전표발생 버튼
+//매출계산서전표발생 클릭
+	function maeclBtn() {
+		var taxDiv = '매출';
+		if(document.getElementById('schSlipDate').value == ''){
+			alert('전표일자가 입력되지 않았습니다.\n'+taxDiv+'세금계산서에 대한 자동전표생성처리를 할 수 없습니다.')
+			return false;
+		}
+		else {
+			if(confirm('전표일['+document.getElementById('schSlipDate').value+']에 해당하는\n'+taxDiv+'세금계산서에 대한 자동전표생성처리 하시겠습니까?')) {
+				if(checkRegistered(document.getElementById('schSlipDate').value.replaceAll('-','')) > 0) { //해당날짜에 이미 마감되어있는지 체크
+					alert('전표일자['+document.getElementById('schSlipDate').value+']에 대한 마감처리가 되었습니다.\n전표등록 처리를 할 수 없습니다.')
+					return false;
+				}
+				else{
+					//전표미발행 세금계산서 건수 조회
+					if(checkMaecl(document.getElementById('schSlipDate').value.replaceAll('-','')) <= 0) {
+						alert('해당전표일자에 대한 전표미발행된'+taxDiv+'세금계산서 DATA가 없습니다.')
+						return false;
+					}
+					else { //건수가 1건이상 있으면
+						//전표생성
+						createMaecl(document.getElementById('schSlipDate').value.replaceAll('-',''))
+					}
+					
+				}
+			}else {
+				return false;
+			}
+		}
+	}
+	/*매출세금계산서건수조회**/
+	function checkMaecl(schSlipDate) {
+		//var formData = decodeURIComponent($('#frm0').serialize()); //input id="param" name="param"
+		var count;
+		$.ajax({
+			url: "/transcls/cost/slipMng/checkMaeclSlipMng.do", //통신하실 URL 주소
+			//data: { param: JSON.stringify(states) }, //서버에 param이라는 parameter명으로 JSON String형태로 수정 정보 전달
+			data: {"schSlipDate":schSlipDate},
+			async: false,
+			method: "POST" //post형식으로 전달
+		}).success(function (data) {
+			count = data
+			
+			/* var gridData = data.gridList;
+			createQCELL(gridData);
+			qcell.hideProgress(300); */
+		}).error(function (xhr, status, error) {
+			alert("오류가 발생하였습니다.");
+			qcell.hideProgress(300);
+			//실패시 처리
+		});
+		return count;
+	}
+
+<!--전표미발행 매출세금계산서 건수-->
+    <select id="checkMaeclSlipMng" parameterType="TRSlipMngVO" resultType="String">
+		SELECT COUNT(*) AS CNT FROM TRCTAX WHERE ISSUE_DATE=#{schSlipDate} AND TAX_FINISH_YN='N' ORDER BY TAX_NO
+   </select>
+
+//위에서 건수가 0이면 alert('해당전표일자에 대한 전표미발행된'+taxDiv+'세금계산서 DATA가 없습니다.')
+//건수가 있으면 createMaecl(document.getElementById('schSlipDate').value.replaceAll('-',''))
+
+//건수가있으면 지점,세금계산서번호,거래처코드, 품명1, 품명2, 품명3, 품명4, 총공급가액, 총세액 변수를 담는다.(gridList)
+List<TRCtxMngVO> gridList = slipMngService.selectMaeclSlipMng(tRSlipMngVO); //여기는 세금계산서처리 전표일자가 담긴다.
+<!--전표미발행 매출세금계산서 조회-->
+    <select id="selectMaeclSlipMng" parameterType="TRSlipMngVO" resultType="TRCtxMngVO">
+		SELECT JIJUM, TAX_NO, CUST_CODE, ITEM1, ITEM2, ITEM3, ITEM4, TAX_AMT, TAX_VAT FROM TRCTAX WHERE ISSUE_DATE=#{schSlipDate} AND TAX_FINISH_YN='N' ORDER BY TAX_NO
+    </select>
+//위에서 넣은 값을(gridList) 아래에 던진다.
+slipMngService.createMaeclSlipMng(gridList,tRSlipMngVO.getSchSlipDate());
+
+//위에서 구한 데이터를 던지는 이유는 전표DATA를 3개 생성해야하는데 아래에서 쓰인다.(전표번호 하나에 대해서 전표순번3개)
+매출전표를 생성할때는
+전표순번: 001은 차대구분(CHADAE_DIV): '1', 계정과목(ACCO_CODE) :'107'(외상매출금), 
+       차변금액(DEBTOR_AMT): 총공급가액,  대변금액(CREDIT_AMT): 0,
+       적요(REMARK): 품명1이 '운송료'이고 품명2가 값이 없을 경우 '운송료', 품명2가 값이 있을 경우 '운송료 외', 
+                    품명1이 '관리비'인 경우 '관리비', 품명1이 '배차대행서비스'인 경우 '배차대행서비스', 그 외 ''
+전표순번: 002,  차대구분(CHADAE_DIV): '2',  계정과목(ACCO_CODE): 품명1이 '운송료'인 경우 '501'(수입운송료), '관리비','배차대행서비스'인 경우 '504'(관리비수입), 
+             차변금액(DEBTOR_AMT): 0, 대변금액(CREDIT_AMT): 총공급가액,  적요(REMARK) : 품명1+'/'+품명2+'/'+품명3+'/'+품명4
+전표순번: 003,  차대구분(CHADAE_DIV): '2',  계정과목(ACCO_CODE): '305'(예수부과세),
+             차변금액(DEBTOR_AMT): 0, 대변금액(CREDIT_AMT): 총세액,  적요(REMARK) : ''
+
+<!-- 전표미발행 매출세금계산서 전표등록(전표순번001) -->
+    <insert id="createMaeclSlipMng" parameterType="TRCtxMngVO">			
+		  INSERT INTO TRSLIP
+				( 
+				   SLIP_NO <!--전표번호 -->
+				  ,SLIP_SEQ <!--전표순번-->
+				  ,SLIP_DATE <!--전표일자-->
+				  ,SLIP_DIV <!--전표구분(입금,출금,대체) -->
+				  ,CHADAE_DIV <!--차대구분(차변,대변)-->
+				  ,ACCO_CODE <!--계정과목코드-->
+				  ,DEBTOR_AMT <!--차변금액-->
+				  ,CREDIT_AMT <!--대변금액-->
+				  ,REMARK <!--적요-->
+				  ,SLIP_YN <!--전표처리구분-->
+				  ,SLIP_FINISH_YN <!--전표마감구분-->
+				  ,SLIP_PRINT_YN <!--전표출력여부-->
+				  ,CONN_SLIP_NO<!--연계전표번호-->
+				  ,CONN_SLIP_SEQ <!--연계순번-->
+				  ,INSERT_DATE
+				  ,INSERT_ID
+				  ,INSERT_IP
+				  ,UPDATE_DATE
+				  ,UPDATE_ID
+				  ,UPDATE_IP
+				)
+			VALUES (
+			 	  #{newSlipNo}
+			 	  ,'001'
+			 	  ,#{schSlipDate}
+			 	  ,'T'
+			 	  ,'1'
+			 	  ,'107'
+			 	  ,#{taxAmt}
+			 	  ,0
+			 	  ,(CASE 
+			 	  		WHEN #{item1} = '운송료' THEN
+			 	  			CASE WHEN #{item2} = '' OR #{item2} IS NULL THEN '운송료'
+			 	  				 ELSE '운송료 외'
+			 	  				 END
+			 	  		WHEN #{item1} = '관리비' THEN '관리비'
+			 	  		WHEN #{item1} = '배차대행서비스' THEN '배차대행서비스'
+			 	  		ELSE '그 외'
+			 	  	END)
+			 	  ,'N'
+			 	  ,'N'
+			 	  ,'N'
+			 	  ,''
+			 	  ,''
+			 	  ,SYSDATE()
+			 	  ,#{loginId}
+			 	  ,#{loginIp}
+			 	  ,SYSDATE()
+			 	  ,#{loginId}
+			 	  ,#{loginIp}
+				  )
+	</insert>
+	<!-- 전표미발행 매출세금계산서 전표등록(전표순번002) -->
+    <insert id="createMaeclSlipMng2" parameterType="TRCtxMngVO">			
+		  INSERT INTO TRSLIP
+				( 
+				   SLIP_NO <!--전표번호 -->
+				  ,SLIP_SEQ <!--전표순번-->
+				  ,SLIP_DATE <!--전표일자-->
+				  ,SLIP_DIV <!--전표구분(입금,출금,대체) -->
+				  ,CHADAE_DIV <!--차대구분(차변,대변)-->
+				  ,ACCO_CODE <!--계정과목코드-->
+				  ,DEBTOR_AMT <!--차변금액-->
+				  ,CREDIT_AMT <!--대변금액-->
+				  ,REMARK <!--적요-->
+				  ,SLIP_YN <!--전표처리구분-->
+				  ,SLIP_FINISH_YN <!--전표마감구분-->
+				  ,SLIP_PRINT_YN <!--전표출력여부-->
+				  ,CONN_SLIP_NO<!--연계전표번호-->
+				  ,CONN_SLIP_SEQ <!--연계순번-->
+				  ,INSERT_DATE
+				  ,INSERT_ID
+				  ,INSERT_IP
+				  ,UPDATE_DATE
+				  ,UPDATE_ID
+				  ,UPDATE_IP
+				)
+			VALUES (
+			 	  #{newSlipNo}
+			 	  ,'002'
+			 	  ,#{schSlipDate}
+			 	  ,'T'
+			 	  ,'2'
+			 	  ,(CASE 
+			 	  		WHEN #{item1} = '운송료' THEN '501'
+			 	  		WHEN #{item1} = '관리비' THEN '504'
+			 	  		WHEN #{item1} = '배차대행서비스' THEN '504'
+			 	  	END)
+			 	  ,0
+			 	  ,#{taxAmt}
+			 	  ,CONCAT(#{item1},'/',#{item2},'/',#{item3},'/',#{item4})
+			 	  ,'N'
+			 	  ,'N'
+			 	  ,'N'
+			 	  ,''
+			 	  ,''
+			 	  ,SYSDATE()
+			 	  ,#{loginId}
+			 	  ,#{loginIp}
+			 	  ,SYSDATE()
+			 	  ,#{loginId}
+			 	  ,#{loginIp}
+				  )
+	</insert>
+	<!-- 전표미발행 매출세금계산서 전표등록(전표순번003) -->
+    <insert id="createMaeclSlipMng3" parameterType="TRCtxMngVO">			
+		  INSERT INTO TRSLIP
+				( 
+				   SLIP_NO <!--전표번호 -->
+				  ,SLIP_SEQ <!--전표순번-->
+				  ,SLIP_DATE <!--전표일자-->
+				  ,SLIP_DIV <!--전표구분(입금,출금,대체) -->
+				  ,CHADAE_DIV <!--차대구분(차변,대변)-->
+				  ,ACCO_CODE <!--계정과목코드-->
+				  ,DEBTOR_AMT <!--차변금액-->
+				  ,CREDIT_AMT <!--대변금액-->
+				  ,REMARK <!--적요-->
+				  ,SLIP_YN <!--전표처리구분-->
+				  ,SLIP_FINISH_YN <!--전표마감구분-->
+				  ,SLIP_PRINT_YN <!--전표출력여부-->
+				  ,CONN_SLIP_NO<!--연계전표번호-->
+				  ,CONN_SLIP_SEQ <!--연계순번-->
+				  ,INSERT_DATE
+				  ,INSERT_ID
+				  ,INSERT_IP
+				  ,UPDATE_DATE
+				  ,UPDATE_ID
+				  ,UPDATE_IP
+				)
+			VALUES (
+			 	  #{newSlipNo}
+			 	  ,'003'
+			 	  ,#{schSlipDate}
+			 	  ,'T'
+			 	  ,'2'
+			 	  ,'305'
+			 	  ,0
+			 	  ,#{taxVat}
+			 	  ,''
+			 	  ,'N'
+			 	  ,'N'
+			 	  ,'N'
+			 	  ,''
+			 	  ,''
+			 	  ,SYSDATE()
+			 	  ,#{loginId}
+			 	  ,#{loginIp}
+			 	  ,SYSDATE()
+			 	  ,#{loginId}
+			 	  ,#{loginIp}
+				  )
+	</insert>
+	<update id="updateMaeclSlipMng" parameterType="TRCtxMngVO"> 
+		UPDATE TRCTAX
+		   SET
+		   	   TAX_FINISH_YN = 'Y'
+		   	  ,SLIP_NO = #{newSlipNo}
+		   	  ,UPDATE_DATE = SYSDATE()
+			  ,UPDATE_ID = #{loginId}
+			  ,UPDATE_IP = #{loginIp}
+		 WHERE JIJUM = #{loginJijum} AND TAX_NO = #{taxNo}
+	</update>
+	
+
+
+매입전표를 생성할 때는
+- 전표순번: 001,  차대구분(CHADAE_DIV): '2', 계정과목(ACCO_CODE) :'301'(외상매입금), 
+               차변금액(DEBTOR_AMT): 0,  대변금액(CREDIT_AMT): 총공급가액,
+               적요(REMARK): 품명1이 '운송료'이고 품명2가 값이 없을 경우 '운송료', 품명2가 값이 있을 경우 '운송료 외', 
+                            품명1이 '관리비'인 경우 '관리비', 품명1이 '배차대행서비스'인 경우 '배차대행서비스', 그 외 ''
+  전표순번: 002,  차대구분(CHADAE_DIV): '1',  계정과목(ACCO_CODE): '601'(지급운송료), 
+               차변금액(DEBTOR_AMT): 총공급가액, 대변금액(CREDIT_AMT): 0,  적요(REMARK) : 품명1+'/'+품명2+'/'+품명3+'/'+품명4
+  전표순번: 003,  차대구분(CHADAE_DIV): '1',  계정과목(ACCO_CODE): '136'(선납부과세),
+               차변금액(DEBTOR_AMT): 총세액, 대변금액(CREDIT_AMT): 0,  적요(REMARK) : ''
+
+======================================================================
+//메인화면 대시보드 담당자별 배차현황 그래프로 표현
+
+아래 쿼리와 같이 20231101을 어제로 가정, 20231102를 오늘로 가정하면
+그래프로 표현하려면 selectBachaId에서 가져온 해당날짜(어제,오늘)에 올린 모든 유저들을 가져온다(지점1번만).
+그러고 위에서 가져온 유저리스트를 기준으로 어제리스트의 id를 비교 하여 해당 id가 다르면 어제리스트에 id,count추가 
+     위에서 가져온 유저리스트를 기준으로 오늘리스트의 id를 비교 하여 해당 id가 다르면 오늘리스트에 id,count추가
+만약에, 유저리스트는 있지만 어제,오늘 리스트중 빈값일때는 get(i)로 가져오면 bounds exception에러가 뜨기때문에
+add를 해서 먼저 리스트에 count=0,id까지 넣어줘야한다.
+
+즉, userList =      [CSL1004, CSL1006, DWE1005]
+  bachaDash =      [CLS1004, CSL1006, DWE1005]
+  bachaDashToday = [CLS1004, CSL1006, DWE1005]
+이렇게 userList가 나와야되고 count가0 이여도 나와야한다. 그래야 데이터가 유저에 맞게 안밀리고 찍히기 때문이다.   
+
+//어제
+<select id="selectBachaCount" parameterType="LoginVO" resultType="TRMainVO">
+	<![CDATA[
+    	SELECT INSERT_ID AS bachaInsertId, BA_DATE, COUNT(*) AS bachaCount FROM TRBACA
+		WHERE JIJUM = #{jijum}
+		 AND BA_DATE = '20231101'
+		GROUP BY INSERT_ID, BA_DATE
+		HAVING COUNT(*) > 0
+    ]]>
+</select>
+
+//오늘
+<select id="selectBachaCountToday" parameterType="LoginVO" resultType="TRMainVO">
+    <![CDATA[
+    	SELECT INSERT_ID AS bachaInsertId, BA_DATE, COUNT(*) AS bachaCount FROM TRBACA
+		WHERE JIJUM = #{jijum}
+		 AND BA_DATE = '20231102'
+		GROUP BY INSERT_ID, BA_DATE
+		HAVING COUNT(*) > 0
+]]>
+</select>
+<select id="selectBachaId" parameterType="LoginVO" resultType="TRMainVO">
+    <![CDATA[
+    	SELECT DISTINCT(INSERT_ID) AS bachaInsertId FROM TRBACA
+		WHERE JIJUM = #{jijum}
+		 AND BA_DATE BETWEEN '20231101' AND '20231102'
+		GROUP BY INSERT_ID, BA_DATE
+		HAVING COUNT(*) > 0
+    ]]>
+</select>
+
+
+-------------------------------------------------
+
+TRMainVO tempVO = new TRMainVO();
+tempVO.setBachaCount(0); //배차횟수가 없으면 COUNT를 0으로 맞춰서 그래프에 찍힐수있도록 하기위해
+List<TRMainVO> bachaId = mainService.selectBachaId(user);
+List<TRMainVO> bachaDash = mainService.selectBachaCount(user);
+List<TRMainVO> bachaDashToday = mainService.selectBachaCountToday(user);
+
+	//여기서의 로직은 이러하다
+	//1. if(bachaDash.size()-1 < i) 하는 이유는 
+	예를들어 userList = [CSL1005, CSL1006]
+	      bachaDash = []
+		  bachaDashToday = [CSL1005,CSL1006] 일때
+	bachaDash 사이즈는 0이다 여기서 -1 을하면 최대 인덱스(지금은 요소가 없어서 -1)가 나올것이다.
+	i는 0이나오고 찾으려는 요소가 bachaDash의 최대 인덱스보다 크므로 해당 분기문을 타서 id,count를 i요소(bachaDash의 최대요소 +1)에 넣는것이다.
+	
+	또 예를들어 bachaDash 사이즈가 0이 아닐때도 나올수가 있다.
+		userList = [CSL1005, CSL1006]
+		bachaDash= [CLS1005]
+		bachaDashToday = [CSL1005,CSL1006] 일때
+	bachaDash 사이즈는 1이다 여기서 -1 을하면 최대 인덱스(0)가 나올것이다.
+	i는 한바퀴돌았기 때문에 i = 1 이나오고 찾으려는 요소가 bachaDash의 최대 인덱스(0)보다 크므로 해당 분기문을 타서 id,count를 i요소(bachaDash의 최대요소 +1)에 넣는것이다.
+	
+	//2. if(!bachaId.get(i).getBachaInsertId().equals(bachaDash.get(i).getBachaInsertId())) 하는 이유
+	userList는 bachaDash와 bachaDashToday를 합친것이다. 그래서 id는 오름차순으로 정렬되어서 나온다.
+	그렇기 때문에 userList 첫번째 요소부터 비교해서 id가 다르면 userList 첫번째 요소 id,count=0을 어제리스트에 넣어준다, 오늘리스트도 마찬가지이다.
+	여기서 핵심은 어제,오늘의 id를 비교해서 넣는게아니라 userList의Id - 어제id , userList의Id - 오늘id를 비교해서 다르면 id,count=0을 넣는다. 
+	
+	if(bachaId.size() > 0) { 
+		for(int i = 0; i<bachaId.size(); i++) {
+			if(bachaDash.size()-1 < i) { //사이즈보다 가져오려고하는 인덱스가 클때 
+							tempVO.setBachaInsertId(bachaId.get(i).getBachaInsertId());
+							bachaDash.add(i, tempVO);
+			}
+			if(bachaDashToday.size()-1 < i) { //사이즈보다 가져오려고하는 인덱스가 클때 
+							tempVO.setBachaInsertId(bachaId.get(i).getBachaInsertId());
+							bachaDashToday.add(i, tempVO);
+			}
+			if(!bachaId.get(i).getBachaInsertId().equals(bachaDash.get(i).getBachaInsertId())) {
+							tempVO.setBachaInsertId(bachaId.get(i).getBachaInsertId());
+							bachaDash.add(i, tempVO);
+			}
+			if(!bachaId.get(i).getBachaInsertId().equals(bachaDashToday.get(i).getBachaInsertId())) {
+							tempVO.setBachaInsertId(bachaId.get(i).getBachaInsertId());
+							bachaDashToday.add(i, tempVO);
+			}
+		}
+	}
+	
+	resMap.put("bachaDash", bachaDash);
+	resMap.put("bachaId", bachaId);
+	resMap.put("bachaDashToday", bachaDashToday);
+
+
+======================================================================
+//바 차트 간단한 예시
+<div>
+  <canvas id="myChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const ctx = document.getElementById('myChart');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'], //x축 표시
+      datasets: [{
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
+======================================================================
+//대시보드 매출액현황 - 아래쿼리는 시간이 오래 걸려서 더하지않고 매출은 CREDIT_AMT만 찍히는 성질, 비용은 DEBTOR_AMT만 찍히는 성질이용해서 가져올것이다.
+//아래쿼리는 쓰지않을 것이다.
+SELECT A.SUM1 AS totalma
+		 ,(A.SUM2 + A.SUM3) AS totalcost  //총매출원가 + 총일반관리비 = 총비용 
+		 ,(A.SUM1 - (A.SUM2+A.SUM3)) AS totalRevenue //총매출액 - (총매출원가 + 총일반관리비) = 수익
+  FROM												 //총매출액 - 총비용 = 수익 
+	(SELECT  //여기서 핵심은 select로 묶고 A로 별칭을 해서 A.SUM1 이렇게 접근하는걸 봐야한다.
+		(SELECT SUM(CREDIT_AMT)
+         FROM TRSLIP
+        WHERE SLIP_DATE BETWEEN '20220101' AND '20221231'
+          AND SUBSTR(ACCO_CODE,1,3) BETWEEN '501' AND '504') AS SUM1, //총매출액
+       (SELECT SUM(DEBTOR_AMT)
+         FROM TRSLIP
+        WHERE SLIP_DATE BETWEEN '20220101' AND '20221231'
+          AND SUBSTR(ACCO_CODE,1,3) BETWEEN '601' AND '602') AS SUM2, //총매출원가
+       (SELECT SUM(DEBTOR_AMT)
+         FROM TRSLIP
+        WHERE SLIP_DATE BETWEEN '20220101' AND '20221231'            //총일반관리비
+          AND SUBSTR(ACCO_CODE,1,3) BETWEEN '701' AND '748') AS SUM3 FROM DUAL) A
+======================================================================
+#) <canvas> 태그란 웹페이지에서 그래픽적인 것을 그릴 때 사용된다.
+<canvas id="test" width="150" height="150"></canvas>
+img태그의 src,alt속성이 없다는 것만 제외하면 img태그와 비슷한데
+<canvas>요소에는 width, height 두 속성만 존재한다!!!!
+
+렌더링 컨텍스트
+<canvas> 요소는 고정된 크기의 드로잉 영역을 생성하며, 그 영역은 보여질 컨텐츠를 생성하고 다루게될
+두가지 이상의 렌더링 컨텍스트를 노출시킨다(2D,3D)
+
+캔버스는 처음에 비어있으며, 무언가를 표시하기위해서는 어떤 스크립트가 렌더링 컨텍스트에 접근하여
+그리도록 해야한다. 즉, <canvas>의 getContext() 메소드를 호출해서 그릴수있다.
+
+var canvas = document.getElementById("test");
+var ctx = canvas.getContext("2d")
+
+<canvas> 요소가 있으면 getContext() 메서드를 사용하여 드로잉 컨텍스트에 액세스가 가능하다.
+getContext()메소드의 존재여부를 활용하여 지원하지 않는 브라우저에 대한 처리를 할 수 있다.
+
+//이렇게 지원하지않는 브라우저에 대한 처리도 가능하다.
+var canvas = document.getElementById("test");
+if(canvas.getContext) {
+	var ctx = canvas.getContext("2d")
+}else {
+}
+=====================================================================================
+//depot 어제,오늘 상,하차
+SELECT A.yesterdayOutDp, A.yesterdayInDp, A.todayOutDp, A.todayOutDp FROM 
+	   (SELECT
+		  (SELECT COUNT(*) FROM TRDEPO WHERE OUTDATE = '20230704') AS yesterdayOutDp,
+		  (SELECT COUNT(*) FROM TRDEPO WHERE OUTDATE = '20230704') AS yesterdayInDp,
+		  (SELECT COUNT(*) FROM TRDEPO WHERE OUTDATE = '20230705') AS todayOutDp,
+		  (SELECT COUNT(*) FROM TRDEPO WHERE OUTDATE = '20230705') AS todayInDp) A 
+=====================================================================================
+SELECT DISTINCT(INSERT_ID) AS bachaInsertId
+		 ,(SELECT USER_NAME FROM TRUSER WHERE USER_ID = bachaInsertId) AS userName //여기가 핵심이다. 위에서 AS 한걸 WHERE 조건에 넣었다.
+		FROM TRBACA
+		WHERE JIJUM = '1'
+		 AND BA_DATE BETWEEN '20231101' AND '20231102'
+		GROUP BY INSERT_ID, BA_DATE
+		HAVING COUNT(*) > 0
+
+//결과
+bachaInsertId     userName
+CSL2509			  하화숙
+CSL6400			  이정림
+...
+=================================================================================
+<!-- 연간 매출,비용,수익 합 테이블 -->
+    <select id="selectYearMaechulList" resultType="TRMainMaechulTableVO">
+    	SELECT CONCAT(SUBSTR(ACC_YYMM,1,4),'년') AS ACC_YYMM, SUM(A.SALE_AMT) AS CREDIT_SUM, SUM(A.COST_AMT) AS DEBTOR_SUM, 
+                 SUM(A.SALE_AMT) - SUM(A.COST_AMT) AS SUIK_SUM
+      FROM(
+         SELECT ACC_YYMM, 
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN (CREDIT_AMT - DEBTOR_AMT) ELSE 0 END AS SALE_AMT,
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN 0 ELSE (DEBTOR_AMT - CREDIT_AMT) END AS COST_AMT
+           FROM TRMMBA
+          WHERE ACC_YYMM LIKE CONCAT(REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -1 YEAR),1,4),'-',''),'%') 
+            AND ACC_YYMM NOT IN(CONCAT(REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -1 YEAR),1,4),'-',''),'00')) 
+            AND ( ACCO_CODE BETWEEN '501' AND '504'
+               OR ACCO_CODE BETWEEN '601' AND '602'
+               OR ACCO_CODE BETWEEN '701' AND '748' )
+               
+         UNION ALL
+         SELECT SUBSTR(SLIP_DATE,1,6) AS ACC_YYMM, 
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN (CREDIT_AMT - DEBTOR_AMT) ELSE 0 END AS SALE_AMT,
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN 0 ELSE (DEBTOR_AMT - CREDIT_AMT) END AS COST_AMT
+            FROM TRSLIP
+          WHERE SLIP_DATE LIKE CONCAT(SUBSTR(DATE_FORMAT(NOW(),'%Y%m%d'),1,4),'%')
+            AND ( ACCO_CODE BETWEEN '501' AND '504'
+               OR ACCO_CODE BETWEEN '601' AND '602'
+               OR ACCO_CODE BETWEEN '701' AND '748' )
+         ) A
+      GROUP BY SUBSTR(ACC_YYMM,1,4)
+    </select>
+//결과
+ACC_YYMM   CREDIT_SUM    COST_SUM   SUIK_SUM
+2023년
+2024년
+
+-----------------------
+//월간테이블
+<!-- 월간 매출,비용,수익 합 테이블(전월,당월) -->
+    <select id="selectMonthMaechulList" resultType="TRMainMaechulTableVO">
+    	SELECT CONCAT(CONCAT(SUBSTR(ACC_YYMM,1,4),'년'),CONCAT(SUBSTR(ACC_YYMM,5,6),'월')) AS ACC_YYMM, 
+		 SUM(A.SALE_AMT) AS CREDIT_SUM, 
+		 SUM(A.COST_AMT) AS DEBTOR_SUM, 
+       SUM(A.SALE_AMT) - SUM(A.COST_AMT) AS SUIK_SUM
+      FROM(
+         SELECT ACC_YYMM, 
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN (CREDIT_AMT - DEBTOR_AMT) ELSE 0 END AS SALE_AMT,
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN 0 ELSE (DEBTOR_AMT - CREDIT_AMT) END AS COST_AMT
+           FROM TRMMBA
+          WHERE ACC_YYMM = REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -1 MONTH),1,7),'-','')
+            AND ( ACCO_CODE BETWEEN '501' AND '504'
+               OR ACCO_CODE BETWEEN '601' AND '602'
+               OR ACCO_CODE BETWEEN '701' AND '748' )
+               
+         UNION ALL
+         SELECT SUBSTR(SLIP_DATE,1,6) AS ACC_YYMM, 
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN (CREDIT_AMT - DEBTOR_AMT) ELSE 0 END AS SALE_AMT,
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN 0 ELSE (DEBTOR_AMT - CREDIT_AMT) END AS COST_AMT
+            FROM TRSLIP
+          WHERE SLIP_DATE LIKE CONCAT(SUBSTR(DATE_FORMAT(NOW(),'%Y%m%d'),1,6),'%')
+            AND ( ACCO_CODE BETWEEN '501' AND '504'
+               OR ACCO_CODE BETWEEN '601' AND '602'
+               OR ACCO_CODE BETWEEN '701' AND '748' )
+         ) A
+      GROUP BY SUBSTR(ACC_YYMM,1,6)
+    </select>
+//결과
+ACC_YYMM  CREDIT_SUM   DEBTOR_SUM  SUIK_SUM
+2024년01월
+2024년02월
+
+---------------------------
+//대시보드 차트
+<select id="selectMaechulChartList" resultType="TRMainMaechulChartVO">
+    <![CDATA[
+    	SELECT  CONCAT(CONCAT(SUBSTR(ACC_YYMM,1,4),'/'),SUBSTR(ACC_YYMM,5,6)) AS ACC_YYMM, 
+    			SUM(A.SALE_AMT) AS CREDIT_SUM, 
+    			SUM(A.COST_AMT) AS DEBTOR_SUM, 
+            SUM(A.SALE_AMT) - SUM(A.COST_AMT) AS SUIK_SUM
+		FROM (
+			SELECT ACC_YYMM,
+					 CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN (CREDIT_AMT - DEBTOR_AMT) ELSE 0 END AS SALE_AMT,
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN 0 ELSE (DEBTOR_AMT - CREDIT_AMT) END AS COST_AMT
+           FROM TRMMBA
+			 WHERE ACC_YYMM BETWEEN REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -11 MONTH),1,7),'-','') AND 
+			                        REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL  -1 MONTH),1,7),'-','') AND
+			   	 ACC_YYMM NOT IN(CONCAT(REPLACE(SUBSTR(DATE_FORMAT(NOW(),'%Y-%m-%d'),1,4),'-',''),'00'))
+			   AND ( ACCO_CODE BETWEEN '501' AND '504'
+			      OR ACCO_CODE BETWEEN '601' AND '602'
+			      OR ACCO_CODE BETWEEN '701' AND '748' )
+			UNION ALL
+			SELECT SUBSTR(SLIP_DATE,1,6) AS ACC_YYMM, 
+					 CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN (CREDIT_AMT - DEBTOR_AMT) ELSE 0 END AS SALE_AMT,
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN 0 ELSE (DEBTOR_AMT - CREDIT_AMT) END AS COST_AMT
+			   FROM TRSLIP
+			 WHERE SLIP_DATE LIKE CONCAT(SUBSTR(DATE_FORMAT(NOW(),'%Y%m%d'),1,6),'%')
+			   AND ( ACCO_CODE BETWEEN '501' AND '504'
+			      OR ACCO_CODE BETWEEN '601' AND '602'
+			      OR ACCO_CODE BETWEEN '701' AND '748' )
+			 ) A
+		GROUP BY ACC_YYMM
+    ]]>
+    </select>
+//결과
+ACC_YYMM   CREDIT_SUM    DEBTOR_SUM   SUIK_SUM
+2023/03		
+2023/04
+..
+2024/02
+
+=========================================================
+//상차,하차 구하기(어제,오늘기준)
+SELECT A.yesterdayOutDp,
+    		   A.yesterdayInDp,
+    		   A.todayOutDp,
+    		   A.todayInDp
+    		FROM
+    			(SELECT
+    				(SELECT COUNT(*) FROM TRDEPO WHERE OUTDATE = '20230704') AS yesterdayOutDp,
+					(SELECT COUNT(*) FROM TRDEPO WHERE INDATE = '20230704') AS yesterdayInDp,
+					(SELECT COUNT(*) FROM TRDEPO WHERE OUTDATE = '20230705') AS todayOutDp,
+					(SELECT COUNT(*) FROM TRDEPO WHERE INDATE = '20230705') AS todayInDp) A 
+-----------------------
+//재고 어제,오늘 - 재고라는 것은 하차는 했지만(indate가 어제까지) 상차를 안했다는 것이다(outdate가빈값이면).
+SELECT SUM(BEF_COUNT) AS yesterdayStock, SUM(AFT_COUNT) AS todayStock FROM
+		(SELECT '1' AS CD, COUNT(*) AS BEF_COUNT, 0 AS AFT_COUNT
+			FROM TRDEPO
+		 WHERE (OUTDATE='' AND INDATE BETWEEN '20000101' AND '20231002') //여기는 하차(어제까지 아직 안나간거만 구한다 outdate=''것만)
+		   UNION ALL
+		 SELECT '1' AS CD, 0 AS BEF_COUNT, COUNT(*) AS AFT_COUNT
+		   FROM TRDEPO
+		WHERE (OUTDATE='' AND INDATE BETWEEN '20000101' AND '20231003')) A //여기는 하차 
+=========================================================
+//대시보드 매출액현황
+//컨트롤러에서 (전년,올해) 데이터를 리스트로 받고 있다.
+List<TRMainMaechulTableVO> yearMaechulList = mainService.selectYearMaechulList()
+
+ <select id="selectYearMaechulList" resultType="TRMainMaechulTableVO">
+    	SELECT SUBSTR(ACC_YYMM,1,4) AS ACC_YYMM, SUM(A.CREDIT_AMT) AS CREDIT_SUM, SUM(A.DEBTOR_AMT) AS DEBTOR_SUM, 
+                 SUM(A.CREDIT_AMT) - SUM(A.DEBTOR_AMT) AS SUIK_SUM
+		FROM(
+			SELECT ACC_YYMM, DEBTOR_AMT, CREDIT_AMT FROM TRMMBA      //여기까지하면 202300 월도 같이 구하게 되는데 아래 구문에서 00은 NOT IN을 써서 뺸다.
+			 WHERE ACC_YYMM LIKE CONCAT(REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -1 YEAR),1,4),'-',''),'%') 
+			   AND ACC_YYMM NOT IN(CONCAT(REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -1 YEAR),1,4),'-',''),'00')) 
+			   AND ( ACCO_CODE BETWEEN '501' AND '504' //매출 - Credit에만 값이 있다.
+			      OR ACCO_CODE BETWEEN '601' AND '602' //비용 - Debtor에만 값이 있다.
+			      OR ACCO_CODE BETWEEN '701' AND '748' ) //비용 - Debtor에만 값이 있다.
+			UNION ALL
+			SELECT SUBSTR(SLIP_DATE,1,6) AS ACC_YYMM, DEBTOR_AMT, CREDIT_AMT 
+			   FROM TRSLIP
+			 WHERE SLIP_DATE LIKE CONCAT(SUBSTR(DATE_FORMAT(NOW(),'%Y%m%d'),1,4),'%')
+			   AND ( ACCO_CODE BETWEEN '501' AND '504'
+			      OR ACCO_CODE BETWEEN '601' AND '602'
+			      OR ACCO_CODE BETWEEN '701' AND '748' )
+			) A
+		GROUP BY SUBSTR(ACC_YYMM,1,4)
+  </select>
+-------------------------------------
+//대시보드 매출액 현황
+//컨트롤러에서 (전월,당월) 데이터를 리스트로 받고 있다.
+List<TRMainMaechulTableVO> monthMaechulList = mainService.selectMonthMaechulList();
+
+<!-- 월간 매출,비용,수익 합 테이블(전월,당월) -->
+    <select id="selectMonthMaechulList" resultType="TRMainMaechulTableVO">
+    	SELECT ACC_YYMM, SUM(A.CREDIT_AMT) AS CREDIT_SUM, SUM(A.DEBTOR_AMT) AS DEBTOR_SUM, 
+                 SUM(A.CREDIT_AMT) - SUM(A.DEBTOR_AMT) AS SUIK_SUM
+		FROM(
+			SELECT ACC_YYMM, DEBTOR_AMT, CREDIT_AMT FROM TRMMBA
+			 WHERE ACC_YYMM = REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -1 MONTH),1,7),'-','') 
+			   AND ( ACCO_CODE BETWEEN '501' AND '504'
+			      OR ACCO_CODE BETWEEN '601' AND '602'
+			      OR ACCO_CODE BETWEEN '701' AND '748' )
+			UNION ALL
+			SELECT SUBSTR(SLIP_DATE,1,6) AS ACC_YYMM, DEBTOR_AMT, CREDIT_AMT 
+			   FROM TRSLIP
+			 WHERE SLIP_DATE LIKE CONCAT(SUBSTR(DATE_FORMAT(NOW(),'%Y%m%d'),1,4),'%')
+			   AND ( ACCO_CODE BETWEEN '501' AND '504'
+			      OR ACCO_CODE BETWEEN '601' AND '602'
+			      OR ACCO_CODE BETWEEN '701' AND '748' )
+			) A GROUP BY ACC_YYMM
+    </select>
+--------------------------------------
+/** 메인 화면 **/
+    @RequestMapping(value="/transcls/main/selectMainInfo.do")
+    public String selectBasicCodeMng(ModelMap model, HttpServletRequest request) throws Exception {
+    	
+    	LoginVO user = (LoginVO)EgovUserDetailsHelper.getAuthenticatedUser();
+		Boolean isAuthenticated = EgovUserDetailsHelper.isAuthenticated();
+		
+		if(!isAuthenticated) {	//KISA 보안취약점 조치 (2018-12-10, 이정은)
+            return "redirect:/uat/uia/egovLoginUsr.do";
+        }
+		
+		try {
+			//매출액현황(테이블) - 년도
+			[{ACC_YYMM:2023,CREDIT_SUM: 193,..},{ACC_YYMM:2024,CREDIT_SUM: 193,..}]
+			List<TRMainMaechulTableVO> yearMaechulList = mainService.selectYearMaechulList();
+			//매출액현황(테이블) - 월 
+			//여기서 핵심은 전월,당월을 구했는데 202401만 나왔다. 즉, 해당월에 대한 데이터가 없으면 안나온다.
+			//이렇게되면 그래프에 찍기위해서는 해당월,금액:0 을 만들어서 넣어줘야한다.
+			[{ACC_YYMM:202401,CREDIT_SUM: 64,...}]
+			List<TRMainMaechulTableVO> monthMaechulList = mainService.selectMonthMaechulList();
+			List<String> chartYear = new ArrayList<String>();
+			List<String> chartMonth = new ArrayList<String>();
+			List<StringBuffer> bufferYear = new ArrayList<StringBuffer>();
+			List<StringBuffer> bufferMonth = new ArrayList<StringBuffer>();
+			
+			SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
+			SimpleDateFormat sdfMonth = new SimpleDateFormat("yyyyMM");
+			Calendar cYear = Calendar.getInstance();
+			Calendar cMonth = Calendar.getInstance();
+			
+			String increaseYearMaePercent = null;
+			String increaseYearCostPercent = null;
+			String increaseYearSuikPercent = null;
+			String increaseMonthMaePercent = null;
+			String increaseMonthCostPercent = null;
+			String increaseMonthSuikPercent = null;
+			String strToday = null;
+			//아래와 같이 오늘기준으로 전월, 전년을 구하는 이유는 쿼리에서 전월,전년에 대한 값이 없으면 0원으로 넣어줘야하기때문에
+			//일단 먼저, 당월을 먼저넣는다. 왜냐하면 오름차순으로 테이블에 202312 202401 이렇게 찍혀야되기때문에
+			//[202401]
+			chartMonth.add(sdfMonth.format(cMonth.getTime()));
+			cMonth.add(Calendar.MONTH, -1);
+			strToday = sdfMonth.format(cMonth.getTime());
+			chartMonth.add(0, strToday); //[202312,202401]
+			
+			
+			//[2024]
+			chartYear.add(sdfYear.format(cYear.getTime()));
+			cYear.add(Calendar.YEAR, -1);
+			strToday = sdfYear.format(cYear.getTime());
+			chartYear.add(0, strToday); //[2023,2024]
+			
+			//위에서 오늘날짜의 기준으로 구한 [전년,올해] 리스트로 쿼리에서 구한 년도랑 비교해서 없으면 년도,금액(0)을 넣는다.
+			for(int j=0; j<2; j++) { //전년,올해
+				//j는 무조건 있는 요소까지만 진행(빈년도는 0으로채움)
+				if(!chartYear.get(j).equals(yearMaechulList.get(j).getAccYymm().substring(0,4))) {
+					TRMainMaechulTableVO tempVO = new TRMainMaechulTableVO();
+					tempVO.setCreditSum(0);
+					tempVO.setDebtorSum(0);
+					tempVO.setSuikSum(0);
+					tempVO.setAccYymm(chartYear.get(j));
+					yearMaechulList.add(j, tempVO);
+				}
+			}
+			//증감율계산
+			for(int k=0; k<1; k++) {
+				//전년,올해 0원일때는 증감율 : 0
+				if(yearMaechulList.get(k).getCreditSum() == 0 && yearMaechulList.get(k).getDebtorSum() == 0 && yearMaechulList.get(k).getSuikSum() == 0) {
+					//하나의 요소에만 넣어도되지만 통일성을 위해 두개다넣음(테이블에서는 어떤걸 찍어도 같다)
+					yearMaechulList.get(k).setIncreaseMaePercent("0");
+					yearMaechulList.get(k+1).setIncreaseMaePercent("0");
+				} //기준금액이 0원일 때(분모가 0이되서 나눌수가없다)
+				else if(yearMaechulList.get(k).getCreditSum()==0 || yearMaechulList.get(k).getDebtorSum() == 0 || yearMaechulList.get(k).getSuikSum()==0) {
+					//매출기준금액이 0원일때는 증감율이 계산안된다.(분모가 0이되서 나눌수가없다)	
+					if(yearMaechulList.get(k).getCreditSum()==0) {
+						yearMaechulList.get(k).setIncreaseMaePercent("-");
+						yearMaechulList.get(k+1).setIncreaseMaePercent("0");
+					}//비용기준금액이 0원일때는 증감율이 계산안된다.(분모가 0이되서 나눌수가없다)
+					if(yearMaechulList.get(k).getDebtorSum() == 0) {
+						yearMaechulList.get(k).setIncreaseCostPercent("-");
+						yearMaechulList.get(k+1).setIncreaseCostPercent("0");
+					}//수익기준금액이 0원일때는 증감율이 계산안된다.(분모가 0이되서 나눌수가없다)
+					if(yearMaechulList.get(k).getSuikSum()==0) {
+						yearMaechulList.get(k).setIncreaseSuikPercent("-");
+						yearMaechulList.get(k+1).setIncreaseSuikPercent("0");
+					}
+				}
+				else {//값이 제대로 들어가있으면 진행
+					//증감율계산
+					increaseYearMaePercent = String.valueOf(((yearMaechulList.get(k+1).getCreditSum()-yearMaechulList.get(k).getCreditSum())/yearMaechulList.get(k).getCreditSum())*100);
+					increaseYearCostPercent = String.valueOf(((yearMaechulList.get(k+1).getDebtorSum()-yearMaechulList.get(k).getDebtorSum())/yearMaechulList.get(k).getDebtorSum())*100);
+					increaseYearSuikPercent = String.valueOf(((yearMaechulList.get(k+1).getSuikSum()-yearMaechulList.get(k).getSuikSum())/yearMaechulList.get(k).getSuikSum())*100);
+					yearMaechulList.get(k).setIncreaseMaePercent(increaseYearMaePercent);
+					yearMaechulList.get(k).setIncreaseCostPercent(increaseYearCostPercent);	
+					yearMaechulList.get(k).setIncreaseSuikPercent(increaseYearSuikPercent);	
+					yearMaechulList.get(k+1).setIncreaseMaePercent(increaseYearMaePercent);	
+					yearMaechulList.get(k+1).setIncreaseCostPercent(increaseYearCostPercent);	
+					yearMaechulList.get(k+1).setIncreaseSuikPercent(increaseYearSuikPercent);	
+				}
+			  }
+			
+			for(int j=0; j<2; j++) { //전월,당월
+				//j는 무조건 있는 요소까지만 진행(빈년도는 0으로채움)
+				//아래 if문이 두개인데 년도구할때는 내가 첫번째 if문을 안넣었다. 왜냐하면 전년도 데이터가 무조건있다고 생각했다.
+				//만약 전년도 데이터가 없고 아래 첫번째 if문이 없다면 두번째 if문에서 인덱스바운드에러가 나온다.
+				//왜냐하면 j는 1까지 2번 반복하는데 chartMonth에는 [202312,202401] 
+				//                  쿼리에서 구한            [202401]
+				//이렇게 되면 chartMonth기준으로 j<2 이렇게 반복하는데
+				//j=1일때 monthMaechulList.get(j).getAccYymm() 데이터가 없기때문에 에러가 난다. 그래서 첫번째 if문이 필요하다.
+				if(j>=monthMaechulList.size()) {
+					TRMainMaechulTableVO tempVO = new TRMainMaechulTableVO();
+					tempVO.setCreditSum(0);
+					tempVO.setDebtorSum(0);
+					tempVO.setSuikSum(0);
+					tempVO.setAccYymm(chartMonth.get(j));
+					monthMaechulList.add(j, tempVO);
+				}
+				if(!chartMonth.get(j).equals(monthMaechulList.get(j).getAccYymm().substring(0,6))) {
+					TRMainMaechulTableVO tempVO = new TRMainMaechulTableVO();
+					tempVO.setCreditSum(0);
+					tempVO.setDebtorSum(0);
+					tempVO.setSuikSum(0);
+					tempVO.setAccYymm(chartMonth.get(j));
+					monthMaechulList.add(j, tempVO);
+				}
+			}
+			//증감율계산
+			for(int k=0; k<1; k++) {
+				//전월,당월 0원일때는 증감율 : 0
+				if(monthMaechulList.get(k).getCreditSum() == 0 && monthMaechulList.get(k).getDebtorSum() == 0 && monthMaechulList.get(k).getSuikSum() == 0) {
+					//하나의 요소에만 넣어도되지만 통일성을 위해 두개다넣음
+					monthMaechulList.get(k).setIncreaseMaePercent("0");
+					monthMaechulList.get(k+1).setIncreaseMaePercent("0");
+				} //기준금액이 0원일 때(분모가 0이되서 나눌수가없다)
+				else if(monthMaechulList.get(k).getCreditSum()==0 || monthMaechulList.get(k).getDebtorSum() == 0 || monthMaechulList.get(k).getSuikSum()==0) {
+					//매출기준금액이 0원일때는 증감율이 계산안된다.	
+					if(monthMaechulList.get(k).getCreditSum()==0) {
+						monthMaechulList.get(k).setIncreaseMaePercent("-");
+						monthMaechulList.get(k+1).setIncreaseMaePercent("0");
+					}//비용기준금액이 0원일때는 증감율이 계산안된다.
+					if(monthMaechulList.get(k).getDebtorSum() == 0) {
+						monthMaechulList.get(k).setIncreaseCostPercent("-");
+						monthMaechulList.get(k+1).setIncreaseCostPercent("0");
+					}//수익기준금액이 0원일때는 증감율이 계산안된다.
+					if(monthMaechulList.get(k).getSuikSum()==0) {
+						monthMaechulList.get(k).setIncreaseSuikPercent("-");
+						monthMaechulList.get(k+1).setIncreaseSuikPercent("0");
+					}
+				}else {
+					//증감율계산
+					increaseMonthMaePercent = String.valueOf(((monthMaechulList.get(k+1).getCreditSum()-monthMaechulList.get(k).getCreditSum())/monthMaechulList.get(k).getCreditSum())*100);
+					increaseMonthCostPercent = String.valueOf(((monthMaechulList.get(k+1).getDebtorSum()-monthMaechulList.get(k).getDebtorSum())/monthMaechulList.get(k).getDebtorSum())*100);
+					increaseMonthSuikPercent = String.valueOf(((monthMaechulList.get(k+1).getSuikSum()-monthMaechulList.get(k).getSuikSum())/monthMaechulList.get(k).getSuikSum())*100);
+					monthMaechulList.get(k).setIncreaseMaePercent(increaseMonthMaePercent);
+					monthMaechulList.get(k).setIncreaseCostPercent(increaseMonthCostPercent);	
+					monthMaechulList.get(k).setIncreaseSuikPercent(increaseMonthSuikPercent);	
+					monthMaechulList.get(k+1).setIncreaseMaePercent(increaseMonthMaePercent);	
+					monthMaechulList.get(k+1).setIncreaseCostPercent(increaseMonthCostPercent);	
+					monthMaechulList.get(k+1).setIncreaseSuikPercent(increaseMonthSuikPercent);	
+				}
+			  }
+			//복화/상하차 현황(테이블)
+			TRMainInOutVO mainInOutVO = mainService.selectMainInOutList();
+			
+			//DEPOT현황(테이블)
+			TRMainDepotInOutVO mainDepotInOutVO = mainService.selectMainDepotInOutList();
+			TRMainDepotInOutVO mainDepotStockVO = mainService.selectMainDepotStockList();
+			mainDepotInOutVO.setYesterdayStock(mainDepotStockVO.getYesterdayStock());
+			mainDepotInOutVO.setTodayStock(mainDepotStockVO.getTodayStock());
+			
+			model.addAttribute("mainDepotInOutVO", mainDepotInOutVO);
+			model.addAttribute("yearMaechulList", yearMaechulList);
+			//model.addAttribute("thisYearMaechulList", yearMaechulList.get(1));
+			model.addAttribute("monthMaechulList", monthMaechulList);
+			//model.addAttribute("thisMonthMaechulList", monthMaechulList.get(1));
+			model.addAttribute("chartYear", chartYear);
+			model.addAttribute("chartMonth", chartMonth);
+			model.addAttribute("mainInOutVO", mainInOutVO);
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+    	return "egovframework/transcls/main/selectMainInfo";
+    }
+====================================================================================
+//복화/상하차
+<!-- 테이블을 위한 -->
+    <select id="selectMainInOutList" resultType="TRMainInOutVO">
+    <![CDATA[
+    	SELECT 
+	       A.yesterdayChargeR AS yesterdayChargeR, 
+	 		 A.yesterdayChargeU AS yesterdayChargeU, 
+			(A.yesterdayChargeR + A.yesterdayChargeU) AS yesterdayTotCharge,
+			A.todayChargeR AS todayChargeR, 
+	 		 A.todayChargeU AS todayChargeU, 
+			(A.todayChargeR + A.todayChargeU) AS todayTotCharge  
+		FROM
+			(SELECT
+		     (SELECT COUNT(*) FROM TRRNDU WHERE CHARGE_KBN = 'R' AND RNDU_DATE = '20240102') AS yesterdayChargeR,
+			  (SELECT COUNT(*) FROM TRRNDU WHERE CHARGE_KBN = 'U' AND RNDU_DATE = '20240102') AS yesterdayChargeU,
+			  (SELECT COUNT(*) FROM TRRNDU WHERE CHARGE_KBN = 'R' AND RNDU_DATE = '20240103') AS todayChargeR,
+			  (SELECT COUNT(*) FROM TRRNDU WHERE CHARGE_KBN = 'U' AND RNDU_DATE = '20240103') AS todayChargeU
+			) A
+    ]]>
+yesterdayChargeR      yesterdayChargeU   yesterdayTotCharge  todayChargeR  todayChargeU  todayTotCharge
+14						0					14					25				0    		25
+
+------------------------------------
+//depot 상,하차
+ <select id="selectMainDepotInOutList" resultType="TRMainDepotInOutVO">
+    <![CDATA[
+    	SELECT A.yesterdayOutDp,
+    		   A.yesterdayInDp,
+    		   A.todayOutDp,
+    		   A.todayInDp
+    		FROM
+    			(SELECT
+    				(SELECT COUNT(*) FROM TRDEPO WHERE OUTDATE = '20230704') AS yesterdayOutDp,
+					(SELECT COUNT(*) FROM TRDEPO WHERE INDATE = '20230704') AS yesterdayInDp,
+					(SELECT COUNT(*) FROM TRDEPO WHERE OUTDATE = '20230705') AS todayOutDp,
+					(SELECT COUNT(*) FROM TRDEPO WHERE INDATE = '20230705') AS todayInDp) A 
+    ]]>
+    </select>
+---------------------------------------
+//depot 재고(1월31일까지의) 출고한날짜가 없으면서 해당 날짜까지 계속 묵혀있는 재고   
+SELECT COUNT(*) FROM TRDEPO
+	WHERE (OUTDATE='' AND INDATE BETWEEN '20000101' AND '20240131')
+=========================================================================
+//왜 두개의 식이 차이가 날까
+//첫번째꺼는 long(정수)으로 빼고 나누기 까지하면 0이 나오고 그후에 double을 씌우니까 0.0으로나온다. 
+System.out.println((double)((64621900L-21989243616L)/21989243616L));//0.0
+//두번째꺼는 빼고 double로 형변환후에 나눈다.
+System.out.println((double)(64621900L-21989243616L)/21989243616L);//-0.9970..
+=========================================================================
+SELECT DATE_FORMAT(NOW(),'%Y%m%d') FROM DUAL  //20240213
+
+//ADDDATE하는 순간에는 (-)하이픈이 붙여서 나오는거같음
+SELECT ADDDATE(DATE_FORMAT(NOW(),'%Y%m%d'), INTERVAL -11 MONTH) FROM DUAL //2023-03-13(11개월전)
+
+=========================================================================
+
+
+
+
+
+
+
+
+
