@@ -1889,12 +1889,154 @@ SELECT DATE_FORMAT(NOW(),'%Y%m%d') FROM DUAL  //20240213
 SELECT ADDDATE(DATE_FORMAT(NOW(),'%Y%m%d'), INTERVAL -11 MONTH) FROM DUAL //2023-03-13(11개월전)
 
 =========================================================================
+//수입오더관리 (detail - 컨테이너 쪽 상태설명에 20,40,45 FT 수량 나타내기
+SELECT CASE WHEN CNTR_SZ = '20' THEN COUNT(CNTR_SZ) ELSE 0 END AS 'SZ20',
+					CASE WHEN CNTR_SZ = '40' THEN COUNT(CNTR_SZ) ELSE 0 END AS 'SZ40',
+					CASE WHEN CNTR_SZ = '45' THEN COUNT(CNTR_SZ) ELSE 0 END AS 'SZ45'
+					FROM TRORDR A, TRORDT B
+					WHERE B.ORDER_NO = A.ORDER_NO  
+					AND   A.OR_DIVISION = 'I' 
+					AND   B.ORDER_NO = '120240115I0001'
+					AND   B.JIJUM = '1'
+					GROUP BY CNTR_SZ
+
+//결과
+SZ20  SZ40  SZ45
+2	  0     0
+0     3     0
+0     0     1
+
+//위의 결과를 더하면 된다.
+<!-- 요청수량 - 디테일 -->
+     <select id="selectFtCount" parameterType="TRImportTrOrdtVO" resultType="egovMap">
+     	SELECT SUM(A.SZ20) AS SZ_20, SUM(A.SZ40) AS SZ_40, SUM(A.SZ45) SZ_45 FROM (
+			SELECT CASE WHEN CNTR_SZ = '20' THEN COUNT(CNTR_SZ) ELSE 0 END AS 'SZ20',
+					CASE WHEN CNTR_SZ = '40' THEN COUNT(CNTR_SZ) ELSE 0 END AS 'SZ40',
+					CASE WHEN CNTR_SZ = '45' THEN COUNT(CNTR_SZ) ELSE 0 END AS 'SZ45'
+					FROM TRORDR A, TRORDT B
+					WHERE B.ORDER_NO = A.ORDER_NO  
+					AND   A.OR_DIVISION = 'I' 
+					AND   B.ORDER_NO = #{orderNo}
+					AND   B.JIJUM = #{loginJijum}
+					GROUP BY CNTR_SZ) A
+		
+     </select>
+//결과
+SZ20   SZ40   SZ45
+2	   3      1
+
+=================================================================================
+//레포트 채크한것만(전표등록) 20230201001을 체크하면 001,002,003 다 가져와서 합계구해서 표현해준다.
+// [출력 버튼]
+		function printBtn(){
+			
+			var qcell = QCELL.getInstance('qcell'),
+			nRow = qcell.getIdx('row'),
+			nHeaderRow = qcell.attr('headerrows'),
+			chks = qcell.getRowheaderChecked(0); // 첫번째 열이 checkBox
+			
+			if(chks.length < 1){
+				alert('전표 출력할 전표번호를 선택하여 주십시오.');
+				return false;
+				
+			} else {
+				var slipNo = "";
+				var slipDiv = "";
+				var multiSlipNoArr="";
+				var cnt = 0;
+				
+				for(var i = 0; i < chks.length; i++){				
+					slipNo = qcell.getCellDataEx(chks[i],'slipNo');    // 전표번호
+					slipDiv = qcell.getCellDataEx(chks[i],'slipDiv');  // 전표구분
+					if(slipDiv == "T") { // 대체전표일때만
+						//multiSlipNoArr[cnt] = slipNo;
+						//cnt++;
+						if(i == chks.length-1 ) {
+							multiSlipNoArr += slipNo
+						}else {
+							multiSlipNoArr += slipNo+","  //20230201001,20230206004,..
+						}
+					}
+				}
+			}
+		
+			let param =[
+	        	{ name : "paramNameArr1", value : "multiSlipNo"},	
+	        	{ name : "paramValueArr1", value : multiSlipNoArr},
+	        	{ name : "paramName1", value : "jijumNm"},	
+	        	{ name : "paramValue1", value : "${loginVO.jijumNm}"}
+	        ]
+
+	        fnReportFrom(param,"jasperReport"); //파리미터, 리포트 from 태그 네임
+	        
+	        var reportTitle = "대체전표" ;		//리포트 타이틀
+	        var pop_title = "popupOpener" ;
+	        window.open("", pop_title) ;
+	     
+	        var frmData = document.jasperReport;
+	        frmData.reportFileNm.value = "CSL_SlipMng_2";	//리포트 컴파일명
+	        frmData.reportPath.value = "cost";  			//리포트 경로
+	        
+	        frmData.target = pop_title ;
+	        frmData.action = "${pageContext.request.contextPath }/transcls/report/"+ reportTitle +".pdf";
+	        frmData.submit();
+		}
+
+//controller단
+String[] temp = vo.getParamValueArr1().split(","); //[20230201001,20230206004,..]
+			System.out.println(temp); //[Ljava.lang.String;@5a9176bf (주소값)
+			System.out.println(Arrays.asList(temp)); //[20230201001,20230206004,..]
 
 
+**********여기서 multiSlipNoArr 부분을 배열로 할때 알아둬야할게 있다. 스크립트에서는 말그대로 배열로 똑같이 만들어진다.
+[202302001,..]
+근데 문제가 있다.
+if(chks.length < 1){
+				alert('전표 출력할 전표번호를 선택하여 주십시오.');
+				return false;
+				
+			} else {
+				var slipNo = "";
+				var slipDiv = "";
+				var multiSlipNoArr= [];
+				var cnt = 0;
+				
+				for(var i = 0; i < chks.length; i++){				
+					slipNo = qcell.getCellDataEx(chks[i],'slipNo');    // 전표번호
+					slipDiv = qcell.getCellDataEx(chks[i],'slipDiv');  // 전표구분
+					if(slipDiv == "T") { // 대체전표일때만
+						multiSlipNoArr[cnt] = slipNo;
+						cnt++;
+						//if(i == chks.length-1 ) {
+						//	multiSlipNoArr += slipNo
+						//}else {
+						//	multiSlipNoArr += slipNo+","  //20230201001,20230206004,..
+						//}
+					}
+				}
+			}
+let param =[
+	        	{ name : "paramNameArr1", value : "multiSlipNo"},	
+	        	{ name : "paramValueArr1", value : multiSlipNoArr}, //이름을 paramValueArr1 이걸로 넘긴다.
+	        	{ name : "paramName1", value : "jijumNm"},	
+	        	{ name : "paramValue1", value : "${loginVO.jijumNm}"}
+	        ]
 
+	        fnReportFrom(param,"jasperReport"); //파리미터, 리포트 from 태그 네임
+			
+			
+//무슨문제가 있냐면 넘겨받을 때 VO에서 "paramValueArr1" 이 이름으로 받는데
+// VO단에서 private String[] paramValueArr1; 이렇게 배열로 받아버리면
+// 배열안에 배열이 들어가는 것이다.
+//즉, paramValueArr1[0]은 20240201001,20230206004.. 이렇게 나오는데 이 자체가 문자열이다. 즉 요소에 접근할수가없다. charAt이렇게 떠버림ㄷㄷ
+//즉, String[]로 인해서 문자열자체로 인식해버린다는것이다.
 
-
-
-
-
+#)예시
+//String[] temp = vo.getParamValueArr1();
+//String[] temp = {"20240201002","20240201003"};
+//System.out.println("====="+temp[0]);
+//System.out.println("------"+vo.getParamValueArr1()); //[Ljava.lang.String~@43]
+//System.out.println("------"+temp); //[Ljava.lang.String~@3n]
+//System.out.println("------"+vo.getParamValueArr1()[0]); //20240201002,20240201003
+//System.out.println("------"+temp[0]); //20240201002
 
