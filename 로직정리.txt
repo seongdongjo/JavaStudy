@@ -1603,26 +1603,37 @@ SELECT SUM(BEF_COUNT) AS yesterdayStock, SUM(AFT_COUNT) AS todayStock FROM
 //컨트롤러에서 (전년,올해) 데이터를 리스트로 받고 있다.
 List<TRMainMaechulTableVO> yearMaechulList = mainService.selectYearMaechulList()
 
- <select id="selectYearMaechulList" resultType="TRMainMaechulTableVO">
-    	SELECT SUBSTR(ACC_YYMM,1,4) AS ACC_YYMM, SUM(A.CREDIT_AMT) AS CREDIT_SUM, SUM(A.DEBTOR_AMT) AS DEBTOR_SUM, 
-                 SUM(A.CREDIT_AMT) - SUM(A.DEBTOR_AMT) AS SUIK_SUM
-		FROM(
-			SELECT ACC_YYMM, DEBTOR_AMT, CREDIT_AMT FROM TRMMBA      //여기까지하면 202300 월도 같이 구하게 되는데 아래 구문에서 00은 NOT IN을 써서 뺸다.
-			 WHERE ACC_YYMM LIKE CONCAT(REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -1 YEAR),1,4),'-',''),'%') 
-			   AND ACC_YYMM NOT IN(CONCAT(REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -1 YEAR),1,4),'-',''),'00')) 
-			   AND ( ACCO_CODE BETWEEN '501' AND '504' //매출 - Credit에만 값이 있다.
-			      OR ACCO_CODE BETWEEN '601' AND '602' //비용 - Debtor에만 값이 있다.
-			      OR ACCO_CODE BETWEEN '701' AND '748' ) //비용 - Debtor에만 값이 있다.
-			UNION ALL
-			SELECT SUBSTR(SLIP_DATE,1,6) AS ACC_YYMM, DEBTOR_AMT, CREDIT_AMT 
-			   FROM TRSLIP
-			 WHERE SLIP_DATE LIKE CONCAT(SUBSTR(DATE_FORMAT(NOW(),'%Y%m%d'),1,4),'%')
+ <select id="selectMaechulChartList" resultType="TRMainMaechulChartVO">
+    <![CDATA[
+    	SELECT  CONCAT(CONCAT(SUBSTR(ACC_YYMM,1,4),'/'),SUBSTR(ACC_YYMM,5,6)) AS ACC_YYMM, 
+    			SUM(A.SALE_AMT) AS CREDIT_SUM, 
+    			SUM(A.COST_AMT) AS DEBTOR_SUM, 
+            SUM(A.SALE_AMT) - SUM(A.COST_AMT) AS SUIK_SUM
+		FROM (
+			SELECT ACC_YYMM,		//case를 통해 501~504번까지는 별도로 SALE_AMT, COST_AMT 나눠서구한다. 그외 601~748번까지는 SALE_AMT는 ELSE로 인해 0
+									//COST_AMT는 501~504번까지는 0, 601~748번까지는 차변-대변
+					 CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN (CREDIT_AMT - DEBTOR_AMT) ELSE 0 END AS SALE_AMT,
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN 0 ELSE (DEBTOR_AMT - CREDIT_AMT) END AS COST_AMT 
+           FROM TRMMBA
+			 WHERE ACC_YYMM BETWEEN REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL -11 MONTH),1,7),'-','') AND 
+			                        REPLACE(SUBSTR(ADDDATE(DATE_FORMAT(NOW(),'%Y-%m-%d'), INTERVAL  -1 MONTH),1,7),'-','') AND
+			   	 ACC_YYMM NOT IN(CONCAT(REPLACE(SUBSTR(DATE_FORMAT(NOW(),'%Y-%m-%d'),1,4),'-',''),'00'))
 			   AND ( ACCO_CODE BETWEEN '501' AND '504'
 			      OR ACCO_CODE BETWEEN '601' AND '602'
 			      OR ACCO_CODE BETWEEN '701' AND '748' )
-			) A
-		GROUP BY SUBSTR(ACC_YYMM,1,4)
-  </select>
+			UNION ALL
+			SELECT SUBSTR(SLIP_DATE,1,6) AS ACC_YYMM, 
+					 CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN (CREDIT_AMT - DEBTOR_AMT) ELSE 0 END AS SALE_AMT,
+                CASE WHEN ACCO_CODE BETWEEN '501' AND '504' THEN 0 ELSE (DEBTOR_AMT - CREDIT_AMT) END AS COST_AMT
+			   FROM TRSLIP
+			 WHERE SLIP_DATE LIKE CONCAT(SUBSTR(DATE_FORMAT(NOW(),'%Y%m%d'),1,6),'%')
+			   AND ( ACCO_CODE BETWEEN '501' AND '504'
+			      OR ACCO_CODE BETWEEN '601' AND '602'
+			      OR ACCO_CODE BETWEEN '701' AND '748' )
+			 ) A
+		GROUP BY ACC_YYMM
+    ]]>
+    </select>
 -------------------------------------
 //대시보드 매출액 현황
 //컨트롤러에서 (전월,당월) 데이터를 리스트로 받고 있다.

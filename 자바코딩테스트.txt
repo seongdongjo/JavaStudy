@@ -608,6 +608,7 @@ public class Quiz01 {
                 System.out.println(num1 + ", " + num2);
                 
                 String msg = getIdNumberData(num1, num2);
+				//String to Int로 변환
                 String msg2 = getIdNumberData(Integer.parseInt(num1), Integer.parseInt(num2));
                 // 자바에서는 클래스 단위로 코드를 읽어서 컴파일 이후 실행하기 때문에
                 // 함수의 정의가 아래쪽에 있어도 상관없다
@@ -660,13 +661,13 @@ public class Distance {
 	public int[] solution(String s, char t) {
 		int[] answer = new int[s.length()]; //입력받은 길이를 크기로하여 배열선언
 		int p = 1000;
-		for(int i=0; i<s.length(); i++) { //젤 왼쪽부터
-			if(s.charAt(i)==t) {
+		for(int i=0; i<s.length(); i++) { //젤 왼쪽부터(입력받은 길이 만큼 반복)
+			if(s.charAt(i)==t) { //특정문자와 같은지
 				p=0;
-				answer[i]=p;
-			}
-			else {	   // 1012012
-				p++;  //  teaaeaa
+				answer[i]=p; //e를 만나면 answer[i] = 0
+			}           //여기는 왼쪽에 e기준이된다.
+			else {	   // 1001 012012
+				p++;  //  t    eaaeaa
 				answer[i]=p;
 			}
 		}
@@ -700,14 +701,14 @@ import java.util.Scanner;
 
 public class Compress {
 	public String solution(String s) {
-		String answer="";
-		s=s+" "; //(i+1)비교시 메모리 
+		String answer=""; //여기에 정답을 넣을 것이다.
+		s=s+" ";
 		int cnt=1;
 		for(int i=0; i<s.length()-1; i++) {
 			if(s.charAt(i)==s.charAt(i+1)) cnt++;
-			else {
-				answer+=s.charAt(i);
-				if(cnt>1) answer+=String.valueOf(cnt);
+			else { //쭉같다가 다르거나, 아예첨부터다르면
+				answer+=s.charAt(i); 
+				if(cnt>1) answer+=String.valueOf(cnt); //cnt가 1보다클때만 answer에 넣는다. 
 				cnt = 1;
 			}
 		}
@@ -716,7 +717,7 @@ public class Compress {
 	public static void main(String[] args) {
 		Compress T = new Compress();
 		Scanner kb = new Scanner(System.in);
-		String str = kb.next();
+		String str = kb.next(); //문자열입력
 		System.out.println(T.solution(str));
 	}
 }
@@ -730,7 +731,7 @@ import java.util.Scanner;
 public class Main {
 	public String solution(String s, int n) {
 		String answer="";
-		for(int i=0; i<n; i++) {
+		for(int i=0; i<n; i++) {  //내 생각에는 여기가 핵심이다. replace
 			String tmp=s.substring(0,7).replace('#', '1').replace('*', '0');
 			int num = Integer.parseInt(tmp,2); //넘어온 tmp 2진수를 10진수화시킨다.(67, 79, 79, 76)
 			answer+=(char)num;
@@ -745,9 +746,16 @@ public class Main {
 		Scanner kb = new Scanner(System.in);
 		int n=kb.nextInt();
 		String str = kb.next();
-		System.out.println(T.solution(str,n));
+		System.out.println(T.solution(str,n)); //결과가 깨짐
 	}
 }
+//입력
+//2
+//#######*******  (이렇게 입력이 잘들어갔다는 가정하에)
+//결과
+1111111 127
+0000000 0
+
 ------------------------------------------------------------------------
 해당프로젝트 폴더 압축후 조성동1A.zip으로 제출
 package 평가1A;
@@ -764,6 +772,7 @@ public class CardNumber {
 	// 3444 0639 1046 2763
 //변환 후 6484 0669 2086 4733
 	static boolean isValid(char[] arr) {
+		System.out.println(arr); //2720992711828767
 		if(arr.length != 16) {
 			return false;
 		}
@@ -774,9 +783,9 @@ public class CardNumber {
 				return false;
 			}
 			int num = arr[i] - 48;
-			if(i % 2 ==0) { //짝수번째는 곱하기2해서 판별
+			if(i % 2 ==0) { //짝수번째는 곱하기2
 				num *= 2;
-				if(num >= 10) {
+				if(num >= 10) { //곱하기2했을때 10이상이되면 아래로직으로 num을 구한다.
 					num = num / 10 + num % 10;
 				}
 			}
@@ -792,7 +801,7 @@ public class CardNumber {
 		String input,result;
 		boolean valid;
 		
-		System.out.print("카드번호를 입력: ");
+		System.out.print("카드번호를 입력: "); //제대로 입력했다고 가정해야한다.
 		input = sc.nextLine();
 		input = input.replace("-", "");
 		
@@ -947,7 +956,7 @@ public class Main {
 		ArrayList<Integer> answer = new ArrayList<>(); //최종결과 출력할 answer
 		answer.add(arr[0]); //첫번째값은 출력하기 위해
 		for(int i = 1; i<n; i++) { //길이 5입력시 0 1 2 3 4 다 검사한다. i가 4(끝)까지
-			if(arr[i]>arr[i-1]) answer.add(arr[i]);  //앞수가 더 크다면 
+			if(arr[i]>arr[i-1]) answer.add(arr[i]);  //앞수보다 뒷수가 더 크다면
 		}
 		
 		return answer;
