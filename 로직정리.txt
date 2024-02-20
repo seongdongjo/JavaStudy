@@ -257,15 +257,15 @@ INSERT INTO TRORDR
 			
 			tRImportTrOrdtVO.setLoginJijum(user.getJijum()); 
 											//tRImportTrOrdtVO를 넘기는이유는 메시지를 띄우기위해 거래처,상,하차지코드를 받기위해서이다.
-			int count = importOrderMngService.importCountClaim(vo,tRImportTrOrdtVO);
+			int count = importOrderMngService.importCountClaim(vo,tRImportTrOrdtVO); //이 메소드는 아래에 있음.
 			List<?> gridList = null;
 			
 			Function fn = new Function();
 			JSONArray jsonArr = null;
 			//거래처는 있지만 계약기간이 유효하지않은 경우 
 			if(count == 0) {
-				resMap.put("message", "거래처: ["+tRImportTrOrdtVO.getCustCode()+"]\n상차지: ["+tRImportTrOrdtVO.getJydetail1Code()+"]\n하차지["
-									   +tRImportTrOrdtVO.getJydetail2Code()+"]\n에 대한 청구요율의 계약기간이 유효하지 않습니다.");
+				resMap.put("message", "거래처: ["+tRImportTrOrdtVO.getCustCode()+"]\n상차지: ["+tRImportTrOrdtVO.getJydetail1Code()+"]\n하차지: ["
+									   +tRImportTrOrdtVO.getJydetail2Code()+"]\n타입: ["+tRImportTrOrdtVO.getCntrTp()+"]\n에 대한 청구요율의 계약기간이 유효하지 않습니다.");
 				resMap.put("check", "notsave");
 			}
 			else {
@@ -307,14 +307,14 @@ INSERT INTO TRORDR
 			for(int i=0; i < list.size(); i++) {
 				gridU = objectMapper2.convertValue(fn.mapToVo(list,i), TRImportTrordtVO.class);
 				//한줄마다의 상,하차지에 맞는 청구요율에서 거래처코드 가져오기(한줄마다의 gridU에는 오더번호,상,하차지가있다)
-				custCode = importOrderMngDAO.importSelectOrderCust(gridU);
+				custCode = importOrderMngDAO.importSelectOrderCust(gridU); //여기서는 계약기간은 미포함이다.
 				gridU.setCustCode(custCode);
 				if(custCode == null || custCode == "") {
 					//청구요율에 해당하는 거래처코드 자체가 없다면
 					//문제점: tRImportTrOrdtVO에 계속 custCode, 저장되는현상
 				}else { //거래처청구요율에 상,하차지,(오더의)거래처코드가 있다면
 					//계약기간비교해서 거래처코드를 가져온다(아래count비교를 위해)
-					custCode = importOrderMngDAO.importCheckOrderCust(gridU);
+					custCode = importOrderMngDAO.importCheckOrderCust(gridU); //여기서는 계약기간 포함이다.
 					//계약기간이 지나면 count = 0;
 					if(custCode == null || custCode == "") {
 						tRImportTrOrdtVO.setCustCode(gridU.getCustCode()); //거래처코드 미리 저장해놓고(메시지출력위해)
@@ -356,6 +356,30 @@ INSERT INTO TRORDR
 				return count;
 	}
 	-----------------------------------------------
+	<!-- 오더번호에 대한 거래처 가져오기 -->
+	<select id="importSelectOrderCust" parameterType="TRImportTrordtVO" resultType="String">
+     	SELECT CUST_CODE FROM TRCGEA WHERE 
+			   CUST_CODE = (SELECT CUST_CODE FROM TRORDR WHERE ORDER_NO = #{orderNo})
+			   AND PICKUP_JY= #{jydetail1Code}
+			   AND RETURN_JY= #{jydetail2Code}
+			   AND CNTR_TYPE = #{cntrTp}
+			   AND IN_OUT = 'I'
+     </select>
+     <!-- 오더번호에 대한 거래처 가져오기 -->
+	<select id="importCheckOrderCust" parameterType="TRImportTrordtVO" resultType="String">
+     	SELECT CUST_CODE FROM TRCGEA
+     	<![CDATA[ 
+			   WHERE CUST_CODE = #{custCode} 
+			   			  AND PICKUP_JY= #{jydetail1Code}
+			   			  AND RETURN_JY= #{jydetail2Code}
+			   			  AND CNTR_TYPE = #{cntrTp}
+				 		  AND (SELECT DATE_FORMAT(SYSDATE(),'%Y%m%d')) >= CUST_APLDAT
+				 		  AND (SELECT DATE_FORMAT(SYSDATE(),'%Y%m%d')) <= CONTRACT_TO
+				 		  AND IN_OUT = 'I'
+		]]>
+     </select>
+	-----------------------------------------------
+	
 	/**
      * 오더관리 수입 일괄저장 - 디테일
      * @param Map<String,Object> vo
@@ -2050,4 +2074,12 @@ let param =[
 //System.out.println("------"+temp); //[Ljava.lang.String~@3n]
 //System.out.println("------"+vo.getParamValueArr1()[0]); //20240201002,20240201003
 //System.out.println("------"+temp[0]); //20240201002
+==========================================================================
+헤더에 공통으로 dest input이 설정되있고 전송을 누를때 request에는 form밑에의 파라미터들만 넘어간다!!!!
+즉, request body에는 넘길려는 주소(action)의 해당하는 form의 파라미터만 넘어가는것이다.
+헤더에 있는 dest는 그냥 해당페이지에서만 쓸려고 가지고있는것이나 다름없다.
+<input "type=text id=dest">
 
+<form action=~>
+<input "type=text id=dest">
+============================================================================
