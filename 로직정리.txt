@@ -1527,7 +1527,7 @@ ACC_YYMM   CREDIT_SUM    COST_SUM   SUIK_SUM
 2024년
 
 -----------------------
-//월간테이블
+//월간테이블(전월은 마감테이블, 당월은 slip)
 <!-- 월간 매출,비용,수익 합 테이블(전월,당월) -->
     <select id="selectMonthMaechulList" resultType="TRMainMaechulTableVO">
     	SELECT CONCAT(CONCAT(SUBSTR(ACC_YYMM,1,4),'년'),CONCAT(SUBSTR(ACC_YYMM,5,6),'월')) AS ACC_YYMM, 
@@ -1562,7 +1562,7 @@ ACC_YYMM  CREDIT_SUM   DEBTOR_SUM  SUIK_SUM
 2024년02월
 
 ---------------------------
-//대시보드 차트
+//대시보드 차트(전월까지는 마감테이블에서, 당월은 slip에서)
 <select id="selectMaechulChartList" resultType="TRMainMaechulChartVO">
     <![CDATA[
     	SELECT  CONCAT(CONCAT(SUBSTR(ACC_YYMM,1,4),'/'),SUBSTR(ACC_YYMM,5,6)) AS ACC_YYMM, 
