@@ -449,3 +449,31 @@ public class Test1 {
 	}
 }
 ```
+#)문자열 압축<br>
+#)KKHSSSSSSSE -> K2HS7E 로 출력
+```
+public class Compress {
+	public String solution(String s) {
+		String answer=""; //여기에 정답을 넣을 것이다.
+		s=s+" ";
+		int cnt=1;
+		for(int i=0; i<s.length()-1; i++) {
+			if(s.charAt(i)==s.charAt(i+1)) cnt++;
+			else { //쭉같다가 다르거나, 아예첨부터다르면
+				answer+=s.charAt(i); 
+				if(cnt>1) answer+=String.valueOf(cnt); //cnt가 1보다클때만 answer에 넣는다. 
+				cnt = 1;
+			}
+		}
+		return answer;
+	}
+	public static void main(String[] args) {
+		Compress T = new Compress();
+		Scanner kb = new Scanner(System.in);
+		String str = kb.next(); //문자열입력
+		System.out.println(T.solution(str));
+	}
+}
+```
+<h4>아스키테이블</h4>
+<img src="https://github.com/seongdongjo/JavaStudy/tree/main/ascitable.PNG" width="650" height="400" /><br><br>
