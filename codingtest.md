@@ -397,5 +397,55 @@ public class Grasp {
 	}
 }
 ```
+```
+//앞에 19,20년도에 맞게 넣는법
+int nowYear = Integer.parseInt(new SimpleDateFormat("yy").format(new Date()));
+String year = num1.substring(0, 2); //970103으로받음
+String month = num1.substring(2, 4);
+String day = num1.substring(4);
+String gender = Integer.parseInt(num2.substring(0, 1)) % 2 == 0 ? "여성" : "남성";
+year = Integer.parseInt(year) > nowYear ? "19" + year : "20" + year;
+```
+#)가장짧은 문자거리<br>
+#)teacher 로 입력받고 e로 입력받으면 각문자가 e로부터 떨어진거리 구한다.<br>
+#)본인위치 가까운 왼쪽e로 부터 먼저 for문돌리고 다시 오른쪽기준으로하는 for문돌린다.<br>
+- P의 값(e와 떨어진거리)을 비교해서 작은값으로 교체한다.<br>
 
-
+#)e는 본인위치니까 0 그 후 e가 아닌것들은 e를 만날때까지 계속 +1증가
+```
+public class Test1 {
+	public int[] solution(String s, char t) {
+		int[] answer = new int[s.length()]; //입력받은 길이를 크기로하여 배열선언
+		int p = 1000;
+		for(int i=0; i<s.length(); i++) { //젤 왼쪽부터(입력받은 길이 만큼 반복)
+			if(s.charAt(i)==t) { //여기서 t는 전달받은 인자인 "e"이다. 특정문자와 같은지
+				p=0;
+				answer[i]=p; //e를 만나면 answer[i] = 0
+			}           //여기는 왼쪽에 e기준이된다.
+			else {	   // 1001 012012
+				p++;  //  t    eaaeaa
+				answer[i]=p;
+			}
+		}
+	p=1000;		//거꾸로 시작                  //1011012  : 최종결과, 즉 4번째가 2에서 1로 바뀌었다. 가장 작은값으로 바꾸니까	
+	for(int i=s.length()-1; i>=0; i--) {  // teaaeaa
+		if(s.charAt(i)==t) p=0; //거꾸로 시작해서 e랑 만나면 0
+		else {
+			p++;
+			answer[i]=Math.min(answer[i], p); //기존값과 p를 비교해서 작은값대입
+		}
+	}
+		return answer;
+	}
+	
+	public static void main(String[] args) {
+		Test1 T = new Test1();
+		Scanner kb = new Scanner(System.in);
+		String str = kb.next();
+		char c = kb.next().charAt(0);
+		for(int x : T.solution(str, c)) {
+			System.out.println(x+" ");
+		}
+	}
+}
+```

@@ -422,10 +422,9 @@ public class Quiz01 {
                 
                 System.out.print("주민등록번호 입력 (13자리, -없이 입력) : ");
                 input = sc.nextLine();
-                num1 = input.substring(0, 6);
+                num1 = input.substring(0, 6); //입력받은 input을 쪼갠다.
                 num2 = input.substring(6);
-                System.out.println(num1 + ", " + num2);
-                
+
                 String msg = getIdNumberData(num1, num2);
 				//String to Int로 변환
                 String msg2 = getIdNumberData(Integer.parseInt(num1), Integer.parseInt(num2));
@@ -441,11 +440,11 @@ public class Quiz01 {
         static String getIdNumberData(int num1, int num2) { //num1에는 970103, num2에는 1231121(뒷주민번호)
                 // 정수형태로 처리하기
                 int year, month, day, gNum;
-                day = num1 % 100;
+                day = num1 % 100; //970103에서 100으로 나눈 나머지 = 3
                 num1 /= 100;  //num1에는 9701 이저장
-                month = num1 % 100;
-                year = num1 / 100;  // year에는 97이 저장
-                year += 21 < year ? 1900 : 2000;
+                month = num1 % 100; //1
+                year = num1 / 100;  //year에는 97이 저장
+                year += 21 < year ? 1900 : 2000; //21년도에 우리가 수업을 들었으니 21년 기준으로
                 gNum = num2 % 1000000;
                 
                 return String.format("%d년 %02d월 %02d일 출생한 %s입니다", 
@@ -481,7 +480,7 @@ public class Distance {
 		int[] answer = new int[s.length()]; //입력받은 길이를 크기로하여 배열선언
 		int p = 1000;
 		for(int i=0; i<s.length(); i++) { //젤 왼쪽부터(입력받은 길이 만큼 반복)
-			if(s.charAt(i)==t) { //특정문자와 같은지
+			if(s.charAt(i)==t) { //여기서 t는 전달받은 인자인 "e"이다. 특정문자와 같은지
 				p=0;
 				answer[i]=p; //e를 만나면 answer[i] = 0
 			}           //여기는 왼쪽에 e기준이된다.
@@ -490,9 +489,9 @@ public class Distance {
 				answer[i]=p;
 			}
 		}
-	p=1000;								   //1011012  : 최종결과, 즉 4번째가 2에서 1로 바뀌었다. 가장 작은값으로 바꾸니까	
+	p=1000;		//거꾸로 시작                  //1011012  : 최종결과, 즉 4번째가 2에서 1로 바뀌었다. 가장 작은값으로 바꾸니까	
 	for(int i=s.length()-1; i>=0; i--) {  // teaaeaa
-		if(s.charAt(i)==t) p=0;
+		if(s.charAt(i)==t) p=0; //거꾸로 시작해서 e랑 만나면 0
 		else {
 			p++;
 			answer[i]=Math.min(answer[i], p); //기존값과 p를 비교해서 작은값대입
