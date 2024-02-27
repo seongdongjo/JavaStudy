@@ -476,4 +476,4 @@ public class Compress {
 }
 ```
 <h4>아스키테이블</h4>
-<img src="https://github.com/seongdongjo/JavaStudy/tree/main/ascitable.PNG" width="650" height="400" /><br><br>
+<img src="https://raw.githubusercontent.com/seongdongjo/JavaStudy/main/%EC%BD%94%EB%94%A9%ED%85%8C%EC%8A%A4%ED%8A%B8%EC%9D%B4%EB%AF%B8%EC%A7%80/ascitable.PNG" width="650" height="400" /><br><br>
