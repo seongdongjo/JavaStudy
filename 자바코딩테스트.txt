@@ -715,7 +715,7 @@ public class DeleteChar {
 		new_id = new_id.toLowerCase();
 		//2단계 new_id에서 알파벳 소문자, 숫자, 뺴기(-), 밑줄(_), 마침표(.)를 제외한 모든 문자를 제거
 		String test = "abcdefghijklmnopqrstuvwxyz0123456789-_.";
-		for(int i=0; i<new_id.length(); i++) {
+		for(int i=0; i<new_id.length(); i++) { //입력받은 new_id를 문자 하나씩 가져와서 위의 조건이 포함되면 쌓는다.
 			if(test.contains(new_id.charAt(i)+"")) { //빈문자열을 더하면 문자열이된다
 				answer += new_id.charAt(i);
 			}
@@ -929,7 +929,7 @@ class Main {
 		int answer = 0;
 		int[] ch = new int[n+1]; //객체이기 때문에 처음에 다 0으로 세팅되어있다.
 		for(int i=2; i<=n; i++) {
-			if(ch[i]==0) { //2부터 시작하는데 첨에는 0이니까(0은 소수라는 뜻이다)
+			if(ch[i]==0) { //처음에는 for문에서 i가 2부터 시작함 첨에는 0이니까(0은 소수라는 뜻이다)
 				answer++; //소수 개수 count 
 				//i의 배수로 증가해서 0을 1로 change
 				//인덱스의 배수들을 1로 채우기 (j=j+i) -> 배수
@@ -944,7 +944,7 @@ class Main {
 public static void main(String[] args) {
 		Main T = new Main();
 		Scanner kb = new Scanner(System.in);
-		int  n = kb.nextInt(); //자연수 하나 입력(7이라면 1,2,3,4,5,6,7)
+		int  n = kb.nextInt(); //자연수 하나 입력
 		System.out.println(T.solution(n));
 	}
 }
@@ -967,7 +967,7 @@ public class Main {
 	public boolean isPrime(int num) { //소수인지 판별
 		if(num == 1) return false; //1은 소수가 아니니까
 		for(int i = 2; i<num; i++) { //num이 2이면 i<num에 성립하지 않기때문에 return true로 가서 소수로 판별된다.
-			if(num%i == 0) { //나누어 떨어지면 소수가 아니다.
+			if(num%i == 0) { //i는 자기자신전까지, 나누어 떨어지면 소수가 아니다.
 				return false;
 			}
 		}
@@ -980,10 +980,10 @@ public class Main {
 		for(int i = 0; i<n; i++) {
 			int tmp = arr[i];
 			int res = 0; //0보다 작은수를 입력받아도 res를 넘기기때문에 상관없다.
-			while(tmp > 0) {
-				int t = tmp % 10;
-				res = res * 10 + t;
-				tmp = tmp / 10;
+			while(tmp > 0) { //tmp가 27일때
+				int t = tmp % 10; // t = 7     					   t = 2
+				res = res * 10 + t; //res = 7  					   res = 72
+				tmp = tmp / 10; //tmp = 2 -> 0보다 크니까 다시 while반복 tmp = 0
 			}
 			if(isPrime(res)) answer.add(res);
 		}
@@ -1074,7 +1074,7 @@ class Main {
 		for(int i=0; i<n; i++) {
 			int cnt =1; //처음은 1등
 			for(int j=0; j<n; j++) { //요소하나에 다 비교
-				if(arr[j] > arr[i]) cnt++; //i가 작을때만 증가
+				if(arr[j] > arr[i]) cnt++; //i가 작을때만 증가(같으면 cnt가 증가하면 안된다 같은점수는 같은등수이다.)
 			}
 			answer[i] = cnt;
 		}

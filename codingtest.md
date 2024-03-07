@@ -503,4 +503,391 @@ EUC-KR은 ANSI를 한국에서 확장한 것으로 외국에서는 지원이 안
 ```
 유니코드는 2바이트(16비트)를 써서 2의16승을 표현한다 65536가지이다.
 참고로 '가' 는 유니코드로 U+AC00이다 즉, 이렇게 하나씩 다 매핑되있다.
+
+UTF-8은 유니코드를 인코딩하는 방식이다.
+UTF-8 인코딩은 유니코드 한문자를 나타내기 위해 1바이트에서 4바이트까지사용한다.
 ```
+#)#은 1로 *은 0으로 읽고 십진수로 변환 후 아스키코드 대문자로 해석 (7개까지 끊어내야한다)
+#)몇개의 문자인지도 인자로 넘겨야한다. (4개의 문자라면 7문자씩 4번씩끊어야된다)
+```
+public class Main {
+	public String solution(String s, int n) {
+		String answer="";
+		for(int i=0; i<n; i++) {  //내 생각에는 여기가 핵심이다. replace
+			String tmp=s.substring(0,7).replace('#', '1').replace('*', '0');
+			int num = Integer.parseInt(tmp,2); //넘어온 tmp 2진수를 10진수화시킨다.(67, 79, 79, 76)
+			answer+=(char)num;
+			System.out.println(tmp+" "+num);
+			s=s.substring(7); //짜른 이후부터 다시
+		}
+		return answer;
+	}
+	
+	public static void main(String[] args) {
+		Main T = new Main();
+		Scanner kb = new Scanner(System.in);
+		int n=kb.nextInt();
+		String str = kb.next();
+		System.out.println(T.solution(str,n)); //결과가 깨짐
+	}
+}
+//입력
+//2
+//#######*******  (이렇게 입력이 잘들어갔다는 가정하에)
+//결과
+1111111 127
+0000000 0
+```
+#)n(1<=n<=100)개의 정수를 입력받아, 자신의 바로 앞 수 보다 큰수만 출력(첫번째 수는 무조건 출력)<br>
+```
+    public class Main {
+	public ArrayList<Integer> solution(int n, int[] arr) {
+		ArrayList<Integer> answer = new ArrayList<>(); //최종결과 출력할 answer
+		answer.add(arr[0]); //첫번째값은 출력하기 위해
+		for(int i = 1; i<n; i++) { //길이 5입력시 0 1 2 3 4 다 검사한다. i가 4(끝)까지
+			if(arr[i]>arr[i-1]) answer.add(arr[i]);  //앞수보다 뒷수가 더 크다면
+		}
+		
+		return answer;
+	}
+	
+	public static void main(String[] args) {
+		Main T = new Main();
+		Scanner kb = new Scanner(System.in);
+		int n=kb.nextInt();
+		int[] arr = new int[n];
+		for(int i = 0; i<n; i++) {
+			arr[i]=kb.nextInt();
+		}
+		for(int x : T.solution(n, arr)) {
+			System.out.println(x+ " ");
+		}
+		kb.close();
+	}
+}
+```
+#)필요한 문자만 추출
+```
+public class DeleteChar {
+	static String solution(String new_id) {
+		String answer = "";
+		//1단계 new_id의 모든 대문자를 소문자로
+		new_id = new_id.toLowerCase();
+		//2단계 new_id에서 알파벳 소문자, 숫자, 뺴기(-), 밑줄(_), 마침표(.)를 제외한 모든 문자를 제거
+		String test = "abcdefghijklmnopqrstuvwxyz0123456789-_.";
+		for(int i=0; i<new_id.length(); i++) { //입력받은 new_id를 문자 하나씩 가져와서 위의 조건이 포함되면 쌓는다.
+			if(test.contains(new_id.charAt(i)+"")) { //빈문자열을 더하면 문자열이된다
+				answer += new_id.charAt(i);
+			}
+		}
+		//3단계 new_id에서 마침표(.)가 2번이상 연속된 부분을 하나의 마침표(.)로 치환
+		while(answer.contains("..")) { //점이 3개이상이여도 while문을 통해 계속 실행 결국 마침표는 하나로된다.
+			answer = answer.replace("..", ".");
+		}
+		//4단계 new_id에서 마침표(.)가 처음이나 끝에 위치한다면 제거
+		if(answer.charAt(0)=='.') {
+			answer = answer.substring(1);
+		}
+		if(answer.length() > 0 && answer.charAt(answer.length()-1)=='.') {
+			answer = answer.substring(0,answer.length()-1);
+		}
+		//5단계 new_id가 빈문자열이라면, new_id에 "a"를 대입
+		//변수와 상수간의 비교하면, 상수를 앞에다가 두자
+		//만약에 if(answer.equals("")) answer가 null이면 equals라는 메소드가 호출이안된다.
+		//상수는("") 항상 널이 아니다. 그러면 널포인터 예외가 발생안한다.
+		if("".equals(answer)) { 
+			answer="a";
+		}
+		//6단계 new_id의 길이가 16자 이상이면, new_id의 첫 15개의 문자를 제외한 나머지 문자모두 제거
+		//제거 후 마침표(.)이 new_id의 끝에 위치한다면 끝에 위치한 마침표(.) 문자제거
+		if(answer.length() >= 16) {
+			answer=answer.substring(0,15);
+		}
+		if(answer.length()>0 && answer.charAt(answer.length()-1)=='.') {
+			answer=answer.substring(0,answer.length()-1);
+		}
+		//7단계 new_id의 길이가 2자 이하라면, new_id의 마지막 문자를 new_id의 길이가 3이될때까지 반복해서 끝에 붙인다
+		while(answer.length() <3) {
+			answer += answer.charAt(answer.length()-1);
+		}
+		return answer;
+	}
+	public static void main(String[] args) {
+		String input = "...!@BaT#*..y.abcdefghijklm";
+		String expected="bat.y.abcdefghi";
+		
+		String result = solution(input);
+		System.out.println(expected.equals(result));
+	}
+}   
+```
+> #)보이는 학생<br>
+N명을 일렬로 세우는데 맨앞에 서있는 선생님이 볼 수 있는 학생의 수?<br>
+(단, 앞에 학생들과 같으면 안되고 무조건 커야보인다.)<br>
+```
+    public class Main {
+	public int solution(int n, int[] arr) {
+		int answer=1, max = arr[0]; //처음에는 무조건 보이니까 answer = 1
+		for(int i=1; i<n; i++) {
+			if(arr[i]>max) {
+				answer++;
+				max=arr[i];
+			}
+		}
+		return answer;
+	}
+	public static void main(String[] args) {
+		Main T = new Main();
+		Scanner kb = new Scanner(System.in);
+		int n=kb.nextInt();  //학생의 수
+		int[] arr = new int[n]; //학생의 수만큼 배열 크기 지정
+		for(int i = 0; i<n; i++) {
+			arr[i]=kb.nextInt(); //학생 키 입력
+		}
+		System.out.print(T.solution(n,arr));
+		kb.close();
+	}
+}
+```
+> #)가위,바위,보<br>
+A와 B가 가위,바위,보를 하는데 가위=1, 바위=2, 보=3 으로 정의하고 A가 이기면 A로한다.
+```
+public class Main {
+	public String solution(int n, int[] a, int[] b) {
+		String answer="";
+		for(int i = 0; i<n; i++) {
+			//같으면 비긴다.
+			if(a[i]==b[i]) answer+="D";
+			//a가 이기는 경우 3가지(아래)
+			//a가 가위, b가 보
+			else if(a[i]==1 && b[i]==3) answer+="A";
+			else if(a[i]==2 && b[i]==1) answer+="A";
+			else if(a[i]==3 && b[i]==2) answer+="A";
+			//b가 이기면
+			else answer+="B";
+		}
+		return answer;
+	}
+	
+	public static void main(String[] args) {
+		Main T = new Main();
+		Scanner kb = new Scanner(System.in);
+		int n=kb.nextInt(); //몇번의 가위바위보를 할지
+		int[] a=new int[n];
+		int[] b=new int[n];
+		//A,B 가위바위보 입력
+		for(int i = 0; i<n; i++) {
+			a[i]=kb.nextInt();
+		}
+		for(int i = 0; i<n; i++) {
+			b[i]=kb.nextInt();
+		}
+		//줄바꿔서 나오게끔
+		//함수가 String으로 받아서 문자배열로 변환후 char x에 넣음
+		for(char x : T.solution(n,a,b).toCharArray()) System.out.println(x);
+		kb.close();
+	}
+}
+```
+> 피보나치 수열<br>
+입력은 피보나치 수열의 총 개수이다. 만약 7이 입력되면 1 1 2 3 5 8 13 을 출력하면 된다<br>
+항의 수는 (3<=n<=45>)사이로 입력해야한다. (즉, 앞에 1 1 은 넣고 시작한다.)
+```
+    public class Main {
+	public int[] solution(int n) {
+		int[] answer = new int[n];
+		answer[0] = 1;
+		answer[1] = 1;
+		for(int i = 2; i<n; i++) {
+            //이렇게 배열에 담는다.
+			answer[i] = answer[i-2]+answer[i-1];
+		}
+		return answer;
+	}
+	
+	public static void main(String[] args) {
+		Main T = new Main();
+		Scanner kb = new Scanner(System.in);
+		int n=kb.nextInt();
+		for(int x : T.solution(n)) System.out.print(x + " ");
+		
+		
+		kb.close();
+	}
+}
+```
+#) 다른 풀이<br>
+```
+   class Main {
+	public void solution(int n) {
+		int a = 1, b = 1, c;
+		System.out.print(a + " " + b + " ");
+		for(int i = 2; i<n; i++) {  //  1 1 2 3 5 8 ..
+			c = a+b;
+			System.out.print(c+ " ");
+			a=b;
+			b=c;
+		}
+	}
+	public static void main(String[] args) {
+		Main T = new Main();
+		Scanner kb = new Scanner(System.in);
+		int n = kb.nextInt();
+		T.solution(n);
+	}
+	
+}
+```
+>소수판별 아리스토테네스의 체<br>
+자연수 N이 입력되면 1부터 N까지 범위안에서 소수의 개수를 출력하는 프로그램이다.<br>
+```
+    class Main {
+	public int solution(int n) {
+		int answer = 0;
+		int[] ch = new int[n+1]; //객체이기 때문에 처음에 다 0으로 세팅되어있다.
+		for(int i=2; i<=n; i++) {
+			if(ch[i]==0) { //처음에는 for문에서 i가 2부터 시작함 첨에는 0이니까(0은 소수라는 뜻이다)
+				answer++; //소수 개수 count 
+				//i의 배수로 증가해서 0을 1로 change
+				//인덱스의 배수들을 1로 채우기 (j=j+i) -> 배수
+				for(int j=i; j<=n; j=j+i) 
+					ch[j]=1; 					   //첨에 i가 2일 때 ch[2] = 1; (n<=5라고할때)
+												   //i가 2일때, j = 4 ch[4] = 1;
+											       //i가 2일때, j = 6 ch[6] = 1;
+			}
+		}
+		return answer;
+	}
+public static void main(String[] args) {
+		Main T = new Main();
+		Scanner kb = new Scanner(System.in);
+		int  n = kb.nextInt(); //자연수 하나 입력
+		System.out.println(T.solution(n));
+	}
+}
+```
+> 뒤집은 소수<br>
+32를 뒤집으면 23 -> 소수<br>
+910을 뒤집으면 19 -> 소수
+```
+입력예제) 9 (입력할 자연수 개수)
+         32 55 62 ...
+출력예제) 23 (소수만 출력)
+
+
+public class Main {
+	public boolean isPrime(int num) { //소수인지 판별
+		if(num == 1) return false; //1은 소수가 아니니까
+		for(int i = 2; i<num; i++) { //num이 2이면 i<num에 성립하지 않기때문에 return true로 가서 소수로 판별된다.
+			if(num%i == 0) { //i는 자기자신전까지, 나누어 떨어지면 소수가 아니다.
+				return false;
+			}
+		}
+		return true;
+	}
+	//숫자를 거꾸로 뒤집는 작업
+	public ArrayList<Integer> solution(int n, int[] arr) {
+		ArrayList<Integer> answer = new ArrayList<>();
+		
+		for(int i = 0; i<n; i++) {
+			int tmp = arr[i];
+			int res = 0; //0보다 작은수를 입력받아도 res를 넘기기때문에 상관없다.
+			while(tmp > 0) { //tmp가 27일때
+				int t = tmp % 10; // t = 7     					   t = 2
+				res = res * 10 + t; //res = 7  					   res = 72
+				tmp = tmp / 10; //tmp = 2 -> 0보다 크니까 다시 while반복 tmp = 0
+			}
+			if(isPrime(res)) answer.add(res);
+		}
+		return answer;
+	}
+
+	public static void main(String[] args) {
+		Main T = new Main();
+		Scanner kb = new Scanner(System.in);
+		int n = kb.nextInt(); //입력받을 자연수 개수
+		int[] arr = new int[n];
+		for(int i = 0; i<n; i++) {
+			arr[i] = kb.nextInt();
+		}
+		for(int x : T.solution(n, arr)) { //배열과 갯수 넘긴다.
+			System.out.println(x + " ");
+		}
+	}
+
+}
+```
+#)점수계산<br>
+```
+    입력
+    8(갯수)
+    1
+    0
+    1
+    1
+    1
+    0
+    0
+    1
+    결과는 8이 나와야한다.
+    점수: 1 0 1 2 3 0 0 1  1이 연속할때는 1점씩 증가 => 총 8점이 나와야한다.
+
+    class Main {
+	public int solution(int n, int[] arr) {
+		int answer = 0; //여기에 점수 누적
+		int cnt = 0;
+		for(int i = 0; i<n; i++) {
+			if(arr[i] == 1) { //1이면은 카운트 증가
+				cnt++;
+				answer+=cnt;
+			}
+			else { //0을 만나면 0으로 cnt초기화
+				cnt = 0;
+			}
+		} 
+		return answer;
+	}
+	
+	public static void main(String[] args) {
+		Main T = new Main();
+		Scanner kb = new Scanner(System.in);
+		int n = kb.nextInt(); //개수입력받고
+		int[] arr = new int[n];
+		for(int i =0; i<n; i++) {
+			arr[i] = kb.nextInt();
+		}
+		System.out.println(T.solution(n, arr));
+	}
+}
+```
+#)등수구하기<br>
+```
+class Main {
+	public int[] solution(int n, int[] arr) {
+		int[] answer = new int[n]; //기본적으로 0으로 초기화되있다.
+		
+		for(int i=0; i<n; i++) {
+			int cnt =1; //처음은 1등
+			for(int j=0; j<n; j++) { //요소하나에 다 비교
+				if(arr[j] > arr[i]) cnt++; //i가 작을때만 증가(같으면 cnt가 증가하면 안된다 같은점수는 같은등수이다.)
+			}
+			answer[i] = cnt;
+		}
+		
+		return answer;
+	}
+	
+	public static void main(String[] args) {
+		Main T = new Main();
+		Scanner sc = new Scanner(System.in);
+		int n = sc.nextInt();
+		int[] arr = new int[n];
+		for(int i = 0; i<n; i++) {
+			arr[i] = sc.nextInt();
+		}
+		for(int x : T.solution(n, arr)) System.out.println(x+ " ");
+	}
+}
+```
+#) 5 x 5 격자판 계산<br>
+각행의 합 , 각 열의 합, 두 대각선의 합 중 가장 큰합을 출력 (두대각선은 2개 밖에없음 ) 이렇게 x자
