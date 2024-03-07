@@ -891,3 +891,59 @@ class Main {
 ```
 #) 5 x 5 격자판 계산<br>
 각행의 합 , 각 열의 합, 두 대각선의 합 중 가장 큰합을 출력 (두대각선은 2개 밖에없음 ) 이렇게 x자
+
+#) 배열에서 서로 다른 인덱스에 있는 두 개의 수를 뽑아 더해서 만들 수 있는 모든 수를 배열에 오름차순으로 담아 return
+```
+//입력은
+5(5개입력 하겠다라는 의미)
+2
+1
+3
+4
+1
+//결과
+2
+3
+4
+5
+6
+7
+
+
+    public class ByteLegth {
+	public int[] solution(int[] numbers) { //배열을 인자로 받는다.
+		int[] answer = {};
+		
+		List<Integer> list = new ArrayList<>();
+		
+		for(int i=0; i<numbers.length; i++) {
+			for(int j=i+1; j<numbers.length; j++) {
+				if(i!=numbers.length-1) { // i가 끝인덱스가아니라면(끝인덱스는 이미 경우의 수가 다 그전에 포함되어있기때문에)
+					int res = numbers[i] + numbers[j]; 
+					if(!list.contains(res)) list.add(res); //합한값이 배열에 있으면 안 넣는다.
+				}
+			}
+		}
+		answer = new int[list.size()]; //위에서 다 더한 리스트를 받아서
+		for(int i=0; i<answer.length; i++) {
+			answer[i] = list.get(i);
+		}
+		Arrays.sort(answer);;
+		return answer;
+	}
+	
+	public static void main(String[] args) {
+		ByteLegth T = new ByteLegth();
+		Scanner sc = new Scanner(System.in);
+		int n = sc.nextInt();
+		int[] arr = new int[n];
+		for(int i = 0; i<n; i++) {
+			arr[i] = sc.nextInt();
+		}
+		int[] answer = T.solution(arr);
+		for(int i = 0; i<answer.length; i++) {
+			System.out.println(answer[i]);
+		}
+	}
+}
+```
