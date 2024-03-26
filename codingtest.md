@@ -947,3 +947,563 @@ class Main {
 	}
 }
 ```
+
+#)10진수 -> 2,8,16진수
+```
+int num10 = 77;
+String num2 = Integer.toBinaryString(num10); // 1001101
+String num8 = Integer.toOctalString(num10); // 115 -> 64 + 8 + 5(8의0승*5니까)
+String num16 = Integer.toHexString(num10); // 4d -> 16*4 + 13 (d는 13)
+
+//2,8,16 -> 10진수
+int num10_2 = Integer.parseInt(num2, 2); // 77
+int num10_8 = Integer.parseInt(num8, 8); // 77
+int num10_16 = Integer.parseInt(num16, 16); // 77
+```
+
+#)준규가 가지고 있는 동전은 총 N종류이고, 각각의 동전을 매우 많이가지고있다.<br>
+동전을 적절히 사용해서 그 가치의 합을 K로 만들려고 한다.<br>
+이때, 필요한 동전개수의 최솟값을 구하는 프로그램을 작성
+```
+입력)
+첫째 줄에 N과 K를 입력한다. 범위: (1 ≤ N ≤ 10, 1 ≤ K ≤ 100,000,000)
+둘째줄에 동전가치를 입력받는다.(오름차순으로)
+
+출력)
+첫째줄에 입력한 K원을 만드는데 필요한 동전개수의 최솟값을 출력한다.
+
+예제입력)
+10 4200  
+1
+5
+10
+50
+100
+500
+1000
+5000
+10000
+50000
+예제출력) 
+6  -> 1000원 4개 100원 2개니까 총 6개
+
+public class Main {
+	public static void main(String[] args) {
+	
+		Scanner scan = new Scanner(System.in);
+		int n = scan.nextInt(); //동전 n종류
+		int a = scan.nextInt(); //만들고싶은 총 금액
+		int arr[] = new int[n];
+		int ans = 0;
+		
+		for(int i=0; i<n; i++) {
+			arr[i] = scan.nextInt(); //동전의 가치 오름차순으로 입력받기
+		}
+		
+		while(a!=0) { //돈이 0이 될때까지
+			int chk = 0;
+			for(int i= arr.length-1;i>=0;i--) { //가장 뒤가 제일 가치가 높으니까 거꾸로 돌린다
+				if(arr[i]<=a) { // 입력했던 만들고 싶은금액(a)보다 작으면
+					chk=i; //지금 이 돈의 가치가 들어가겠구나! => 값을 넣어준다
+					break; 
+				}
+			}	
+				1. 동전개수 구하기
+				ans += a / arr[chk]; // 그 돈의 가치로 나눈 몫을 ans 에 더하기(동전개수)
+				2. 나머지금액 구하기
+				a = a % arr[chk]; // 그돈의 가치로 최대한 넣은 뒤 남은 금액 넣기
+                // 다시 while문이 돈다
+		}
+		System.out.println(ans);
+	}
+}
+```
+#) 아파트문제
+```
+이 아파트에 거주를 하려면 조건이 있는데, 
+“a 층의 b 호에 살려면 자신의 아래(a-1)층에서만 1호부터 b 호까지 사람들의 수의 합만큼 사람들을 데려와 살아야한다” 는 계약 조항을 꼭 지키고 들어와야 한다.
+
+아파트에 비어있는 집은 없고 모든 거주민들이 이 계약 조건을 지키고 왔다고 가정 했을 때, 
+주어지는 양의 정수 k와 n에 대해 k층에 n호에는 몇 명이 살고 있나를 출력하라.
+
+단, 아파트에는 0층부터 있고 각층에는 1호부터 있으며, 0층에만 i호에는 i명이 산다.(0층에 i호에 i명이라는건 0호에0명(의미x,0층만들어감), 1호에1명, 2호에 2명...)
+
+//입력(T는 몇번테스트하고싶은지)
+첫 번째줄에 Test case의 수 T가 주어진다. 그리고 각각의 케이스마다 입력으로 첫번째줄에 정수k,
+두번째줄에 정수n이 주어진다.(1<=k<=14,1<=n<=14)
+
+//(1<=k<=14,1<=n<=14) 범위는 이렇게인데 [15][15]로 하는 이유는 문제에 0층이 존재하기때문에
+그래서 int[][] APT = new int[15][15] 이렇게 테스트 케이스 수만큼 반복적으로 배열을 생성해주기보다는 입력의 최댓값만큼의 배열의 사이즈를 한 번 생성하고 사용하면 더 효율적이다.
+
+
+#)먼저 초기화작업
+for(int i=0; i<15; i++) {
+	//1호 전체 1로 초기화
+	APT[i][0] = 1;
+	//호에 0(0층만),1,2,3,4,5 ..
+	APT[0][i] = i;
+}
+
+//여기까지가 아래결과
+...
+2층  x  1
+1층  x  1
+0층  0  1   2  3 ...
+	0호 1호 2호 3호 ...
+	
+
+//우리는 14층 14호까지 더해야하는데 규칙을보면 *부위에 대각선으로 더하면 합이 나오는 규칙을 알수있다. 
+2층  x  1    4  10
+1층  x  1*   3  6
+0층  0  1   2*  3 ...
+	0호 1호 2호 3호 ... 14호
+
+즉, i층의 직전호(j-1)와 i-1층의 j호 의 합을 채우면 된다.
+
+
+전체 코드로 본다면
+int[][] APT = new int[15][15];
+ 
+for(int i = 0; i < 15; i++) {
+	APT[i][1] = 1;	// i층 1호
+	APT[0][i] = i;	// 0층 i호
+}
+ 
+//나머지는 아래로직대로 채울것이다.
+for(int i = 1; i < 15; i ++) {	// 1층부터 14층까지
+	for(int j = 2; j < 15; j++) {	// 2호부터 14호까지(1호는 1로 채워져있음)
+		APT[i][j] = APT[i][j - 1] + APT[i - 1][j];
+	}
+}
+------------------------------
+//완성코드를 보자(k,n을 입력 받을 때마다 APT[n][k]를 출력해주면된다)
+import java.util.Scanner;
+public class Main {
+	public static void main(String[] args) {
+		
+		Scanner in = new Scanner(System.in);
+		
+		// 아파트 생성 
+		int[][] APT = new int[15][15];
+ 
+		for(int i = 0; i < 15; i++) {
+			APT[i][1] = 1;	// i층 1호
+			APT[0][i] = i;	// 0층 i호
+		}
+ 
+ 
+		for(int i = 1; i < 15; i ++) {	// 1층부터 14층까지
+ 
+			for(int j = 2; j < 15; j++) {	// 2호부터 14호까지
+				APT[i][j] = APT[i][j - 1] + APT[i - 1][j];
+			}
+		}
+		
+		// 테스트 부분 (몇번 테스트 할건지)
+		int T = in.nextInt();
+		
+		for(int i = 0; i < T; i++) {
+			int k = in.nextInt(); //층
+			int n = in.nextInt(); //호
+			System.out.println(APT[k][n]); //몇층에 몇호에는 몇명인가
+		}
+	}
+}
+#)소스통합
+-------------------------------
+public class Test1 {
+ 
+	public static int[][] APT = new int[15][15];
+ 
+	public static void main(String[] args) throws IOException {
+ 
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		
+		make_APT();	// 아파트 만들기 
+		
+		int T = Integer.parseInt(br.readLine());
+ 
+		for (int i = 0; i < T; i++) {
+			int k = Integer.parseInt(br.readLine());
+			int n = Integer.parseInt(br.readLine());
+			sb.append(APT[k][n]).append('\n'); //이미 아래에서 만든 배열을 여기서는 그냥 출력한다고 생각하면된다.
+		}
+		System.out.println(sb);
+	}
+ 
+	
+	public static void make_APT() {
+		// 아파트 생성
+ 
+		for (int i = 0; i < 15; i++) {
+			APT[i][1] = 1; // i층 1호
+			APT[0][i] = i; // 0층 i호
+		}
+ 
+		for (int i = 1; i < 15; i++) { // 1층부터 14층까지
+ 
+			for (int j = 2; j < 15; j++) { // 2호부터 14호까지
+				APT[i][j] = APT[i][j - 1] + APT[i - 1][j];
+			}
+		}
+	}
+ 
+}
+//입력
+5 //5번테스트하겠다
+1 //(층)
+2 //(호) 여기까지 1번
+3 
+4 //여기까지 2번
+5 
+1 //여기까지 3번
+2
+3 //여기까지 4번
+4
+5 //여기까지 5번
+//결과
+3
+35
+1
+10
+126
+
+```
+
+#)BufferedReader, BufferedWriter는 버퍼를 사용하여 읽기와 쓰기를 하는 함수이다.
+```
+버퍼를 사용하지 않는 입력은, 키보드의 입력이 키를 누르는 즉시 바로 프로그램에 전달된다.
+반면 버퍼를 사용하는 입력은, 키보드의 입력이 있을 때마다 한 문자씩 버퍼로 전송한다. 
+버퍼가 가득 차거나 혹은 개행 문자가 나타나면 버퍼의 내용을 한 번에 프로그램에 전달한다.
+
+한번 버퍼를 거쳐 출력되는 것보다, 키보드의 입력을 받는 즉시 출력하는 것이 더 빠른 것이 아닌가 생각할수 있다.
+하드디스크는 속도가 느리다. 그리고 외부 장치(키보드, 모니터 등)와 데이터 입출력도 생각보다 시간이 오래 걸린다.
+그렇기 때문에 키보드의 입력이 있을 때마다 바로 이동시키는 것 보다는, 중간에 버퍼를 두어 한번에 묶어 보내는 것이 더 효율적이고 빠른 방법이다.
+
+쓰레기통을 비우는 일이라고 생각하면 이해가 쉽다. 
+쓰레기가 생길 때마다 하나하나 밖에 내다버리는 것보다, 집의 쓰레기통에 하나하나 모았다가, 
+꽉 차면 한번에 밖에 버리는게 훨씬 효율적인 것과 비슷한 개념이라고 생각하면 된다.
+
+```
+#)Scanner
+```
+BufferedReader를 보기전에 먼저 Scanner를 살펴보자
+대부분 Java를 처음배울때, Scanner를 통한 입출력을 먼저배우는데
+Scanner는 띄어쓰기와 개행문자를 경계로 하여 입력값을 인식한다. 그래서 가공할 필요없이 편리하다.
+
+가공할 필요가 없다는 뜻은, 가령 int형 변수를 입력받고자 하면, int x = scanner.nextInt()
+```
+
+#)BufferedReader
+```
+BufferedReader는 입력 받은 데이터가 String으로 고정되기 때문에 입력받은 데이터를 원하는 타입으로 가공하는 작업이필요하다.
+
+Scanner는 지원해주는 메소드가 많고, 사용하기 쉽기 때문에 많이 사용하지만, 버퍼 사이즈가 1024 char이기 때문에
+많은 입력을 필요로 할 경우에는 성능상 좋지 못한 결과를 불러온다.
+
+Scanner와 달리 BufferedReader는 개행문자만 경계로 인식하고 입력받은 데이터가 String으로 고정된다. 
+그렇기 때문에 따로 데이터를 가공해야하는 경우가 많다(형변환 및 split). 하지만 Scanner보다 속도가 빠르다!
+
+BufferedRead와 Scanner의 속도 차이를 잘 보여주는 예시가 있어 가져와 보았다.
+
+10,000,000개의 0~1023 범위의 정수를 한 줄씩 읽고, 
+입력으로 받은 정수의 합을 출력하는 프로그램을 각각 BufferedReader와 Scanner로 구현할 때의 수행시간이다.
+
+입력 방식	수행시간(초)
+java.util.Scanner	6.068
+java.io.BufferedReader	0.934
+
+그리고 버퍼 사이즈도 Scanner가 1024 char인데 비해, 
+BufferedReader는 8192 char(16,384byte) 이기 때문에 입력이 많을 때 BufferedReader가 유리하다.
+
+또한 BufferedReader는 동기화 되기 때문에 멀티 쓰레드 환경에서 안전하고, Scanner는 동기화가 되지 않기 때문에 멀티 쓰레드 환경에서 안전하지 않다.
+
+
+- BufferedReader 사용법
+BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // 선언
+String s = br.readLine();
+int i = Integer.parseInt(br.readLine());
+선언의 위의 사용법과 같이 하면된다.
+
+입력은 readLine();이라는 메소드를 사용한다. 
+String으로 리턴 값이 고정되어 있기 때문에, 다른 타입으로 입력을 받고자 한다면 반드시 형변환이 필요하다. 
+그리고, 예외처리를 반드시 필요로 한다. readLine()시 마다 try/catch문으로 감싸주어도 되고, 
+throws IOException 을 통한 예외처리를 해도 된다.(대부분의 경우에 후자를 사용한다.)
+
+- 데이터 가공
+BufferedReader를 통해 읽어온 데이터는 개행문자 단위(Line 단위)로 나누어진다. 
+만약 이를 공백 단위로 데이터를 가공하고자 하면 따로 작업을 해주어야 한다. 
+이때 사용하는 것이 StringTokenizer나 String.split() 함수이다.
+
+// StringTokenizer 
+BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+StringTokenizer st = new StringTokenizer(br.readLine());
+int N = Integer.parseInt(st.nextToken());
+int M = Integer.parseInt(st.nextToken());
+
+// String.split() 함수
+String arr[] = s.split(" ");
+StringTokenizer의 nextToken() 함수를 쓰면 readLine()을 통해 입력 받은 값을 공백 단위로 구분하여 순서대로 호출할 수 있다.
+
+String.split() 함수를 사용하면, 배열에 공백단위로 끊어 데이터를 저장하여 사용할 수 있다.
+```
+
+#)BufferedWriter
+```
+일반적으로 출력을 할때, System.out.println(""); 을 많이쓰는데
+적은 양의 출력에서는 편리하고, 그렇게 큰 성능 차이 없이 사용할 수 있다. 하지만 우리가 늘 고려해야하는 경우는 양이 많을 경우이다. 
+많은 양의 출력을 할 때는, 입력과 동일하게 버퍼를 사용하는 것이 좋다.
+
+- BufferedWriter 사용법
+BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out)); // 선언
+String str = "abcdef"; // 출력할 문자열
+bw.write(s); // 출력
+bw.newLine(); // 줄바꿈
+bw.flush(); // 남아있는 데이터 모두 출력
+bw.close();
+BufferedWriter는 System.out.println(""); 처럼 출력과 개행을 동시해 해주지 않기 때문에, 개행을 위해선
+
+따로 newLine(); 혹은 bw.write("\n");을 사용해야한다. 
+그리고 BufferedWriter의 경우 버퍼를 잡아 놓았기 때문에 반드시 사용한 후에, 
+flush()/ close()를 해주어야 한다. close()를 하게되면, 출력 스트림을 아예 닫아버리기 때문에 한번 출력후, 
+다른 것도 출력하고자 한다면 flush()를 사용하면 된다.
+```
+
+#)StringBuilder
+```
+알고리즘 연습 문제를 풀다보면, BufferdReader/BufferedWriter만큼 StringBuilder도 많이 사용하는 것을 볼 수 있다.
+그래서 이 StringBuiler는 무엇인지, String과 StringBuffer와의 차이점은 무엇인지 알아보자.
+
+먼저, String과 StringBuffer/StringBuilder의 차이는
+
+String은 불변속성을 갖고, StringBuffer/StringBuilder는 그렇지않다.
+
+
+String이 불변성을 갖는 다는 의미는, concat이나 +  연산을 통해 값을 변경하면, 원래 기존의 String 메모리에서 값이 바뀌는 것이 아니라, 
+기존의 String에 들어있던 값을 버리고 새로운 값을 재할당하게 된다. 처음에 할당한 String의 메모리 영역은 Garbage로 남아있다가 GarbageCollection)에 의해 없어진다.
+
+//아래처럼 값을바꾸는게 메모리 재할당이 되는 것이다.
+String a = "!@#$^&*()_+#'-=";
+System.out.println(a.hashCode()); //1481914819
+a="1234";	
+System.out.println(a.hashCode()); //1509442
+
+String은 불변성을 가지기 때문에 변하지 않는 문자열을 자주 읽어들이는 경우 사용하면 유리하다. 
+하지만 문자열 추가, 삭제, 수정 등의 연산이 자주 일어나는 경우에 String을 사용하면, 
+힙 메모리에 많은 Garbage가 생성되고, 이는 힙 메모리 부족으로 이어져 프로그램의 성능에 치명적 영향을 미칠 수 있다.
+
+이를 해결하기 위해 나온 것이 StringBuffer/StringBuilder이다.
+
+StringBuffer/StringBuilder는 가변성을 가지기 때문에, 
+.append() , .delete()등 동일 객체 내에서 문자열을 변경하는 것이 가능하다. 
+그렇게 때문에 문자열의 추가, 수정, 삭제가 빈번하게 발생할 경우 사용해야 한다.
+
+아래의 사진은 문자열을 합치는 연산을 할 때의, 각각의 수행 시간을 보여주는 표이다.
+String의 concat을 사용하면, 나머지 StringBuffer와 StringBuilder의 append() 보다 속도가 현저히 느린 것을 볼 수 있다.
+
+
+- StringBuffer vs StringBuilder
+StringBuffer : 동기화를 지원하여 멀티 쓰레드 환경에서 안전하다.
+StringBuilder : 동기화를 지원하지 않아 멀티 쓰레드 환경에 사용하기 적합하지 않다. 대신, 동기화를 지원하지 않기에 단일쓰레드에서는 StringBuffer보다 성능이 뛰어나다.
+
+정리하자면, StringBuilder는 문자열의 연산이 자주 일어나는 단일 쓰레드 환경에서 사용하는 것이 유리하다.
+ 
+- StringBuilder 사용법
+StringBuilder sb = new StringBuilder();
+sb.append("a");
+sb.append("b").append(" ");
+sb.append("c").append("\n");
+```
+```
+//스레드란 - 하나의 프로세스안에서 독립적으로 실행되는 '작은 실행 단위'를 의미한다.
+게임할 때 움직이면서 총을 쏘고 싶다. 한번 움직이고 총을 쏘면 효율이 없다. 
+총을 쏘면서 움직이도록 구현하기 위해 멀티 스레드를 이용하여 많은 양을 한번에 처리하도록 한다.
+
+//스레드와 프로세스의 차이점
+프로세스는 운영체제로부터 자원을 할당받는 작업 단위이다. 
+애플리케이션이 하나의 프로세스가 되고, 그 안에서 여러 개의 스레드가 할당 받은 자원을 이용하여 실행 단위로 존재할 수 있다. 
+즉 스레드는 하나의 프로세스 안에서 여러 실행의 흐름이라고 생각하면 된다.
+
+//이게 멀티스레드
+------process-----------
+code	Data	Heap   |
+Thread1--	  --Thread2|
+ Stack	|	  |	 Stack |
+---------     ---------|
+-----------------------|
+
+Thread.start()
+- 스레드를 시작한다. 시작하면 run()이 수행된다.
+
+Thread.run()
+- 스레드 작업을 정의한다.
+
+Thread.sleep(long millis)
+- 현재스레드를 주어진 시간(밀리초)만큼 일시 중지한다.
+
+public class ThreadSample extends Thread {
+
+    @Override
+    public void run() { //스레드 작업을 정의(run)
+        System.out.println("스레드를 시작합니다.");
+    }
+
+    /**
+     * Thread의 메인
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        ThreadSample sample = new ThreadSample();
+        // 스레드를 시작합니다.
+        sample.start();
+    }
+}
+
+public class ThreadSample extends Thread {
+
+    int seq;
+
+    /**
+     * 시퀀스를 정의 하는 생성자 구성
+     *
+     * @param seq
+     */
+    public ThreadSample(int seq) {
+        this.seq = seq;
+    }
+	
+    @Override
+    public void run() {
+        System.out.println(seq + "번째 스레드를 시작합니다.");
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println(seq + "번째 스레드를 종료합니다.");
+
+    }
+
+    /**
+     * Thread의 메인
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        for (int i = 1; i <= 10; i++) {
+            ThreadSample sample = new ThreadSample(i);
+            // 스레드를 시작합니다.
+            sample.start();
+        }
+        System.out.println("메인 메서드가 종료되었습니다.");
+    }
+}
+
+1. 스레드는 반복문의 순차적으로 시작되지 않았습니다.
+2. 스레드의 종료는 시작한 순서대로 종료하지 않았습니다.
+3. 메인 메서드가 제일 먼저 종료가 되었습니다.
+
+💡 해당 결과로 멀티 스레드는 순차적으로 시작되지 않고 순차적으로 종료되지 않는 점을 알게 되었습니다.
+```
+```
+멀티쓰레딩은 하나의 프로세스 내에서 여러 쓰레드가 동시에 작업을 수행하는 것이 가능하다. 
+실제로는 한 개의 CPU가 한 번에 단 한가지 작업만 수행할 수 있기 때문에 아주 짧은 시간 동안 여러 작업을 번갈아 가며 수행함으로써 
+동시에 여러 작업이 수행되는 것처럼 보이게 하는 것이다. 
+
+ex) 메신저의 경우 채팅하면서 파일을 다운로드 받거나 음성대화를 나눌 수 있는 것이 가능한 이유가 바로 멀티쓰레드로 작성되어 있기 때문이다.
+
+//쓰레드를 구현하는 방법은 두가지가 있다.
+1. Thread클래스를 상속받거나
+2. Runnable 인터페이스를 구현하거나
+
+Runnable 사용을 권장한다. (Thread클래스를 상속받으면 다른 클래스를 상속받지 못하기 때문에)
+Runnable을 구현하는 방법은 재사용성이 높고 코드의 일관성을 유지 할 수 있다는 장점이 있기 때문에 보다 객체지향적인 방법이라 할 수 있다.
+
+1. Thread클래스
+public class ThreadExam01 {
+   public static void main(String[] args){
+       MyThread01 m1 = new MyThread01("*");
+       MyThread01 m2 = new MyThread01("+");
+       MyThread01 m3 = new MyThread01("#");
+       m1.start();
+       m2.start();
+       m3.start();
+       System.out.println("main메소드 종료.");
+  }
+}
+​
+class MyThread01 extends Thread{
+   private String str;
+   public MyThread01(String str){
+       this.str = str;
+  }
+​
+   @Override
+   public void run() {
+       for(int i = 0; i < 5; i++)
+           System.out.print(str);
+  }
+}
+
+2. Runnable 인터페이스
+public class ThreadExam02 {
+   public static void main(String[] args){
+       Runnable r1 = new MyThread02("*"); //여기서이미 String str=*을 갖고있다.
+       Runnable r2 = new MyThread02("%");
+       Runnable r3 = new MyThread02("#");
+       
+       //Thread t1 = new Thread(new MyThread02("*"));
+       Thread t1 = new Thread(r1);
+       Thread t2 = new Thread(r2);
+       Thread t3 = new Thread(r3);
+       t1.start();
+       t2.start();
+       t3.start();
+       System.out.println("main메소드 종료.");
+  }
+}
+​
+class MyThread02 implements Runnable{
+   private String str;
+   public MyThread02(String str){
+       this.str = str;
+  }
+​
+   @Override
+   public void run() {
+       for(int i = 0; i < 5; i++)
+           System.out.print(str);
+  }
+}
+
+[실행결과]
+*****#####%%%%%main메소드 종료.(순차적으로 나온거는 컴터가 빨라서 이렇게 나올수도있다)
+
+
+일단 둘 다 공통적으로 사용하기 위해서는
+run() 메소드를 상속받아서 오버라이딩 해줘야한다. 
+쓰레드 작업을 해줄 곳에 start()를 호출해준다.  
+start()를 호출하면 thread를 실행 준비 -> run()을 실행한다.(템플릿 메서드 패턴 적용, 오버라이딩한 메소드 사용)
+
+
+- run()에 Thread.sleep() 위코드를 수정하여 사용해서 지연
+   @Override
+   public void run() {
+       for(int i = 0; i < 5; i++){
+           System.out.print(str);
+           try { //sleep을 이용
+               Thread.sleep((long) (Math.random() * 1000));
+          }catch(InterruptedException ie){}
+      }
+  }
+[실행결과]
+*#main메소드 종료.
+%**#%*%*%#%##
+
+
+
+```
