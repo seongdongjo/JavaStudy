@@ -1505,5 +1505,64 @@ start()를 호출하면 thread를 실행 준비 -> run()을 실행한다.(템플
 %**#%*%*%#%##
 
 
+이번에는 run()메소드에 Thread.sleep()을 사용해서 지연을 시켜보았다. 
+여러 개의 쓰레드로 작업하는 경우에는 짧은 시간동안 쓰레드들을 스케줄에 따라서 번갈아 가면서 작업을 수행해서 동시에 두 작업이 처리되는 것과 같이 느끼게 해준다.
+그러나 이 전에 출력했을 때의 결과는  *****#####+++++main메소드 종료. 
+이렇게 순서대로 출력이 되었다. 이유는 컴퓨터의 속도가 빨라서 그런건데 Thread.sleep()을 사용해서 지연 시켜주면 번갈아가면서 출력되는 것을 확인 할 수가 있다.
+```
+```
+#)Runnable 인터페이스를 구현한 경우 인스턴스 생성방법이 다르다.
+Runnable r1 = new MyThread02("*");
+Thread t1 = new Thread(r1); //이렇게 위에서 만든 쓰레드를 넣어야한다.
+t1.start();
+
+//또는 이렇게 쓴다.
+Thread t1 = new Thread(new MyThread02("*")); //이렇게 넣어준다.
+t1.start();
+
+#)람다표현식은 자바8부터 도입이 됐는데 Runnable인터페이스처럼 인터페이스에 메소드가 하나있을때 쓴다.
+public class ThreadExam04 {
+   public static void main(String[] args) {
+       // 이름없는 클래스. new A(){ ... }
+       // A를 상속받거나, 구현하는 이름없는 객체를 생성한다.
+       Runnable r = new Runnable(){
+           @Override
+           public void run() {
+               for(int i = 0; i < 100; i++){
+                   System.out.println("*");
+              }
+          }
+      };
+       Thread t1 = new Thread(r);
+       t1.start();
+  }
+}
+//또는
+public class ThreadExam04 {
+   public static void main(String[] args) {
+       // 이름없는 클래스. new A(){ ... }
+       // A를 상속받거나, 구현하는 이름없는 객체를 생성한다.
+       Thread t1 = new Thread(new Runnable(){
+           @Override
+           public void run() {
+               for(int i = 0; i < 100; i++){
+                   System.out.println("*");
+              }
+          }
+      });
+       t1.start();
+  }
+}
+
+//또는
+public class ThreadExam04 {
+   public static void main(String[] args) {
+       Thread t1 = new Thread(() -> { //쓰레드 선언과 동시에 함수내용작성
+           for (int i = 0; i < 100; i++)
+               System.out.println("*");
+      });
+       t1.start();
+  }
+}
 
 ```
