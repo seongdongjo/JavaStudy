@@ -112,3 +112,40 @@ people 테이블의 ID가 6인 데이터도 university와 매칭되는게 없지
 > select * from people AS p RIGHT JOIN university u ON p.ID = u.UID;
 ```
 <img src="https://raw.githubusercontent.com/seongdongjo/JavaStudy/main/DB%EC%BF%BC%EB%A6%AC%EC%9D%B4%EB%AF%B8%EC%A7%80/9.PNG" width="650" height="300" /><br><br>
+
+```
+#)unionall 사용  -> AS 로 컬럼이름 다 만들어놓고 UNION ALL을 통해 한줄씩 row를 붙여나간다 생각, 컬럼갯수가 일치해야함!!!
+
+SELECT JIJUM, ORDER_NO, CNTR_NO, 
+    IFNULL(CHARGE_AMT,0) AS PICKUP_CHARGE,  
+	IFNULL(CLAIM_DIVI,'N') AS PICKUP_TAXYN,
+    0 AS STORAGE_CHARGE, 'N' AS STORAGE_TAXYN,   
+	0 AS CANCEL_CHARGE,  'N' AS CANCEL_TAXYN,
+    0 AS WAITING_CHARGE, 'N' AS WAITING_TAXYN,   
+    0 AS LOADING_CHARGE, 'N' AS LOADING_TAXYN,
+    0 AS SHUTTLE_CHARGE, 'N' AS SHUTTLE_TAXYN,   
+    0 AS W_SURCHARGE,    'N' AS W_SUR_TAXYN,
+    0 AS C_SURCHARGE,    'N' AS C_SUR_TAXYN,    
+    0 AS TANK_SURCHARGE, 'N' AS TANK_SUR_TAXYN,
+    0 AS H_SURCHARGE,    'N' AS H_SUR_TAXYN,     
+    0 AS REWORK_CHARGE,  'N' AS REWORK_TAXYN,
+    0 AS EU_CHARGE,      'N' AS EU_TAXYN,       
+    0 AS CC_CHARGE,      'N' AS CC_TAXYN,
+    0 AS OTHER_CHARGE,   'N' AS OTHER_TAXYN
+    FROM TRORDA
+    WHERE JIJUM = '1'
+    AND ORDER_NO = '120240523O0004'
+    AND CHARGE_CODE = '01'  /* 선픽업비 */
+    UNION ALL
+        SELECT JIJUM, ORDER_NO, CNTR_NO,  0, 'N',  
+        IFNULL(CHARGE_AMT,0) AS STORAGE_CHARGE, IFNULL(CLAIM_DIVI,'N') AS STORAGE_TAXYN,
+        0, 'N',  0, 'N',  0, 'N',  0, 'N',  0, 'N',  0, 'N',  0, 'N',  0, 'N',  0, 'N',  0, 'N',  0, 'N',  0, 'N'
+        FROM TRORDA
+        WHERE JIJUM = '1'
+        AND ORDER_NO = '120240523O0004'
+        AND CHARGE_CODE = '02'  /* 보관료 */
+
+        //밑에 캔슬비 등등 더 있는데 생략했다.
+```
+<img src="https://raw.githubusercontent.com/seongdongjo/JavaStudy/main/DB%EC%BF%BC%EB%A6%AC%EC%9D%B4%EB%AF%B8%EC%A7%80/10.PNG" width="650" height="300" /><br><br>
+
