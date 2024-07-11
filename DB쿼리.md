@@ -149,3 +149,8 @@ SELECT JIJUM, ORDER_NO, CNTR_NO,
 ```
 <img src="https://raw.githubusercontent.com/seongdongjo/JavaStudy/main/DB%EC%BF%BC%EB%A6%AC%EC%9D%B4%EB%AF%B8%EC%A7%80/10.PNG" width="650" height="300" /><br><br>
 
+```
+SELECT TRIM(BOTH FROM ' 2023.11.30(2023.11.30) ') FROM DUAL //좌우 공백제거
+
+
+```
