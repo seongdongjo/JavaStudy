@@ -114,6 +114,7 @@ people 테이블의 ID가 6인 데이터도 university와 매칭되는게 없지
 <img src="https://raw.githubusercontent.com/seongdongjo/JavaStudy/main/DB%EC%BF%BC%EB%A6%AC%EC%9D%B4%EB%AF%B8%EC%A7%80/9.PNG" width="650" height="300" /><br><br>
 
 ```
+대략 이런형태이다만 알고가면됨
 #)unionall 사용  -> AS 로 컬럼이름 다 만들어놓고 UNION ALL을 통해 한줄씩 row를 붙여나간다 생각, 컬럼갯수가 일치해야함!!!
 
 SELECT JIJUM, ORDER_NO, CNTR_NO, 
@@ -147,10 +148,13 @@ SELECT JIJUM, ORDER_NO, CNTR_NO,
 
         //밑에 캔슬비 등등 더 있는데 생략했다.
 ```
-<img src="https://raw.githubusercontent.com/seongdongjo/JavaStudy/main/DB%EC%BF%BC%EB%A6%AC%EC%9D%B4%EB%AF%B8%EC%A7%80/10.PNG" width="650" height="300" /><br><br>
+<img src="https://raw.githubusercontent.com/seongdongjo/JavaStudy/main/DB%EC%BF%BC%EB%A6%AC%EC%9D%B4%EB%AF%B8%EC%A7%80/10.PNG" width="800" height="100" /><br><br>
 
 ```
 SELECT TRIM(BOTH FROM ' 2023.11.30(2023.11.30) ') FROM DUAL //좌우 공백제거
+```
+```
+#)oracle join
 
 
 ```
